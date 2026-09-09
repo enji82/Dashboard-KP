@@ -502,10 +502,15 @@ body {
     <div class="row g-3 mb-4">
       <div class="col-12">
         <div class="dashboard-card">
-          <div class="card-title-custom justify-content-between flex-wrap gap-2">
-            <div class="d-flex align-items-center gap-2">
-              <i class="bi bi-bar-chart-fill text-primary fs-5" id="iconTitleBulan"></i>
-              <span class="fw-bold fs-6" id="textTitleBulan">Jumlah Ajuan per Bulan</span>
+          <div class="card-title-custom justify-content-between flex-wrap gap-2 align-items-start mb-3">
+            <div>
+              <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-bar-chart-fill text-primary fs-5" id="iconTitleBulan"></i>
+                <span class="fw-bold fs-6" id="textTitleBulan">Jumlah Ajuan per Bulan</span>
+              </div>
+              <div class="mt-1 ps-4">
+                <span class="badge bg-light text-primary border" id="badgeChartBulanPeriode">Semua Periode</span>
+              </div>
             </div>
             <div class="d-flex align-items-center gap-2 flex-wrap">
               <!-- Toggle Button Tampilan Grafik / Tabel -->
@@ -517,7 +522,10 @@ body {
                   <i class="bi bi-table me-1"></i>Tabel
                 </button>
               </div>
-              <span class="badge bg-light text-primary border" id="badgeChartBulanPeriode">Semua Periode</span>
+              <!-- Tombol Ekspor Excel -->
+              <button class="btn btn-outline-success btn-sm fw-semibold shadow-sm" id="btnExportBulanXLSX" onclick="exportBulanXLSX()">
+                <i class="bi bi-file-earmark-excel me-1"></i>Ekspor Excel
+              </button>
             </div>
           </div>
 
@@ -646,6 +654,8 @@ var allRecords = [];
 var lastFilteredRecords = [];
 var lastSelectedBulan = '';
 var currentBulanView = 'chart'; // 'chart' | 'table'
+var currentBulanRows = [];
+var currentBulanTotals = null;
 var chartGolonganInstance = null;
 var chartStatusBarisPenuhInstance = null;
 
@@ -1272,6 +1282,7 @@ function renderTableBulan(records, selectedBulan) {
   var sumApprove = 0, sumRevisiDikirim = 0, sumRevisi = 0;
   var sumBelumDicek = 0, sumDitolak = 0, sumSisulka = 0, sumTotal = 0;
 
+  currentBulanRows = [];
   for (var k = 0; k < activeBulanList.length; k++) {
     var bKey = activeBulanList[k];
     var cApprove = mapApprove[bKey] || 0;
@@ -1290,6 +1301,17 @@ function renderTableBulan(records, selectedBulan) {
     sumSisulka += cSisulka;
     sumTotal += cTotal;
 
+    currentBulanRows.push({
+      bulan: bKey,
+      approve: cApprove,
+      revisiDikirim: cRevisiDikirim,
+      revisi: cRevisi,
+      belumDicek: cBelumDicek,
+      ditolak: cDitolak,
+      sisulka: cSisulka,
+      total: cTotal
+    });
+
     tbodyHtml += '<tr>';
     tbodyHtml += '<td class="text-start fw-semibold freeze-col"><i class="bi bi-calendar-event text-secondary me-1"></i>' + escapeHtml(bKey) + '</td>';
     tbodyHtml += '<td>' + formatBulanCell(cApprove, 'text-success fw-bold') + '</td>';
@@ -1303,6 +1325,16 @@ function renderTableBulan(records, selectedBulan) {
   }
 
   tbody.innerHTML = tbodyHtml;
+
+  currentBulanTotals = {
+    approve: sumApprove,
+    revisiDikirim: sumRevisiDikirim,
+    revisi: sumRevisi,
+    belumDicek: sumBelumDicek,
+    ditolak: sumDitolak,
+    sisulka: sumSisulka,
+    total: sumTotal
+  };
 
   var tfootHtml = '<tr>';
   tfootHtml += '<td class="text-start freeze-col">Total Ajuan</td>';
@@ -1366,6 +1398,170 @@ function switchBulanView(view) {
       chartStatusBarisPenuhInstance.resize();
     }
   }
+}
+
+// 2c. Ekspor Excel untuk Card Jumlah Ajuan per Bulan (2 Sheet: Tabel & Grafik)
+function exportBulanXLSX() {
+  if (!currentBulanRows || currentBulanRows.length === 0) {
+    alert('Tidak ada data ajuan per bulan untuk diekspor!');
+    return;
+  }
+
+  if (typeof XLSX === 'undefined') {
+    alert('Library Excel (SheetJS) belum siap. Silakan muat ulang halaman.');
+    return;
+  }
+
+  var selTahun = document.getElementById('selectTahun').value || 'Semua Tahun';
+  var selBulan = document.getElementById('selectBulan').value || 'Semua Bulan';
+  var selJenjang = document.getElementById('selectJenjang').value || 'Semua Jenjang';
+  var selKec = document.getElementById('selectKecamatan').value || 'Semua Kecamatan';
+  var selJenis = (document.getElementById('selectJenisKP') && document.getElementById('selectJenisKP').value) ? document.getElementById('selectJenisKP').value : 'Semua Jenis';
+
+  var wb = XLSX.utils.book_new();
+
+  // ==========================================
+  // SHEET 1: Tabel (Rincian Ajuan per Bulan)
+  // ==========================================
+  var aoaTabel = [];
+  aoaTabel.push(['REKAPITULASI AJUAN KENAIKAN PANGKAT PNS PER BULAN']);
+  aoaTabel.push(['Dinas Pendidikan dan Kebudayaan Kabupaten Magelang']);
+  aoaTabel.push(['Filter: Periode ' + selBulan + ' ' + selTahun + ' | Jenjang: ' + selJenjang + ' | Jenis KP: ' + selJenis + ' | Wilayah: ' + selKec]);
+  aoaTabel.push([]); // baris kosong
+
+  // Header 2-Tier
+  aoaTabel.push([
+    'Bulan Ajuan',
+    'Status Ajuan', '', '', '', '', '',
+    'Total Ajuan'
+  ]);
+  aoaTabel.push([
+    '',
+    'Approve', 'Revisi Dikirim', 'Revisi', 'Belum Dicek', 'Ditolak', 'Sisulka',
+    ''
+  ]);
+
+  // Data baris per bulan
+  for (var i = 0; i < currentBulanRows.length; i++) {
+    var b = currentBulanRows[i];
+    aoaTabel.push([
+      b.bulan,
+      b.approve,
+      b.revisiDikirim,
+      b.revisi,
+      b.belumDicek,
+      b.ditolak,
+      b.sisulka,
+      b.total
+    ]);
+  }
+
+  // Baris Total Kumulatif
+  if (currentBulanTotals) {
+    aoaTabel.push([
+      'Total Ajuan',
+      currentBulanTotals.approve,
+      currentBulanTotals.revisiDikirim,
+      currentBulanTotals.revisi,
+      currentBulanTotals.belumDicek,
+      currentBulanTotals.ditolak,
+      currentBulanTotals.sisulka,
+      currentBulanTotals.total
+    ]);
+  }
+
+  var wsTabel = XLSX.utils.aoa_to_sheet(aoaTabel);
+  wsTabel['!merges'] = [
+    { s: { r: 0, c: 0 }, e: { r: 0, c: 7 } },
+    { s: { r: 1, c: 0 }, e: { r: 1, c: 7 } },
+    { s: { r: 2, c: 0 }, e: { r: 2, c: 7 } },
+    { s: { r: 4, c: 0 }, e: { r: 5, c: 0 } },
+    { s: { r: 4, c: 1 }, e: { r: 4, c: 6 } },
+    { s: { r: 4, c: 7 }, e: { r: 5, c: 7 } }
+  ];
+  wsTabel['!cols'] = [
+    { wch: 18 }, // Bulan Ajuan
+    { wch: 12 }, // Approve
+    { wch: 15 }, // Revisi Dikirim
+    { wch: 12 }, // Revisi
+    { wch: 14 }, // Belum Dicek
+    { wch: 12 }, // Ditolak
+    { wch: 12 }, // Sisulka
+    { wch: 15 }  // Total Ajuan
+  ];
+  XLSX.utils.book_append_sheet(wb, wsTabel, 'Tabel');
+
+  // ==========================================
+  // SHEET 2: Grafik (Tabel Sumber Data Grafik & Distribusi Persentase)
+  // ==========================================
+  var aoaGrafik = [];
+  aoaGrafik.push(['DATA DISTRIBUSI & SUMBER GRAFIK AJUAN PER BULAN']);
+  aoaGrafik.push(['Dinas Pendidikan dan Kebudayaan Kabupaten Magelang']);
+  aoaGrafik.push(['Periode: ' + selBulan + ' ' + selTahun]);
+  aoaGrafik.push([]); // baris kosong
+
+  // Bagian A: Data Bulanan yang Siap Di-Chart di Excel
+  aoaGrafik.push(['A. DATA DERET WAKTU (SUMBER GRAFIK BATANG)']);
+  aoaGrafik.push(['Bulan', 'Approve', 'Revisi Dikirim', 'Revisi', 'Belum Dicek', 'Ditolak', 'Sisulka', 'Total']);
+  for (var j = 0; j < currentBulanRows.length; j++) {
+    var bg = currentBulanRows[j];
+    aoaGrafik.push([
+      bg.bulan,
+      bg.approve,
+      bg.revisiDikirim,
+      bg.revisi,
+      bg.belumDicek,
+      bg.ditolak,
+      bg.sisulka,
+      bg.total
+    ]);
+  }
+
+  aoaGrafik.push([]); // baris kosong
+
+  // Bagian B: Ringkasan Distribusi Status Keseluruhan
+  aoaGrafik.push(['B. DISTRIBUSI & PERSENTASE STATUS AJUAN']);
+  aoaGrafik.push(['Status Ajuan', 'Jumlah Berkas', 'Persentase (%)']);
+  var totAll = (currentBulanTotals && currentBulanTotals.total > 0) ? currentBulanTotals.total : 0;
+  var hitungPct = function(n) {
+    if (!totAll || totAll === 0) return '0.0%';
+    return ((n / totAll) * 100).toFixed(1) + '%';
+  };
+
+  if (currentBulanTotals) {
+    aoaGrafik.push(['Approve', currentBulanTotals.approve, hitungPct(currentBulanTotals.approve)]);
+    aoaGrafik.push(['Revisi Dikirim', currentBulanTotals.revisiDikirim, hitungPct(currentBulanTotals.revisiDikirim)]);
+    aoaGrafik.push(['Revisi', currentBulanTotals.revisi, hitungPct(currentBulanTotals.revisi)]);
+    aoaGrafik.push(['Belum Dicek', currentBulanTotals.belumDicek, hitungPct(currentBulanTotals.belumDicek)]);
+    aoaGrafik.push(['Ditolak', currentBulanTotals.ditolak, hitungPct(currentBulanTotals.ditolak)]);
+    aoaGrafik.push(['Sisulka', currentBulanTotals.sisulka, hitungPct(currentBulanTotals.sisulka)]);
+    aoaGrafik.push(['TOTAL KESELURUHAN', totAll, '100.0%']);
+  }
+
+  var wsGrafik = XLSX.utils.aoa_to_sheet(aoaGrafik);
+  wsGrafik['!merges'] = [
+    { s: { r: 0, c: 0 }, e: { r: 0, c: 7 } },
+    { s: { r: 1, c: 0 }, e: { r: 1, c: 7 } },
+    { s: { r: 2, c: 0 }, e: { r: 2, c: 7 } }
+  ];
+  wsGrafik['!cols'] = [
+    { wch: 22 },
+    { wch: 14 },
+    { wch: 15 },
+    { wch: 12 },
+    { wch: 14 },
+    { wch: 12 },
+    { wch: 12 },
+    { wch: 14 }
+  ];
+  XLSX.utils.book_append_sheet(wb, wsGrafik, 'Grafik');
+
+  // Unduh File Excel
+  var cleanTahun = String(selTahun).replace(/\s+/g, '_');
+  var cleanBulan = String(selBulan).replace(/\s+/g, '_');
+  var fileName = 'Ajuan_Bulanan_KP_' + cleanBulan + '_' + cleanTahun + '.xlsx';
+
+  XLSX.writeFile(wb, fileName);
 }
 
 // 3. Grafik Ajuan Kenaikan Pangkat (Golongan) - Identik dengan Grafik Jumlah Usulan per Bulan
