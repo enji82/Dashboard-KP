@@ -3,6 +3,20 @@
  * Frontend Logic Dashboard Kenaikan Pangkat (KP) Disdikbud Kab. Magelang
  */
 
+// Tangkap global error di console browser
+window.onerror = function(message, source, lineno, colno, error) {
+  console.error("Dashboard Global Error:", message, "Line:", lineno, "Col:", colno, error);
+  const overlay = document.getElementById('loadingOverlay');
+  if (overlay) {
+    overlay.innerHTML = `
+      <div class="text-danger mb-2"><i class="bi bi-exclamation-triangle-fill fs-1"></i></div>
+      <div class="fw-bold text-danger">Terjadi Kesalahan JavaScript</div>
+      <div class="small text-muted mt-1" style="max-width: 500px; text-align: center;">${message} (Baris: ${lineno})</div>
+      <button class="btn btn-sm btn-outline-primary mt-3" onclick="location.reload()">Muat Ulang Halaman</button>
+    `;
+  }
+};
+
 let allRecords = [];
 let filteredRecords = [];
 let chartPangkatInstance = null;
@@ -424,7 +438,7 @@ function showDetailModal(recordId) {
   document.getElementById('modalNIP').innerText = nipClean;
   document.getElementById('modalUnitKerja').innerText = `${record.unit_kerja} (${record.kec}) - ${record.jenjang}`;
   document.getElementById('modalJabatan').innerText = record.jenis_jabatan;
-  document.getElementById('modalPangkat').innerText = `${record.pangkat_saat_ini} → ${record.ajuan_pangkat}`;
+  document.getElementById('modalPangkat').innerText = `${record.pangkat_saat_ini} -> ${record.ajuan_pangkat}`;
   document.getElementById('modalPeriode').innerText = `${record.bulan_ajuan} ${record.tahun_ajuan}`;
   document.getElementById('modalPemeriksa').innerText = record.pemeriksa || '-';
   document.getElementById('modalCatatan').innerText = record.catatan || 'Tidak ada catatan khusus dari pemeriksa.';
