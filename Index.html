@@ -69,16 +69,25 @@ body {
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.04);
 }
 
-/* KPI Cards */
+/* KPI Cards Dinamis & Responsif */
 .kpi-card {
   background: var(--card-bg);
-  border-radius: 16px;
-  padding: 1.25rem;
+  border-radius: clamp(10px, 1.8vw, 16px);
+  padding: clamp(0.6rem, 1.4vw, 1.15rem);
   border: 1px solid var(--border-color);
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.04);
   position: relative;
   overflow: hidden;
   height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px -2px rgba(0, 0, 0, 0.08);
 }
 
 .kpi-card::before {
@@ -86,7 +95,7 @@ body {
   position: absolute;
   top: 0;
   left: 0;
-  width: 5px;
+  width: clamp(3px, 0.5vw, 5px);
   height: 100%;
 }
 
@@ -98,15 +107,42 @@ body {
 .kpi-ditolak::before { background: #ef4444; }
 .kpi-sisulka::before { background: #8b5cf6; }
 
+.kpi-label {
+  font-size: clamp(0.68rem, 1.1vw, 0.825rem);
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+.kpi-val {
+  font-size: clamp(1.15rem, 2.3vw, 1.75rem);
+  font-weight: 800;
+  line-height: 1.2;
+  margin-top: clamp(0.15rem, 0.4vw, 0.35rem);
+  margin-bottom: 0;
+}
+
+.kpi-sub {
+  font-size: clamp(0.62rem, 0.9vw, 0.75rem);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: clamp(0.1rem, 0.3vw, 0.25rem);
+  line-height: 1.2;
+}
+
 .kpi-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
+  width: clamp(32px, 3.2vw, 44px);
+  height: clamp(32px, 3.2vw, 44px);
+  border-radius: clamp(8px, 1vw, 12px);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.3rem;
+  font-size: clamp(0.95rem, 1.5vw, 1.3rem);
   flex-shrink: 0;
+  margin-left: 0.35rem;
 }
 
 .icon-total { background: #eff6ff; color: #2563eb; }
@@ -116,6 +152,33 @@ body {
 .icon-belumdicek { background: #f1f5f9; color: #475569; }
 .icon-ditolak { background: #fef2f2; color: #dc2626; }
 .icon-sisulka { background: #f5f3ff; color: #7c3aed; }
+
+/* Responsif breakpoint untuk mobile & tablet */
+@media (max-width: 768px) {
+  .kpi-card {
+    padding: 0.65rem 0.75rem;
+  }
+  .kpi-icon {
+    width: 34px;
+    height: 34px;
+    font-size: 1.05rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .kpi-card {
+    padding: 0.55rem 0.65rem;
+  }
+  .kpi-val {
+    font-size: 1.25rem;
+  }
+  .kpi-icon {
+    width: 30px;
+    height: 30px;
+    font-size: 0.95rem;
+    border-radius: 8px;
+  }
+}
 
 /* Dashboard Cards */
 .dashboard-card {
@@ -269,16 +332,16 @@ body {
       </div>
     </div>
 
-    <!-- Kartu KPI Ringkasan: Total Usulan & 6 Kriteria Status Kolom AE -->
+    <!-- Kartu KPI Ringkasan: Total Usulan & 6 Kriteria Status Kolom AE (Dinamis & Responsif) -->
     <div class="row g-2 mb-4">
       <!-- Total Usulan -->
-      <div class="col-12 col-sm-6 col-md-4 col-xl">
+      <div class="col-12 col-sm-6 col-md-3 col-xl">
         <div class="kpi-card kpi-total">
           <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <div class="text-muted small fw-semibold">Total Usulan</div>
-              <h3 class="h3 fw-bold mb-0 mt-1" id="kpiTotal">0</h3>
-              <div class="small text-muted" style="font-size: 0.75rem;" id="kpiSubtextTotal">Semua Kriteria</div>
+            <div class="overflow-hidden">
+              <div class="kpi-label text-muted">Total Usulan</div>
+              <h3 class="kpi-val fw-bold" id="kpiTotal">0</h3>
+              <div class="kpi-sub text-muted" id="kpiSubtextTotal">Semua Kriteria</div>
             </div>
             <div class="kpi-icon icon-total"><i class="bi bi-files"></i></div>
           </div>
@@ -286,13 +349,13 @@ body {
       </div>
 
       <!-- Approve -->
-      <div class="col-6 col-sm-6 col-md-4 col-xl">
+      <div class="col-6 col-sm-4 col-md-3 col-xl">
         <div class="kpi-card kpi-approve">
           <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <div class="text-success small fw-bold">Approve</div>
-              <h3 class="h3 fw-bold mb-0 mt-1 text-success" id="kpiApprove">0</h3>
-              <div class="small text-success fw-semibold" style="font-size: 0.75rem;" id="kpiSubtextApprove">0%</div>
+            <div class="overflow-hidden">
+              <div class="kpi-label text-success">Approve</div>
+              <h3 class="kpi-val fw-bold text-success" id="kpiApprove">0</h3>
+              <div class="kpi-sub text-success fw-semibold" id="kpiSubtextApprove">0%</div>
             </div>
             <div class="kpi-icon icon-approve"><i class="bi bi-check2-circle"></i></div>
           </div>
@@ -300,13 +363,13 @@ body {
       </div>
 
       <!-- Revisi Dikirim -->
-      <div class="col-6 col-sm-6 col-md-4 col-xl">
+      <div class="col-6 col-sm-4 col-md-3 col-xl">
         <div class="kpi-card kpi-revisidikirim">
           <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <div class="text-info-emphasis small fw-bold">Revisi Dikirim</div>
-              <h3 class="h3 fw-bold mb-0 mt-1 text-info-emphasis" id="kpiRevisiDikirim">0</h3>
-              <div class="small text-info-emphasis fw-semibold" style="font-size: 0.75rem;" id="kpiSubtextRevisiDikirim">0%</div>
+            <div class="overflow-hidden">
+              <div class="kpi-label text-info-emphasis">Revisi Dikirim</div>
+              <h3 class="kpi-val fw-bold text-info-emphasis" id="kpiRevisiDikirim">0</h3>
+              <div class="kpi-sub text-info-emphasis fw-semibold" id="kpiSubtextRevisiDikirim">0%</div>
             </div>
             <div class="kpi-icon icon-revisidikirim"><i class="bi bi-send-check"></i></div>
           </div>
@@ -314,13 +377,13 @@ body {
       </div>
 
       <!-- Revisi -->
-      <div class="col-6 col-sm-6 col-md-4 col-xl">
+      <div class="col-6 col-sm-4 col-md-3 col-xl">
         <div class="kpi-card kpi-revisi">
           <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <div class="text-warning-emphasis small fw-bold">Revisi</div>
-              <h3 class="h3 fw-bold mb-0 mt-1 text-warning" id="kpiRevisi">0</h3>
-              <div class="small text-warning-emphasis fw-semibold" style="font-size: 0.75rem;" id="kpiSubtextRevisi">0%</div>
+            <div class="overflow-hidden">
+              <div class="kpi-label text-warning-emphasis">Revisi</div>
+              <h3 class="kpi-val fw-bold text-warning" id="kpiRevisi">0</h3>
+              <div class="kpi-sub text-warning-emphasis fw-semibold" id="kpiSubtextRevisi">0%</div>
             </div>
             <div class="kpi-icon icon-revisi"><i class="bi bi-pencil-square"></i></div>
           </div>
@@ -328,13 +391,13 @@ body {
       </div>
 
       <!-- Belum Dicek -->
-      <div class="col-6 col-sm-6 col-md-4 col-xl">
+      <div class="col-6 col-sm-4 col-md-3 col-xl">
         <div class="kpi-card kpi-belumdicek">
           <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <div class="text-secondary small fw-bold">Belum Dicek</div>
-              <h3 class="h3 fw-bold mb-0 mt-1 text-secondary" id="kpiBelumDicek">0</h3>
-              <div class="small text-muted fw-semibold" style="font-size: 0.75rem;" id="kpiSubtextBelumDicek">0%</div>
+            <div class="overflow-hidden">
+              <div class="kpi-label text-secondary">Belum Dicek</div>
+              <h3 class="kpi-val fw-bold text-secondary" id="kpiBelumDicek">0</h3>
+              <div class="kpi-sub text-muted fw-semibold" id="kpiSubtextBelumDicek">0%</div>
             </div>
             <div class="kpi-icon icon-belumdicek"><i class="bi bi-hourglass-split"></i></div>
           </div>
@@ -342,13 +405,13 @@ body {
       </div>
 
       <!-- Ditolak -->
-      <div class="col-6 col-sm-6 col-md-4 col-xl">
+      <div class="col-6 col-sm-4 col-md-3 col-xl">
         <div class="kpi-card kpi-ditolak">
           <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <div class="text-danger small fw-bold">Ditolak</div>
-              <h3 class="h3 fw-bold mb-0 mt-1 text-danger" id="kpiDitolak">0</h3>
-              <div class="small text-danger fw-semibold" style="font-size: 0.75rem;" id="kpiSubtextDitolak">0%</div>
+            <div class="overflow-hidden">
+              <div class="kpi-label text-danger">Ditolak</div>
+              <h3 class="kpi-val fw-bold text-danger" id="kpiDitolak">0</h3>
+              <div class="kpi-sub text-danger fw-semibold" id="kpiSubtextDitolak">0%</div>
             </div>
             <div class="kpi-icon icon-ditolak"><i class="bi bi-x-circle"></i></div>
           </div>
@@ -356,13 +419,13 @@ body {
       </div>
 
       <!-- Sisulka -->
-      <div class="col-6 col-sm-6 col-md-4 col-xl">
+      <div class="col-6 col-sm-4 col-md-3 col-xl">
         <div class="kpi-card kpi-sisulka">
           <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <div class="small fw-bold" style="color: #7c3aed;">Sisulka</div>
-              <h3 class="h3 fw-bold mb-0 mt-1" style="color: #7c3aed;" id="kpiSisulka">0</h3>
-              <div class="small fw-semibold" style="color: #7c3aed; font-size: 0.75rem;" id="kpiSubtextSisulka">0%</div>
+            <div class="overflow-hidden">
+              <div class="kpi-label" style="color: #7c3aed;">Sisulka</div>
+              <h3 class="kpi-val fw-bold" style="color: #7c3aed;" id="kpiSisulka">0</h3>
+              <div class="kpi-sub fw-semibold" style="color: #7c3aed;" id="kpiSubtextSisulka">0%</div>
             </div>
             <div class="kpi-icon icon-sisulka"><i class="bi bi-folder2-open"></i></div>
           </div>
