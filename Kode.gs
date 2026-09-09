@@ -10,8 +10,8 @@
 // Jika script ini menempel langsung (Container-Bound) pada Spreadsheet, Anda bisa kosongkan SPREADSHEET_ID.
 // Jika Standalone Script, isikan ID Spreadsheet pada variabel di bawah:
 const CONFIG = {
-  SPREADSHEET_ID: '', // Contoh: '1A2b3C4d5E6F7g8H9i0JkLmNoPqRsTuVwXyZ' (Kosongkan jika bound script)
-  SHEET_NAME: '',     // Contoh: 'Data KP' (Kosongkan untuk otomatis mengambil sheet pertama)
+  SPREADSHEET_ID: '1SmlQmzojwZ_cJC7yDCGMqgXKcU0nJScqTDk7MqvRdEE',
+  SHEET_NAME: 'Data',
   CACHE_EXPIRATION_SECONDS: 600 // 10 menit
 };
 
