@@ -485,7 +485,7 @@ body {
             </div>
             <span class="badge bg-light text-primary border" id="badgeGolonganPeriode">Semua Periode</span>
           </div>
-          <div style="position: relative; height: 260px;">
+          <div style="position: relative; height: 380px;">
             <canvas id="chartGolongan"></canvas>
           </div>
         </div>
@@ -1093,53 +1093,222 @@ function renderChartStatusBarisPenuh(records, selectedBulan) {
   });
 }
 
-// 3. Grafik Ajuan Kenaikan Pangkat (Golongan)
+// 3. Grafik Ajuan Kenaikan Pangkat (Golongan) - Identik dengan Grafik Jumlah Usulan per Bulan
 function renderChartGolongan(records) {
   var ctx = document.getElementById('chartGolongan').getContext('2d');
-  var pangkatCounts = {};
+
+  // Kumpulkan daftar golongan dan hitung sebaran 6 status kolom AE
+  var mapApprove = {};
+  var mapRevisiDikirim = {};
+  var mapRevisi = {};
+  var mapBelumDicek = {};
+  var mapDitolak = {};
+  var mapSisulka = {};
+  var totalPerGol = {};
 
   for (var i = 0; i < records.length; i++) {
-    var p = records[i].ajuan_pangkat || 'Belum Ditentukan';
-    pangkatCounts[p] = (pangkatCounts[p] || 0) + 1;
+    var r = records[i];
+    var gol = (r.ajuan_pangkat || 'Belum Ditentukan').trim();
+    if (!gol) gol = 'Belum Ditentukan';
+
+    if (!totalPerGol[gol]) {
+      totalPerGol[gol] = 0;
+      mapApprove[gol] = 0;
+      mapRevisiDikirim[gol] = 0;
+      mapRevisi[gol] = 0;
+      mapBelumDicek[gol] = 0;
+      mapDitolak[gol] = 0;
+      mapSisulka[gol] = 0;
+    }
+
+    totalPerGol[gol]++;
+    var st = (r.status_ae || r.status || '').trim();
+    if (st === 'Approve') {
+      mapApprove[gol]++;
+    } else if (st === 'Revisi Dikirim') {
+      mapRevisiDikirim[gol]++;
+    } else if (st === 'Revisi') {
+      mapRevisi[gol]++;
+    } else if (st === 'Belum Dicek') {
+      mapBelumDicek[gol]++;
+    } else if (st === 'Ditolak') {
+      mapDitolak[gol]++;
+    } else if (st === 'Sisulka') {
+      mapSisulka[gol]++;
+    } else {
+      mapBelumDicek[gol]++;
+    }
   }
 
-  // Sort dari ajuan terbanyak
-  var keys = Object.keys(pangkatCounts).sort(function(a, b) {
-    return pangkatCounts[b] - pangkatCounts[a];
+  // Urutkan golongan dari jumlah usulan terbanyak (maksimal 10 teratas agar tetap nyaman dibaca)
+  var sortedGolongan = Object.keys(totalPerGol).sort(function(a, b) {
+    return totalPerGol[b] - totalPerGol[a];
   }).slice(0, 10);
 
-  var vals = [];
-  for (var j = 0; j < keys.length; j++) {
-    vals.push(pangkatCounts[keys[j]]);
+  var dataApprove = [];
+  var dataRevisiDikirim = [];
+  var dataRevisi = [];
+  var dataBelumDicek = [];
+  var dataDitolak = [];
+  var dataSisulka = [];
+  var displayLabels = [];
+
+  for (var k = 0; k < sortedGolongan.length; k++) {
+    var gKey = sortedGolongan[k];
+    dataApprove.push(mapApprove[gKey] || 0);
+    dataRevisiDikirim.push(mapRevisiDikirim[gKey] || 0);
+    dataRevisi.push(mapRevisi[gKey] || 0);
+    dataBelumDicek.push(mapBelumDicek[gKey] || 0);
+    dataDitolak.push(mapDitolak[gKey] || 0);
+    dataSisulka.push(mapSisulka[gKey] || 0);
+
+    // Multi-line label: Baris 1 nama golongan, Baris 2 total usulan
+    displayLabels.push([gKey, '(' + (totalPerGol[gKey] || 0) + ')']);
   }
+
+  // Plugin Chart.js kustom: Angka di atas batang bernilai (> 0)
+  var barValueLabelsGolonganPlugin = {
+    id: 'barValueLabelsGolongan',
+    afterDatasetsDraw: function(chart) {
+      try {
+        var chartCtx = chart.ctx;
+        chart.data.datasets.forEach(function(dataset, datasetIndex) {
+          var meta = chart.getDatasetMeta(datasetIndex);
+          if (meta.hidden) return;
+
+          meta.data.forEach(function(bar, index) {
+            var val = dataset.data[index];
+            if (val > 0 && bar && typeof bar.x === 'number' && typeof bar.y === 'number') {
+              chartCtx.save();
+              chartCtx.font = 'bold 11px "Plus Jakarta Sans", sans-serif';
+              chartCtx.fillStyle = '#334155';
+              chartCtx.textAlign = 'center';
+              chartCtx.textBaseline = 'bottom';
+              chartCtx.fillText(val, bar.x, bar.y - 3);
+              chartCtx.restore();
+            }
+          });
+        });
+      } catch (err) {
+        console.warn('Gagal render barValueLabelsGolongan:', err);
+      }
+    }
+  };
 
   if (chartGolonganInstance) chartGolonganInstance.destroy();
 
   chartGolonganInstance = new Chart(ctx, {
     type: 'bar',
     data: {
-      labels: keys,
-      datasets: [{
-        label: 'Jumlah Ajuan',
-        data: vals,
-        backgroundColor: '#2563eb',
-        borderRadius: 6
-      }]
+      labels: displayLabels,
+      datasets: [
+        {
+          label: 'Approve',
+          data: dataApprove,
+          backgroundColor: '#10b981',
+          borderRadius: 4
+        },
+        {
+          label: 'Revisi Dikirim',
+          data: dataRevisiDikirim,
+          backgroundColor: '#0ea5e9',
+          borderRadius: 4
+        },
+        {
+          label: 'Revisi',
+          data: dataRevisi,
+          backgroundColor: '#f59e0b',
+          borderRadius: 4
+        },
+        {
+          label: 'Belum Dicek',
+          data: dataBelumDicek,
+          backgroundColor: '#64748b',
+          borderRadius: 4
+        },
+        {
+          label: 'Ditolak',
+          data: dataDitolak,
+          backgroundColor: '#ef4444',
+          borderRadius: 4
+        },
+        {
+          label: 'Sisulka',
+          data: dataSisulka,
+          backgroundColor: '#8b5cf6',
+          borderRadius: 4
+        }
+      ]
     },
+    plugins: [barValueLabelsGolonganPlugin],
     options: {
-      indexAxis: 'y',
       responsive: true,
       maintainAspectRatio: false,
+      maxBarThickness: 45,
+      barPercentage: 0.9,
+      categoryPercentage: 0.88,
+      layout: {
+        padding: {
+          top: 25
+        }
+      },
       plugins: {
-        legend: { display: false },
+        legend: {
+          position: 'top',
+          labels: {
+            boxWidth: 12,
+            usePointStyle: true,
+            padding: 15
+          }
+        },
         tooltip: {
           callbacks: {
-            label: function(ctx) { return ' ' + ctx.raw + ' orang pengusul'; }
+            title: function(tooltipItems) {
+              if (!tooltipItems || tooltipItems.length === 0) return '';
+              var item = tooltipItems[0];
+              var label = item.chart.data.labels[item.dataIndex];
+              return Array.isArray(label) ? label[0] : label;
+            },
+            label: function(context) {
+              return ' ' + context.dataset.label + ': ' + context.raw + ' usulan';
+            }
           }
         }
       },
       scales: {
-        x: { beginAtZero: true, ticks: { precision: 0 } }
+        x: {
+          stacked: false,
+          grid: {
+            display: true,
+            drawOnChartArea: true,
+            drawTicks: true,
+            color: 'rgba(148, 163, 184, 0.35)',
+            lineWidth: 1.2
+          },
+          ticks: {
+            font: {
+              family: "'Plus Jakarta Sans', sans-serif",
+              size: 11,
+              weight: '600'
+            },
+            color: '#475569',
+            maxRotation: 25,
+            minRotation: 0
+          }
+        },
+        y: {
+          stacked: false,
+          beginAtZero: true,
+          suggestedMax: function() {
+            var allVals = [].concat(dataApprove, dataRevisiDikirim, dataRevisi, dataBelumDicek, dataDitolak, dataSisulka);
+            var maxVal = Math.max.apply(null, allVals);
+            return maxVal > 0 ? maxVal + 1 : 5;
+          }(),
+          ticks: { precision: 0 },
+          grid: {
+            color: 'rgba(226, 232, 240, 0.7)'
+          }
+        }
       }
     }
   });
