@@ -761,7 +761,7 @@ function onFilterChange() {
   document.getElementById('matrixSubtext').innerText = 'Data rekapitulasi periode: ' + labelPeriode;
 
   updateKPICards(filtered);
-  renderChartStatusBarisPenuh(selectedTahun, selectedBulan, selectedJenjang, selectedKecamatan);
+  renderChartStatusBarisPenuh(filtered, selectedBulan);
   renderChartGolongan(filtered);
   renderMatrixTable(filtered);
 }
@@ -812,13 +812,8 @@ function updateKPICards(records) {
 // 2. Grafik Batang 1 Baris: 6 Status Kolom AE per Bulan (Januari s.d. Desember)
 var bulanDaftarLengkap = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
-function renderChartStatusBarisPenuh(selectedTahun, selectedBulan, selectedJenjang, selectedKecamatan) {
+function renderChartStatusBarisPenuh(records, selectedBulan) {
   var ctx = document.getElementById('chartStatusBarisPenuh').getContext('2d');
-
-  var tahunAktif = selectedTahun;
-  if (!tahunAktif && allRecords.length > 0) {
-    tahunAktif = allRecords[0].tahun_ajuan;
-  }
 
   // Jika user memilih bulan tertentu di filter utama, tampilkan kategori bulan tersebut agar sinkron dengan card KPI
   // Jika 'Semua Bulan' (selectedBulan kosong), tampilkan 12 bulan penuh (Januari s.d. Desember)
@@ -842,13 +837,8 @@ function renderChartStatusBarisPenuh(selectedTahun, selectedBulan, selectedJenja
     mapSisulka[bName] = 0;
   }
 
-  for (var i = 0; i < allRecords.length; i++) {
-    var r = allRecords[i];
-    if (tahunAktif && r.tahun_ajuan !== tahunAktif) continue;
-    if (selectedBulan && r.bulan_ajuan !== selectedBulan) continue;
-    if (selectedJenjang && r.jenjang !== selectedJenjang) continue;
-    if (selectedKecamatan && r.kec !== selectedKecamatan) continue;
-
+  for (var i = 0; i < records.length; i++) {
+    var r = records[i];
     var bln = r.bulan_ajuan;
     if (!bln || bln === 'Tidak Diketahui') continue;
 
