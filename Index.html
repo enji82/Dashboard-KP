@@ -1125,11 +1125,14 @@ function renderChartGolongan(records) {
     mapSisulka[code] = 0;
   }
 
-  // Helper untuk mengekstrak kode golongan (misal: "Penata, III/c" -> "III/c")
+  // Helper untuk mengekstrak kode golongan (misal: "Penata, III/c" -> "III/c", "III/C" -> "III/c", "IV/a" -> "IV/a")
   var extractGolonganCode = function(str) {
     if (!str) return '';
-    var match = str.match(/\b(I{1,3}|IV)\/[a-d]\b/i);
-    return match ? match[0].toUpperCase() : '';
+    var match = str.match(/\b(I{1,3}|IV)\s*[\/\-]?\s*([a-d])\b/i);
+    if (match) {
+      return match[1].toUpperCase() + '/' + match[2].toLowerCase();
+    }
+    return '';
   };
 
   for (var i = 0; i < records.length; i++) {
@@ -1137,7 +1140,18 @@ function renderChartGolongan(records) {
     var rawPangkat = (r.ajuan_pangkat || '').trim();
     var golCode = extractGolonganCode(rawPangkat);
 
-    // Jika tidak cocok dengan pola standar, lewati jika kosong atau masukkan ke kategori terdekat jika relevan
+    // Jika tidak cocok dengan pola standar, coba cari substring langsung dari daftarGolonganUrut
+    if (!golCode) {
+      var lowStr = rawPangkat.toLowerCase();
+      for (var d = 0; d < daftarGolonganUrut.length; d++) {
+        var gItem = daftarGolonganUrut[d];
+        if (lowStr.indexOf(gItem.toLowerCase()) !== -1) {
+          golCode = gItem;
+          break;
+        }
+      }
+    }
+
     if (!golCode || !totalPerGol.hasOwnProperty(golCode)) {
       continue;
     }
