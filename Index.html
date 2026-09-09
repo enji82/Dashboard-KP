@@ -577,12 +577,7 @@ window.onerror = function(message, source, lineno, colno, error) {
   console.error("Dashboard Global Error:", message, "Line:", lineno, "Col:", colno, error);
   const overlay = document.getElementById('loadingOverlay');
   if (overlay) {
-    overlay.innerHTML = `
-      <div class="text-danger mb-2"><i class="bi bi-exclamation-triangle-fill fs-1"></i></div>
-      <div class="fw-bold text-danger">Terjadi Kesalahan JavaScript</div>
-      <div class="small text-muted mt-1" style="max-width: 500px; text-align: center;">${message} (Baris: ${lineno})</div>
-      <button class="btn btn-sm btn-outline-primary mt-3" onclick="location.reload()">Muat Ulang Halaman</button>
-    `;
+    overlay.innerHTML = "<div class=\"text-danger mb-2\"><i class=\"bi bi-exclamation-triangle-fill fs-1\"></i></div><div class=\"fw-bold text-danger\">Terjadi Kesalahan JavaScript</div><div class=\"small text-muted mt-1\">" + message + " (Baris: " + lineno + ")</div><button class=\"btn btn-sm btn-outline-primary mt-3\" onclick=\"location.reload()\">Muat Ulang Halaman</button>";
   }
 };
 
