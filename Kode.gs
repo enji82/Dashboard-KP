@@ -104,6 +104,8 @@ function getDashboardData(forceRefresh) {
 
   const yearsSet = new Set();
   const monthsSet = new Set();
+  const kecSet = new Set();
+  const jenjangSet = new Set();
 
   let countMS = 0;
   let countRevisi = 0;
@@ -138,6 +140,8 @@ function getDashboardData(forceRefresh) {
 
     if (tahun) yearsSet.add(tahun);
     if (bulan) monthsSet.add(bulan);
+    if (kec && kec !== 'Lainnya') kecSet.add(kec);
+    if (jenjang && jenjang !== 'Lainnya') jenjangSet.add(jenjang);
 
     records.push({
       id: cleanStr(r[0]) || (index + 1).toString(),
@@ -173,7 +177,9 @@ function getDashboardData(forceRefresh) {
     records: records,
     filterOptions: {
       years: Array.from(yearsSet).sort().reverse(),
-      months: sortedMonths
+      months: sortedMonths,
+      kecamatan: Array.from(kecSet).sort((a, b) => a.localeCompare(b)),
+      jenjang: Array.from(jenjangSet).sort((a, b) => a.localeCompare(b))
     },
     updatedAt: Utilities.formatDate(new Date(), 'Asia/Jakarta', 'dd-MM-yyyy HH:mm:ss') + ' WIB'
   };
