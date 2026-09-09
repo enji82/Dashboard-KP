@@ -335,6 +335,15 @@ body {
             <option value="">Semua Kecamatan</option>
           </select>
         </div>
+        <div class="col-6 col-md-3 col-xl">
+          <label class="form-label small fw-semibold text-secondary mb-1"><i class="bi bi-briefcase me-1 text-primary"></i>Jenis KP:</label>
+          <select id="selectJenisKP" class="form-select form-select-sm fw-bold">
+            <option value="">Semua Jenis KP</option>
+            <option value="Fungsional">Fungsional</option>
+            <option value="Reguler">Reguler</option>
+            <option value="PI">PI</option>
+          </select>
+        </div>
         <div class="col-12 col-xl-auto">
           <label class="form-label d-none d-xl-block mb-1 small text-transparent">&nbsp;</label>
           <button class="btn btn-outline-secondary btn-sm w-100" onclick="resetPeriode()">
@@ -552,6 +561,9 @@ function setupListeners() {
   document.getElementById('selectBulan').addEventListener('change', onFilterChange);
   document.getElementById('selectJenjang').addEventListener('change', onFilterChange);
   document.getElementById('selectKecamatan').addEventListener('change', onFilterChange);
+  if (document.getElementById('selectJenisKP')) {
+    document.getElementById('selectJenisKP').addEventListener('change', onFilterChange);
+  }
 }
 
 function loadDashboardData(isRefresh) {
@@ -620,11 +632,13 @@ function populatePeriodeSelects(filterOptions) {
   var selBulan = document.getElementById('selectBulan');
   var selJenjang = document.getElementById('selectJenjang');
   var selKecamatan = document.getElementById('selectKecamatan');
+  var selJenisKP = document.getElementById('selectJenisKP');
 
   var curTahun = selTahun ? selTahun.value : '';
   var curBulan = selBulan ? selBulan.value : '';
   var curJenjang = selJenjang ? selJenjang.value : '';
   var curKecamatan = selKecamatan ? selKecamatan.value : '';
+  var curJenisKP = selJenisKP ? selJenisKP.value : '';
 
   if (selTahun) selTahun.innerHTML = '<option value="">Semua Tahun</option>';
   if (selBulan) selBulan.innerHTML = '<option value="">Semua Bulan</option>';
@@ -643,6 +657,12 @@ function populatePeriodeSelects(filterOptions) {
       if (allRecords[a].jenjang && allRecords[a].jenjang !== 'Lainnya') jSet[allRecords[a].jenjang] = true;
     }
     jenjangList = Object.keys(jSet).sort();
+  }
+
+  // Pastikan pilihan 'SKB' selalu tersedia di daftar Jenjang Sekolah
+  if (jenjangList.indexOf('SKB') === -1) {
+    jenjangList.push('SKB');
+    jenjangList.sort();
   }
 
   if (kecList.length === 0 && allRecords.length > 0) {
@@ -675,7 +695,7 @@ function populatePeriodeSelects(filterOptions) {
     }
   }
 
-  // Isian Jenjang
+  // Isian Jenjang (termasuk SKB)
   for (var jj = 0; jj < jenjangList.length; jj++) {
     var jg = jenjangList[jj];
     if (jg && selJenjang) {
@@ -701,6 +721,7 @@ function populatePeriodeSelects(filterOptions) {
   if (curBulan && selBulan) selBulan.value = curBulan;
   if (curJenjang && selJenjang) selJenjang.value = curJenjang;
   if (curKecamatan && selKecamatan) selKecamatan.value = curKecamatan;
+  if (curJenisKP && selJenisKP) selJenisKP.value = curJenisKP;
 }
 
 function resetPeriode() {
@@ -708,20 +729,23 @@ function resetPeriode() {
   var selBulan = document.getElementById('selectBulan');
   var selJenjang = document.getElementById('selectJenjang');
   var selKecamatan = document.getElementById('selectKecamatan');
+  var selJenisKP = document.getElementById('selectJenisKP');
 
   if (selTahun) selTahun.value = '';
   if (selBulan) selBulan.value = '';
   if (selJenjang) selJenjang.value = '';
   if (selKecamatan) selKecamatan.value = '';
+  if (selJenisKP) selJenisKP.value = '';
   onFilterChange();
 }
 
-// Saat user memilih tahun, bulan, jenjang, atau kecamatan
+// Saat user memilih tahun, bulan, jenjang, kecamatan, atau jenis KP
 function onFilterChange() {
   var selectedTahun = document.getElementById('selectTahun') ? document.getElementById('selectTahun').value : '';
   var selectedBulan = document.getElementById('selectBulan') ? document.getElementById('selectBulan').value : '';
   var selectedJenjang = document.getElementById('selectJenjang') ? document.getElementById('selectJenjang').value : '';
   var selectedKecamatan = document.getElementById('selectKecamatan') ? document.getElementById('selectKecamatan').value : '';
+  var selectedJenisKP = document.getElementById('selectJenisKP') ? document.getElementById('selectJenisKP').value : '';
 
   // Filter record sesuai kriteria
   var filtered = [];
@@ -729,8 +753,26 @@ function onFilterChange() {
     var rec = allRecords[i];
     if (selectedTahun && rec.tahun_ajuan !== selectedTahun) continue;
     if (selectedBulan && rec.bulan_ajuan !== selectedBulan) continue;
-    if (selectedJenjang && rec.jenjang !== selectedJenjang) continue;
+    if (selectedJenjang) {
+      if (selectedJenjang === 'SKB') {
+        var jStr = (rec.jenjang || '').toUpperCase();
+        if (jStr.indexOf('SKB') === -1) continue;
+      } else if (rec.jenjang !== selectedJenjang) {
+        continue;
+      }
+    }
     if (selectedKecamatan && rec.kec !== selectedKecamatan) continue;
+    if (selectedJenisKP) {
+      // Pencocokan Jenis KP (Fungsional, Reguler, PI) dari kolom AG
+      var recJenis = rec.jenis_kp || '';
+      if (recJenis !== selectedJenisKP) {
+        var rawJ = (rec.raw_jenis_kp || '').toLowerCase();
+        if (selectedJenisKP === 'Fungsional' && (rawJ.indexOf('fungsional') === -1 && rawJ.indexOf('guru') === -1)) continue;
+        else if (selectedJenisKP === 'Reguler' && rawJ.indexOf('reguler') === -1) continue;
+        else if (selectedJenisKP === 'PI' && (rawJ.indexOf('ijazah') === -1 && rawJ.indexOf('pi') === -1)) continue;
+        else if (selectedJenisKP !== 'Fungsional' && selectedJenisKP !== 'Reguler' && selectedJenisKP !== 'PI') continue;
+      }
+    }
     filtered.push(rec);
   }
 
@@ -751,6 +793,9 @@ function onFilterChange() {
   }
   if (selectedKecamatan) {
     labelParts.push('Kec. ' + selectedKecamatan);
+  }
+  if (selectedJenisKP) {
+    labelParts.push('KP: ' + selectedJenisKP);
   }
 
   var labelPeriode = labelParts.join(' | ');

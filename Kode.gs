@@ -138,6 +138,19 @@ function getDashboardData(forceRefresh) {
     const jenjang = cleanStr(r[3]) || 'Lainnya';
     const ajuanPangkat = cleanStr(r[34]) || cleanStr(r[33]) || 'Belum Ditentukan';
 
+    // Kolom AG (Index 32): Jenis KP (jab fungsional guru, reguler (non guru), penyesuaian ijazah)
+    const rawJenisKP = cleanStr(r[32]).toLowerCase();
+    let jenisKP = '';
+    if (rawJenisKP.indexOf('fungsional') !== -1 || rawJenisKP.indexOf('guru') !== -1) {
+      jenisKP = 'Fungsional';
+    } else if (rawJenisKP.indexOf('reguler') !== -1) {
+      jenisKP = 'Reguler';
+    } else if (rawJenisKP.indexOf('ijazah') !== -1 || rawJenisKP.indexOf('pi') !== -1) {
+      jenisKP = 'PI';
+    } else if (rawJenisKP) {
+      jenisKP = cleanStr(r[32]);
+    }
+
     if (tahun) yearsSet.add(tahun);
     if (bulan) monthsSet.add(bulan);
     if (kec && kec !== 'Lainnya') kecSet.add(kec);
@@ -149,12 +162,17 @@ function getDashboardData(forceRefresh) {
       jenjang: jenjang,
       bulan_ajuan: bulan || 'Tidak Diketahui',
       tahun_ajuan: tahun || 'Tidak Diketahui',
+      jenis_kp: jenisKP,
+      raw_jenis_kp: cleanStr(r[32]),
       status: statusAE,
       status_ae: statusAE,
       is_revisi: (statusAE === 'Revisi' || statusAE === 'Revisi Dikirim'),
       ajuan_pangkat: ajuanPangkat
     });
   }
+
+  // Pastikan SKB tersedia di pilihan jenjang jika dibutuhkan
+  jenjangSet.add('SKB');
 
   // Urutan bulan standar Indonesia untuk sorting
   const bulanUrut = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
