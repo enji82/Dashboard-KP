@@ -21,6 +21,9 @@
   <!-- SheetJS (xlsx) CDN untuk Ekspor Excel (.xlsx) -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
+  <!-- ExcelJS CDN untuk Ekspor Gambar Grafik ke Sheet Excel (.xlsx) -->
+  <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+
   <style>
 :root {
   --primary-color: #1e3a8a;
@@ -1400,15 +1403,10 @@ function switchBulanView(view) {
   }
 }
 
-// 2c. Ekspor Excel untuk Card Jumlah Ajuan per Bulan (2 Sheet: Tabel & Grafik)
+// 2c. Ekspor Excel untuk Card Jumlah Ajuan per Bulan (2 Sheet: Tabel & Grafik Gambar)
 function exportBulanXLSX() {
   if (!currentBulanRows || currentBulanRows.length === 0) {
     alert('Tidak ada data ajuan per bulan untuk diekspor!');
-    return;
-  }
-
-  if (typeof XLSX === 'undefined') {
-    alert('Library Excel (SheetJS) belum siap. Silakan muat ulang halaman.');
     return;
   }
 
@@ -1417,151 +1415,234 @@ function exportBulanXLSX() {
   var selJenjang = document.getElementById('selectJenjang').value || 'Semua Jenjang';
   var selKec = document.getElementById('selectKecamatan').value || 'Semua Kecamatan';
   var selJenis = (document.getElementById('selectJenisKP') && document.getElementById('selectJenisKP').value) ? document.getElementById('selectJenisKP').value : 'Semua Jenis';
-
-  var wb = XLSX.utils.book_new();
-
-  // ==========================================
-  // SHEET 1: Tabel (Rincian Ajuan per Bulan)
-  // ==========================================
-  var aoaTabel = [];
-  aoaTabel.push(['REKAPITULASI AJUAN KENAIKAN PANGKAT PNS PER BULAN']);
-  aoaTabel.push(['Dinas Pendidikan dan Kebudayaan Kabupaten Magelang']);
-  aoaTabel.push(['Filter: Periode ' + selBulan + ' ' + selTahun + ' | Jenjang: ' + selJenjang + ' | Jenis KP: ' + selJenis + ' | Wilayah: ' + selKec]);
-  aoaTabel.push([]); // baris kosong
-
-  // Header 2-Tier
-  aoaTabel.push([
-    'Bulan Ajuan',
-    'Status Ajuan', '', '', '', '', '',
-    'Total Ajuan'
-  ]);
-  aoaTabel.push([
-    '',
-    'Approve', 'Revisi Dikirim', 'Revisi', 'Belum Dicek', 'Ditolak', 'Sisulka',
-    ''
-  ]);
-
-  // Data baris per bulan
-  for (var i = 0; i < currentBulanRows.length; i++) {
-    var b = currentBulanRows[i];
-    aoaTabel.push([
-      b.bulan,
-      b.approve,
-      b.revisiDikirim,
-      b.revisi,
-      b.belumDicek,
-      b.ditolak,
-      b.sisulka,
-      b.total
-    ]);
-  }
-
-  // Baris Total Kumulatif
-  if (currentBulanTotals) {
-    aoaTabel.push([
-      'Total Ajuan',
-      currentBulanTotals.approve,
-      currentBulanTotals.revisiDikirim,
-      currentBulanTotals.revisi,
-      currentBulanTotals.belumDicek,
-      currentBulanTotals.ditolak,
-      currentBulanTotals.sisulka,
-      currentBulanTotals.total
-    ]);
-  }
-
-  var wsTabel = XLSX.utils.aoa_to_sheet(aoaTabel);
-  wsTabel['!merges'] = [
-    { s: { r: 0, c: 0 }, e: { r: 0, c: 7 } },
-    { s: { r: 1, c: 0 }, e: { r: 1, c: 7 } },
-    { s: { r: 2, c: 0 }, e: { r: 2, c: 7 } },
-    { s: { r: 4, c: 0 }, e: { r: 5, c: 0 } },
-    { s: { r: 4, c: 1 }, e: { r: 4, c: 6 } },
-    { s: { r: 4, c: 7 }, e: { r: 5, c: 7 } }
-  ];
-  wsTabel['!cols'] = [
-    { wch: 18 }, // Bulan Ajuan
-    { wch: 12 }, // Approve
-    { wch: 15 }, // Revisi Dikirim
-    { wch: 12 }, // Revisi
-    { wch: 14 }, // Belum Dicek
-    { wch: 12 }, // Ditolak
-    { wch: 12 }, // Sisulka
-    { wch: 15 }  // Total Ajuan
-  ];
-  XLSX.utils.book_append_sheet(wb, wsTabel, 'Tabel');
-
-  // ==========================================
-  // SHEET 2: Grafik (Tabel Sumber Data Grafik & Distribusi Persentase)
-  // ==========================================
-  var aoaGrafik = [];
-  aoaGrafik.push(['DATA DISTRIBUSI & SUMBER GRAFIK AJUAN PER BULAN']);
-  aoaGrafik.push(['Dinas Pendidikan dan Kebudayaan Kabupaten Magelang']);
-  aoaGrafik.push(['Periode: ' + selBulan + ' ' + selTahun]);
-  aoaGrafik.push([]); // baris kosong
-
-  // Bagian A: Data Bulanan yang Siap Di-Chart di Excel
-  aoaGrafik.push(['A. DATA DERET WAKTU (SUMBER GRAFIK BATANG)']);
-  aoaGrafik.push(['Bulan', 'Approve', 'Revisi Dikirim', 'Revisi', 'Belum Dicek', 'Ditolak', 'Sisulka', 'Total']);
-  for (var j = 0; j < currentBulanRows.length; j++) {
-    var bg = currentBulanRows[j];
-    aoaGrafik.push([
-      bg.bulan,
-      bg.approve,
-      bg.revisiDikirim,
-      bg.revisi,
-      bg.belumDicek,
-      bg.ditolak,
-      bg.sisulka,
-      bg.total
-    ]);
-  }
-
-  aoaGrafik.push([]); // baris kosong
-
-  // Bagian B: Ringkasan Distribusi Status Keseluruhan
-  aoaGrafik.push(['B. DISTRIBUSI & PERSENTASE STATUS AJUAN']);
-  aoaGrafik.push(['Status Ajuan', 'Jumlah Berkas', 'Persentase (%)']);
-  var totAll = (currentBulanTotals && currentBulanTotals.total > 0) ? currentBulanTotals.total : 0;
-  var hitungPct = function(n) {
-    if (!totAll || totAll === 0) return '0.0%';
-    return ((n / totAll) * 100).toFixed(1) + '%';
-  };
-
-  if (currentBulanTotals) {
-    aoaGrafik.push(['Approve', currentBulanTotals.approve, hitungPct(currentBulanTotals.approve)]);
-    aoaGrafik.push(['Revisi Dikirim', currentBulanTotals.revisiDikirim, hitungPct(currentBulanTotals.revisiDikirim)]);
-    aoaGrafik.push(['Revisi', currentBulanTotals.revisi, hitungPct(currentBulanTotals.revisi)]);
-    aoaGrafik.push(['Belum Dicek', currentBulanTotals.belumDicek, hitungPct(currentBulanTotals.belumDicek)]);
-    aoaGrafik.push(['Ditolak', currentBulanTotals.ditolak, hitungPct(currentBulanTotals.ditolak)]);
-    aoaGrafik.push(['Sisulka', currentBulanTotals.sisulka, hitungPct(currentBulanTotals.sisulka)]);
-    aoaGrafik.push(['TOTAL KESELURUHAN', totAll, '100.0%']);
-  }
-
-  var wsGrafik = XLSX.utils.aoa_to_sheet(aoaGrafik);
-  wsGrafik['!merges'] = [
-    { s: { r: 0, c: 0 }, e: { r: 0, c: 7 } },
-    { s: { r: 1, c: 0 }, e: { r: 1, c: 7 } },
-    { s: { r: 2, c: 0 }, e: { r: 2, c: 7 } }
-  ];
-  wsGrafik['!cols'] = [
-    { wch: 22 },
-    { wch: 14 },
-    { wch: 15 },
-    { wch: 12 },
-    { wch: 14 },
-    { wch: 12 },
-    { wch: 12 },
-    { wch: 14 }
-  ];
-  XLSX.utils.book_append_sheet(wb, wsGrafik, 'Grafik');
-
-  // Unduh File Excel
   var cleanTahun = String(selTahun).replace(/\s+/g, '_');
   var cleanBulan = String(selBulan).replace(/\s+/g, '_');
   var fileName = 'Ajuan_Bulanan_KP_' + cleanBulan + '_' + cleanTahun + '.xlsx';
 
-  XLSX.writeFile(wb, fileName);
+  // Ambil gambar snapshot dari canvas grafik dengan latar putih solid
+  var chartImgBase64 = null;
+  try {
+    var originalCanvas = document.getElementById('chartStatusBarisPenuh');
+    if (originalCanvas && originalCanvas.width > 0 && originalCanvas.height > 0) {
+      var offscreen = document.createElement('canvas');
+      offscreen.width = originalCanvas.width;
+      offscreen.height = originalCanvas.height;
+      var octx = offscreen.getContext('2d');
+      // Beri background putih agar saat diekspor ke Excel tidak transparan
+      octx.fillStyle = '#ffffff';
+      octx.fillRect(0, 0, offscreen.width, offscreen.height);
+      octx.drawImage(originalCanvas, 0, 0);
+      chartImgBase64 = offscreen.toDataURL('image/png', 1.0);
+    }
+  } catch (err) {
+    console.warn('Tidak dapat mengambil gambar grafik:', err);
+  }
+
+  // Jika ExcelJS tersedia, gunakan ExcelJS untuk menyematkan gambar grafik ke Sheet 2
+  if (typeof ExcelJS !== 'undefined') {
+    showLoading(true);
+    try {
+      var workbook = new ExcelJS.Workbook();
+      workbook.creator = 'Disdikbud Kab. Magelang';
+      workbook.created = new Date();
+
+      // ==========================================
+      // SHEET 1: TABEL
+      // ==========================================
+      var wsTabel = workbook.addWorksheet('Tabel', {
+        views: [{ showGridLines: true }]
+      });
+
+      wsTabel.columns = [
+        { width: 22 }, // A: Bulan
+        { width: 14 }, // B: Approve
+        { width: 16 }, // C: Revisi Dikirim
+        { width: 14 }, // D: Revisi
+        { width: 15 }, // E: Belum Dicek
+        { width: 14 }, // F: Ditolak
+        { width: 14 }, // G: Sisulka
+        { width: 16 }  // H: Total
+      ];
+
+      // Judul Laporan
+      wsTabel.addRow(['REKAPITULASI AJUAN KENAIKAN PANGKAT PNS PER BULAN']);
+      wsTabel.addRow(['Dinas Pendidikan dan Kebudayaan Kabupaten Magelang']);
+      wsTabel.addRow(['Filter: Periode ' + selBulan + ' ' + selTahun + ' | Jenjang: ' + selJenjang + ' | Jenis KP: ' + selJenis + ' | Wilayah: ' + selKec]);
+      wsTabel.addRow([]); // baris 4 kosong
+
+      // Format Judul
+      wsTabel.getCell('A1').font = { bold: true, size: 14, color: { argb: 'FF1E3A8A' } };
+      wsTabel.getCell('A2').font = { bold: true, size: 11, color: { argb: 'FF475569' } };
+      wsTabel.getCell('A3').font = { italic: true, size: 9, color: { argb: 'FF64748B' } };
+      wsTabel.mergeCells('A1:H1');
+      wsTabel.mergeCells('A2:H2');
+      wsTabel.mergeCells('A3:H3');
+
+      // Header Baris 5 & 6 (2-Tier Header)
+      wsTabel.addRow(['Bulan Ajuan', 'Status Ajuan', '', '', '', '', '', 'Total Ajuan']);
+      wsTabel.addRow(['', 'Approve', 'Revisi Dikirim', 'Revisi', 'Belum Dicek', 'Ditolak', 'Sisulka', '']);
+
+      wsTabel.mergeCells('A5:A6');
+      wsTabel.mergeCells('B5:G5');
+      wsTabel.mergeCells('H5:H6');
+
+      // Styling Header
+      ['A5', 'H5', 'B5'].forEach(function(pos) {
+        var c = wsTabel.getCell(pos);
+        c.font = { bold: true, size: 10, color: { argb: 'FF1E293B' } };
+        c.alignment = { vertical: 'middle', horizontal: 'center' };
+        c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1F5F9' } };
+      });
+      wsTabel.getCell('A5').alignment = { vertical: 'middle', horizontal: 'left' };
+
+      for (var colIdx = 1; colIdx <= 8; colIdx++) {
+        var cellCol = wsTabel.getRow(6).getCell(colIdx);
+        cellCol.font = { bold: true, size: 9 };
+        cellCol.alignment = { vertical: 'middle', horizontal: 'center' };
+        cellCol.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF8FAFC' } };
+      }
+
+      // Isi Data Baris
+      for (var r = 0; r < currentBulanRows.length; r++) {
+        var br = currentBulanRows[r];
+        var row = wsTabel.addRow([
+          br.bulan,
+          br.approve || 0,
+          br.revisiDikirim || 0,
+          br.revisi || 0,
+          br.belumDicek || 0,
+          br.ditolak || 0,
+          br.sisulka || 0,
+          br.total || 0
+        ]);
+        row.getCell(1).alignment = { vertical: 'middle', horizontal: 'left' };
+        for (var c = 2; c <= 8; c++) {
+          row.getCell(c).alignment = { vertical: 'middle', horizontal: 'center' };
+        }
+      }
+
+      // Baris Total Kumulatif
+      if (currentBulanTotals) {
+        var tRow = wsTabel.addRow([
+          'Total Ajuan',
+          currentBulanTotals.approve || 0,
+          currentBulanTotals.revisiDikirim || 0,
+          currentBulanTotals.revisi || 0,
+          currentBulanTotals.belumDicek || 0,
+          currentBulanTotals.ditolak || 0,
+          currentBulanTotals.sisulka || 0,
+          currentBulanTotals.total || 0
+        ]);
+        tRow.font = { bold: true, size: 10 };
+        for (var tc = 1; tc <= 8; tc++) {
+          var tCell = tRow.getCell(tc);
+          tCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE2E8F0' } };
+          tCell.alignment = { vertical: 'middle', horizontal: (tc === 1 ? 'left' : 'center') };
+        }
+      }
+
+      // Border Grid Tabel
+      var totalRowsCount = wsTabel.rowCount;
+      for (var rx = 5; rx <= totalRowsCount; rx++) {
+        for (var cx = 1; cx <= 8; cx++) {
+          wsTabel.getRow(rx).getCell(cx).border = {
+            top: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+            left: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+            bottom: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+            right: { style: 'thin', color: { argb: 'FFCBD5E1' } }
+          };
+        }
+      }
+
+      // ==========================================
+      // SHEET 2: GRAFIK (Gambar Grafik Disematkan)
+      // ==========================================
+      var wsGrafik = workbook.addWorksheet('Grafik', {
+        views: [{ showGridLines: true }]
+      });
+
+      wsGrafik.columns = [
+        { width: 20 },
+        { width: 14 },
+        { width: 14 },
+        { width: 14 },
+        { width: 14 },
+        { width: 14 },
+        { width: 14 },
+        { width: 16 }
+      ];
+
+      // Judul Laporan di Sheet Grafik
+      wsGrafik.addRow(['GRAFIK JUMLAH AJUAN KENAIKAN PANGKAT PNS PER BULAN']);
+      wsGrafik.addRow(['Dinas Pendidikan dan Kebudayaan Kabupaten Magelang']);
+      wsGrafik.addRow(['Periode: ' + selBulan + ' ' + selTahun + ' | Filter: Jenjang ' + selJenjang + ', Wilayah ' + selKec]);
+      wsGrafik.addRow([]); // baris 4 kosong
+
+      wsGrafik.getCell('A1').font = { bold: true, size: 14, color: { argb: 'FF1E3A8A' } };
+      wsGrafik.getCell('A2').font = { bold: true, size: 11, color: { argb: 'FF475569' } };
+      wsGrafik.getCell('A3').font = { italic: true, size: 9, color: { argb: 'FF64748B' } };
+      wsGrafik.mergeCells('A1:H1');
+      wsGrafik.mergeCells('A2:H2');
+      wsGrafik.mergeCells('A3:H3');
+
+      // Sisipkan Gambar Grafik jika berhasil di-capture
+      if (chartImgBase64) {
+        var imageId = workbook.addImage({
+          base64: chartImgBase64,
+          extension: 'png'
+        });
+
+        // Sematkan gambar grafik di sel A5 sampai H25 (lebar dan tinggi proporsional)
+        wsGrafik.addImage(imageId, {
+          tl: { col: 0, row: 4.5 },
+          br: { col: 8, row: 24.5 },
+          editAs: 'oneCell'
+        });
+      } else {
+        wsGrafik.addRow(['(Grafik visual sedang dimuat di layar dashboard)']);
+      }
+
+      // Simpan dan unduh file Excel
+      workbook.xlsx.writeBuffer().then(function(buffer) {
+        showLoading(false);
+        var blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        var url = window.URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      }).catch(function(errWrite) {
+        showLoading(false);
+        console.error('Gagal menulis file ExcelJS:', errWrite);
+        alert('Gagal membuat file Excel: ' + errWrite.message);
+      });
+
+      return;
+    } catch (e) {
+      showLoading(false);
+      console.warn('Gagal render via ExcelJS, fallback ke SheetJS:', e);
+    }
+  }
+
+  // Fallback standar SheetJS jika ExcelJS belum terload
+  var wbSheetJS = XLSX.utils.book_new();
+  var aoaTabel = [
+    ['REKAPITULASI AJUAN KENAIKAN PANGKAT PNS PER BULAN'],
+    ['Dinas Pendidikan dan Kebudayaan Kabupaten Magelang'],
+    ['Filter: Periode ' + selBulan + ' ' + selTahun + ' | Jenjang: ' + selJenjang + ' | Wilayah: ' + selKec],
+    [],
+    ['Bulan Ajuan', 'Approve', 'Revisi Dikirim', 'Revisi', 'Belum Dicek', 'Ditolak', 'Sisulka', 'Total Ajuan']
+  ];
+  for (var k = 0; k < currentBulanRows.length; k++) {
+    var item = currentBulanRows[k];
+    aoaTabel.push([item.bulan, item.approve, item.revisiDikirim, item.revisi, item.belumDicek, item.ditolak, item.sisulka, item.total]);
+  }
+  var wsF = XLSX.utils.aoa_to_sheet(aoaTabel);
+  XLSX.utils.book_append_sheet(wbSheetJS, wsF, 'Tabel');
+  XLSX.writeFile(wbSheetJS, fileName);
 }
 
 // 3. Grafik Ajuan Kenaikan Pangkat (Golongan) - Identik dengan Grafik Jumlah Usulan per Bulan
