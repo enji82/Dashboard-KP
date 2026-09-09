@@ -203,11 +203,11 @@ body {
   margin-bottom: 1rem;
 }
 
-/* Tabel Matriks Rekapitulasi */
+/* Tabel Matriks Rekapitulasi & Tabel Bulan */
 .table-matrix {
   border-collapse: separate;
   border-spacing: 0;
-  font-size: 0.875rem;
+  font-size: 0.85rem;
   border-left: 1px solid var(--border-color);
   border-right: 1px solid var(--border-color);
 }
@@ -216,7 +216,8 @@ body {
   background-color: #f8fafc;
   color: #334155;
   font-weight: 700;
-  padding: 0.75rem 0.85rem;
+  padding: 0.4rem 0.55rem;
+  font-size: 0.8rem;
   border-top: 1px solid var(--border-color);
   border-bottom: 2px solid var(--border-color);
   border-right: 1px solid var(--border-color);
@@ -224,7 +225,7 @@ body {
 }
 
 .table-matrix td {
-  padding: 0.65rem 0.85rem;
+  padding: 0.45rem 0.65rem;
   border-bottom: 1px solid var(--border-color);
   border-right: 1px solid var(--border-color);
   vertical-align: middle;
@@ -234,23 +235,42 @@ body {
   background-color: #f8fafc;
 }
 
-/* Freeze Kolom Pertama (Kecamatan) */
+/* Freeze Header Tabel (Sticky Top 2-Tier Header) */
+.table-matrix thead tr:first-child th {
+  position: sticky;
+  top: 0;
+  background-color: #f8fafc;
+  z-index: 10;
+}
+
+.table-matrix thead tr:nth-child(2) th {
+  position: sticky;
+  top: 29px; /* menempel tepat di bawah baris header pertama */
+  background-color: #f8fafc;
+  z-index: 10;
+}
+
+/* Freeze Kolom Pertama (Kecamatan / Bulan) */
 .table-matrix .freeze-col {
   position: sticky;
   left: 0;
   background-color: #ffffff;
-  z-index: 2;
+  z-index: 4;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
 }
 
-.table-matrix thead th.freeze-col {
-  background-color: #f8fafc;
-  z-index: 3;
+/* Sudut Kiri Atas (Pertemuan Header Sticky Top dan Kolom Sticky Left) */
+.table-matrix thead tr:first-child th.freeze-col {
+  position: sticky;
+  top: 0;
+  left: 0;
+  background-color: #f1f5f9;
+  z-index: 20;
 }
 
 .table-matrix tfoot td.freeze-col {
   background-color: #f1f5f9;
-  z-index: 3;
+  z-index: 5;
 }
 
 .table-matrix tbody tr:hover td.freeze-col {
@@ -263,6 +283,7 @@ body {
   border-top: 2px solid #cbd5e1;
   border-bottom: 1px solid var(--border-color);
   border-right: 1px solid var(--border-color);
+  padding: 0.5rem 0.65rem;
 }
 
 #loadingOverlay {
@@ -573,7 +594,7 @@ body {
         </div>
       </div>
 
-      <div class="table-responsive">
+      <div class="table-responsive" style="max-height: 460px; overflow-y: auto;">
         <table class="table table-matrix table-hover mb-0 text-center" style="width: 100%; min-width: 1100px;">
           <thead>
             <tr>
