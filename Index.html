@@ -242,13 +242,13 @@ body {
           </div>
         </div>
         <div class="col-6 col-md-3 col-lg-2 ms-md-auto">
-          <label class="form-label small fw-semibold text-secondary mb-1">Tahun Ajuan:</label>
-          <select id="selectTahun" class="form-select form-select-sm fw-bold">
+          <label class="form-label small fw-semibold text-secondary mb-1"><i class="bi bi-funnel-fill me-1 text-primary"></i>Tahun Ajuan (Kolom J):</label>
+          <select id="selectTahun" class="form-select form-select-sm fw-bold border-primary">
             <option value="">Semua Tahun</option>
           </select>
         </div>
         <div class="col-6 col-md-3 col-lg-2">
-          <label class="form-label small fw-semibold text-secondary mb-1">Bulan Ajuan:</label>
+          <label class="form-label small fw-semibold text-secondary mb-1">Bulan Ajuan (Kolom I):</label>
           <select id="selectBulan" class="form-select form-select-sm fw-bold">
             <option value="">Semua Bulan</option>
           </select>
@@ -321,28 +321,23 @@ body {
       </div>
     </div>
 
-    <!-- Grafik Batang 1 Baris Penuh: Status Kolom AE per Bulan (Januari s.d. Desember) -->
+    <!-- Grafik Batang 1 Baris Penuh: Status Kolom AE per Bulan (Januari s.d. Desember) Berdampingan -->
     <div class="row g-3 mb-4">
       <div class="col-12">
         <div class="dashboard-card">
           <div class="card-title-custom justify-content-between flex-wrap gap-2">
             <div class="d-flex align-items-center gap-2">
               <i class="bi bi-bar-chart-fill text-primary fs-5"></i>
-              <span class="fw-bold fs-6">Rekapitulasi Status Usulan (Kolom AE) per Bulan (Januari - Desember)</span>
+              <span class="fw-bold fs-6">Grafik Status Usulan (Kolom AE) per Bulan (Januari - Desember)</span>
             </div>
             <div class="d-flex align-items-center gap-2">
-              <div class="btn-group btn-group-sm" role="group" aria-label="Mode Tampilan Grafik">
-                <button type="button" class="btn btn-outline-primary active" id="btnStackedBar" onclick="toggleBarMode(true)">
-                  <i class="bi bi-layers-fill me-1"></i>Tumpuk (Stacked)
-                </button>
-                <button type="button" class="btn btn-outline-primary" id="btnGroupedBar" onclick="toggleBarMode(false)">
-                  <i class="bi bi-bar-chart me-1"></i>Berdampingan
-                </button>
-              </div>
-              <span class="badge bg-light text-primary border" id="badgeStatusTahun">Tahun 2026</span>
+              <label for="selectTahunGrafik" class="small text-muted fw-semibold mb-0"><i class="bi bi-funnel me-1"></i>Filter Tahun (Kolom J):</label>
+              <select id="selectTahunGrafik" class="form-select form-select-sm fw-bold border-primary shadow-sm" style="width: auto; min-width: 140px;" onchange="onTahunGrafikChange(this.value)">
+                <option value="">Semua Tahun</option>
+              </select>
             </div>
           </div>
-          <div style="position: relative; height: 320px;">
+          <div style="position: relative; height: 350px;">
             <canvas id="chartStatusBarisPenuh"></canvas>
           </div>
         </div>
@@ -425,7 +420,6 @@ body {
 var allRecords = [];
 var chartGolonganInstance = null;
 var chartStatusBarisPenuhInstance = null;
-var isBarStacked = true;
 
 document.addEventListener('DOMContentLoaded', function() {
   loadDashboardData(false);
@@ -497,25 +491,36 @@ function handleError(err) {
   alert('Terjadi kesalahan server: ' + (err && err.message ? err.message : String(err)));
 }
 
+// Mengisi dropdown Tahun (Kolom J) dan Bulan (Kolom I)
 function populatePeriodeSelects(filterOptions) {
   if (!filterOptions) return;
 
   var selTahun = document.getElementById('selectTahun');
+  var selTahunGrafik = document.getElementById('selectTahunGrafik');
   var selBulan = document.getElementById('selectBulan');
   var curTahun = selTahun.value;
   var curBulan = selBulan.value;
 
   selTahun.innerHTML = '<option value="">Semua Tahun</option>';
+  if (selTahunGrafik) selTahunGrafik.innerHTML = '<option value="">Semua Tahun</option>';
   selBulan.innerHTML = '<option value="">Semua Bulan</option>';
 
+  // Isian Tahun sesuai Kolom J
   if (filterOptions.years && Array.isArray(filterOptions.years)) {
     for (var i = 0; i < filterOptions.years.length; i++) {
       var y = filterOptions.years[i];
       if (y) {
         var opt = document.createElement('option');
         opt.value = y;
-        opt.textContent = y;
+        opt.textContent = 'Tahun ' + y;
         selTahun.appendChild(opt);
+
+        if (selTahunGrafik) {
+          var optG = document.createElement('option');
+          optG.value = y;
+          optG.textContent = 'Tahun ' + y;
+          selTahunGrafik.appendChild(optG);
+        }
       }
     }
   }
@@ -532,12 +537,22 @@ function populatePeriodeSelects(filterOptions) {
     }
   }
 
-  if (curTahun) selTahun.value = curTahun;
+  if (curTahun) {
+    selTahun.value = curTahun;
+    if (selTahunGrafik) selTahunGrafik.value = curTahun;
+  }
   if (curBulan) selBulan.value = curBulan;
+}
+
+// Handler saat filter tahun di kartu grafik diubah
+function onTahunGrafikChange(val) {
+  document.getElementById('selectTahun').value = val;
+  onFilterChange();
 }
 
 function resetPeriode() {
   document.getElementById('selectTahun').value = '';
+  if (document.getElementById('selectTahunGrafik')) document.getElementById('selectTahunGrafik').value = '';
   document.getElementById('selectBulan').value = '';
   onFilterChange();
 }
@@ -546,6 +561,11 @@ function resetPeriode() {
 function onFilterChange() {
   var selectedTahun = document.getElementById('selectTahun').value;
   var selectedBulan = document.getElementById('selectBulan').value;
+
+  var selTahunGrafik = document.getElementById('selectTahunGrafik');
+  if (selTahunGrafik && selTahunGrafik.value !== selectedTahun) {
+    selTahunGrafik.value = selectedTahun;
+  }
 
   // Filter record sesuai periode
   var filtered = [];
@@ -613,14 +633,6 @@ function updateKPICards(records) {
 // 2. Grafik Batang 1 Baris: 6 Status Kolom AE per Bulan (Januari s.d. Desember)
 var bulanDaftarLengkap = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
-function toggleBarMode(stacked) {
-  isBarStacked = stacked;
-  document.getElementById('btnStackedBar').className = 'btn btn-outline-primary' + (stacked ? ' active' : '');
-  document.getElementById('btnGroupedBar').className = 'btn btn-outline-primary' + (!stacked ? ' active' : '');
-  var selTahun = document.getElementById('selectTahun').value;
-  renderChartStatusBarisPenuh(selTahun);
-}
-
 function renderChartStatusBarisPenuh(selectedTahun) {
   var ctx = document.getElementById('chartStatusBarisPenuh').getContext('2d');
 
@@ -628,7 +640,6 @@ function renderChartStatusBarisPenuh(selectedTahun) {
   if (!tahunAktif && allRecords.length > 0) {
     tahunAktif = allRecords[0].tahun_ajuan;
   }
-  document.getElementById('badgeStatusTahun').innerText = tahunAktif ? 'Tahun ' + tahunAktif : 'Semua Tahun';
 
   // Inisialisasi counter per bulan (12 bulan) untuk ke-6 status
   var mapApprove = {};
@@ -711,43 +722,45 @@ function renderChartStatusBarisPenuh(selectedTahun) {
           label: 'Approve',
           data: dataApprove,
           backgroundColor: '#10b981',
-          borderRadius: isBarStacked ? 0 : 3
+          borderRadius: 3
         },
         {
           label: 'Revisi Dikirim',
           data: dataRevisiDikirim,
           backgroundColor: '#0ea5e9',
-          borderRadius: isBarStacked ? 0 : 3
+          borderRadius: 3
         },
         {
           label: 'Revisi',
           data: dataRevisi,
           backgroundColor: '#f59e0b',
-          borderRadius: isBarStacked ? 0 : 3
+          borderRadius: 3
         },
         {
           label: 'Belum Dicek',
           data: dataBelumDicek,
           backgroundColor: '#64748b',
-          borderRadius: isBarStacked ? 0 : 3
+          borderRadius: 3
         },
         {
           label: 'Ditolak',
           data: dataDitolak,
           backgroundColor: '#ef4444',
-          borderRadius: isBarStacked ? 0 : 3
+          borderRadius: 3
         },
         {
           label: 'Sisulka',
           data: dataSisulka,
           backgroundColor: '#8b5cf6',
-          borderRadius: isBarStacked ? 0 : 3
+          borderRadius: 3
         }
       ]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      barPercentage: 0.85,
+      categoryPercentage: 0.8,
       plugins: {
         legend: {
           position: 'top',
@@ -767,11 +780,11 @@ function renderChartStatusBarisPenuh(selectedTahun) {
       },
       scales: {
         x: {
-          stacked: isBarStacked,
+          stacked: false,
           grid: { display: false }
         },
         y: {
-          stacked: isBarStacked,
+          stacked: false,
           beginAtZero: true,
           ticks: { precision: 0 }
         }
