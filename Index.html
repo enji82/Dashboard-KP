@@ -321,36 +321,47 @@ body {
       </div>
     </div>
 
-    <!-- Grafik Section: 2 Grafik Berdampingan -->
+    <!-- Grafik Batang 1 Baris Penuh: Status Kolom AE per Bulan (Januari s.d. Desember) -->
     <div class="row g-3 mb-4">
-      <!-- Grafik 1: Ajuan Golongan Kenaikan Pangkat -->
-      <div class="col-12 col-lg-6">
+      <div class="col-12">
+        <div class="dashboard-card">
+          <div class="card-title-custom justify-content-between flex-wrap gap-2">
+            <div class="d-flex align-items-center gap-2">
+              <i class="bi bi-bar-chart-fill text-primary fs-5"></i>
+              <span class="fw-bold fs-6">Rekapitulasi Status Usulan (Kolom AE) per Bulan (Januari - Desember)</span>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <div class="btn-group btn-group-sm" role="group" aria-label="Mode Tampilan Grafik">
+                <button type="button" class="btn btn-outline-primary active" id="btnStackedBar" onclick="toggleBarMode(true)">
+                  <i class="bi bi-layers-fill me-1"></i>Tumpuk (Stacked)
+                </button>
+                <button type="button" class="btn btn-outline-primary" id="btnGroupedBar" onclick="toggleBarMode(false)">
+                  <i class="bi bi-bar-chart me-1"></i>Berdampingan
+                </button>
+              </div>
+              <span class="badge bg-light text-primary border" id="badgeStatusTahun">Tahun 2026</span>
+            </div>
+          </div>
+          <div style="position: relative; height: 320px;">
+            <canvas id="chartStatusBarisPenuh"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Grafik Section: Ajuan Golongan Kenaikan Pangkat -->
+    <div class="row g-3 mb-4">
+      <div class="col-12">
         <div class="dashboard-card">
           <div class="card-title-custom justify-content-between">
             <div>
               <i class="bi bi-award text-primary"></i>
-              <span>Ajuan Kenaikan Pangkat (Golongan)</span>
+              <span>Distribusi Ajuan Kenaikan Pangkat (Golongan yang Diajukan)</span>
             </div>
             <span class="badge bg-light text-primary border" id="badgeGolonganPeriode">Semua Periode</span>
           </div>
-          <div style="position: relative; height: 280px;">
+          <div style="position: relative; height: 260px;">
             <canvas id="chartGolongan"></canvas>
-          </div>
-        </div>
-      </div>
-
-      <!-- Grafik 2: Tren Bulanan Usulan vs Revisi -->
-      <div class="col-12 col-lg-6">
-        <div class="dashboard-card">
-          <div class="card-title-custom justify-content-between">
-            <div>
-              <i class="bi bi-graph-up text-success"></i>
-              <span>Tren Bulanan: Total Usulan vs Berkas Revisi</span>
-            </div>
-            <span class="badge bg-light text-success border" id="badgeTrenTahun">Tahun 2026</span>
-          </div>
-          <div style="position: relative; height: 280px;">
-            <canvas id="chartTrenBulanan"></canvas>
           </div>
         </div>
       </div>
@@ -413,7 +424,8 @@ body {
 
 var allRecords = [];
 var chartGolonganInstance = null;
-var chartTrenInstance = null;
+var chartStatusBarisPenuhInstance = null;
+var isBarStacked = true;
 
 document.addEventListener('DOMContentLoaded', function() {
   loadDashboardData(false);
@@ -429,7 +441,6 @@ function loadDashboardData(isRefresh) {
   showLoading(true);
 
   if (typeof google === 'undefined' || !google.script || !google.script.run) {
-    // Mode Preview / Lokal jika dijalankan tanpa GAS runtime
     setTimeout(function() {
       handleSuccess(generateDummyExecutiveData());
     }, 500);
@@ -558,8 +569,8 @@ function onFilterChange() {
   document.getElementById('matrixSubtext').innerText = 'Data rekapitulasi periode: ' + labelPeriode;
 
   updateKPICards(filtered);
+  renderChartStatusBarisPenuh(selectedTahun);
   renderChartGolongan(filtered);
-  renderChartTrenBulanan(selectedTahun);
   renderMatrixTable(filtered);
 }
 
@@ -595,7 +606,153 @@ function updateKPICards(records) {
   document.getElementById('kpiSubtextTMS').innerText = pctTMS + '% dari total usulan';
 }
 
-// 2. Grafik Ajuan Kenaikan Pangkat (Golongan)
+// 2. Grafik Batang 1 Baris: Status Kolom AE per Bulan (Januari s.d. Desember)
+var bulanDaftarLengkap = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+
+function toggleBarMode(stacked) {
+  isBarStacked = stacked;
+  document.getElementById('btnStackedBar').className = 'btn btn-outline-primary' + (stacked ? ' active' : '');
+  document.getElementById('btnGroupedBar').className = 'btn btn-outline-primary' + (!stacked ? ' active' : '');
+  var selTahun = document.getElementById('selectTahun').value;
+  renderChartStatusBarisPenuh(selTahun);
+}
+
+function renderChartStatusBarisPenuh(selectedTahun) {
+  var ctx = document.getElementById('chartStatusBarisPenuh').getContext('2d');
+
+  var tahunAktif = selectedTahun;
+  if (!tahunAktif && allRecords.length > 0) {
+    tahunAktif = allRecords[0].tahun_ajuan;
+  }
+  document.getElementById('badgeStatusTahun').innerText = tahunAktif ? 'Tahun ' + tahunAktif : 'Semua Tahun';
+
+  // Inisialisasi counter per bulan (12 bulan)
+  var mapMS = {};
+  var mapRevisi = {};
+  var mapTMS = {};
+  var mapProses = {};
+
+  for (var b = 0; b < bulanDaftarLengkap.length; b++) {
+    var bName = bulanDaftarLengkap[b];
+    mapMS[bName] = 0;
+    mapRevisi[bName] = 0;
+    mapTMS[bName] = 0;
+    mapProses[bName] = 0;
+  }
+
+  for (var i = 0; i < allRecords.length; i++) {
+    var r = allRecords[i];
+    if (tahunAktif && r.tahun_ajuan !== tahunAktif) continue;
+
+    var bln = r.bulan_ajuan;
+    if (!bln || bln === 'Tidak Diketahui') continue;
+
+    // Normalisasi pencocokan nama bulan
+    var matchedBulan = '';
+    for (var m = 0; m < bulanDaftarLengkap.length; m++) {
+      if (bln.toLowerCase().indexOf(bulanDaftarLengkap[m].toLowerCase()) !== -1) {
+        matchedBulan = bulanDaftarLengkap[m];
+        break;
+      }
+    }
+    if (!matchedBulan) matchedBulan = bln;
+
+    // Klasifikasi status dari Kolom AE
+    if (r.is_revisi) {
+      mapRevisi[matchedBulan] = (mapRevisi[matchedBulan] || 0) + 1;
+    } else {
+      var s = (r.status || '').toLowerCase();
+      if (s.indexOf('memenuhi') !== -1 || s === 'ms') {
+        mapMS[matchedBulan] = (mapMS[matchedBulan] || 0) + 1;
+      } else if (s.indexOf('tidak memenuhi') !== -1 || s === 'tms') {
+        mapTMS[matchedBulan] = (mapTMS[matchedBulan] || 0) + 1;
+      } else {
+        mapProses[matchedBulan] = (mapProses[matchedBulan] || 0) + 1;
+      }
+    }
+  }
+
+  var dataMS = [];
+  var dataRevisi = [];
+  var dataTMS = [];
+  var dataProses = [];
+
+  for (var k = 0; k < bulanDaftarLengkap.length; k++) {
+    var bKey = bulanDaftarLengkap[k];
+    dataMS.push(mapMS[bKey] || 0);
+    dataRevisi.push(mapRevisi[bKey] || 0);
+    dataTMS.push(mapTMS[bKey] || 0);
+    dataProses.push(mapProses[bKey] || 0);
+  }
+
+  if (chartStatusBarisPenuhInstance) chartStatusBarisPenuhInstance.destroy();
+
+  chartStatusBarisPenuhInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: bulanDaftarLengkap,
+      datasets: [
+        {
+          label: 'Memenuhi Syarat (MS)',
+          data: dataMS,
+          backgroundColor: '#10b981',
+          borderRadius: isBarStacked ? 0 : 4
+        },
+        {
+          label: 'Perlu Revisi (Kolom AE / BTL)',
+          data: dataRevisi,
+          backgroundColor: '#f59e0b',
+          borderRadius: isBarStacked ? 0 : 4
+        },
+        {
+          label: 'Tidak Memenuhi Syarat (TMS)',
+          data: dataTMS,
+          backgroundColor: '#ef4444',
+          borderRadius: isBarStacked ? 0 : 4
+        },
+        {
+          label: 'Dalam Proses / Verifikasi',
+          data: dataProses,
+          backgroundColor: '#3b82f6',
+          borderRadius: isBarStacked ? 0 : 4
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'top',
+          labels: {
+            boxWidth: 14,
+            usePointStyle: true
+          }
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              return ' ' + context.dataset.label + ': ' + context.raw + ' usulan';
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          stacked: isBarStacked,
+          grid: { display: false }
+        },
+        y: {
+          stacked: isBarStacked,
+          beginAtZero: true,
+          ticks: { precision: 0 }
+        }
+      }
+    }
+  });
+}
+
+// 3. Grafik Ajuan Kenaikan Pangkat (Golongan)
 function renderChartGolongan(records) {
   var ctx = document.getElementById('chartGolongan').getContext('2d');
   var pangkatCounts = {};
@@ -642,94 +799,6 @@ function renderChartGolongan(records) {
       },
       scales: {
         x: { beginAtZero: true, ticks: { precision: 0 } }
-      }
-    }
-  });
-}
-
-// 3. Grafik Tren Bulanan: Usulan vs Revisi
-function renderChartTrenBulanan(selectedTahun) {
-  var ctx = document.getElementById('chartTrenBulanan').getContext('2d');
-  var bulanOrder = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-
-  var tahunAktif = selectedTahun;
-  if (!tahunAktif && allRecords.length > 0) {
-    tahunAktif = allRecords[0].tahun_ajuan;
-  }
-  document.getElementById('badgeTrenTahun').innerText = tahunAktif ? 'Tahun ' + tahunAktif : 'Sepanjang Tahun';
-
-  var monthlyTotal = {};
-  var monthlyRevisi = {};
-
-  for (var i = 0; i < allRecords.length; i++) {
-    var r = allRecords[i];
-    if (tahunAktif && r.tahun_ajuan !== tahunAktif) continue;
-    var b = r.bulan_ajuan;
-    if (!b || b === 'Tidak Diketahui') continue;
-
-    monthlyTotal[b] = (monthlyTotal[b] || 0) + 1;
-    if (r.is_revisi) {
-      monthlyRevisi[b] = (monthlyRevisi[b] || 0) + 1;
-    }
-  }
-
-  // Tentukan label bulan yang muncul
-  var activeMonths = [];
-  for (var m = 0; m < bulanOrder.length; m++) {
-    var bln = bulanOrder[m];
-    if (monthlyTotal[bln] !== undefined) {
-      activeMonths.push(bln);
-    }
-  }
-  if (activeMonths.length === 0) {
-    activeMonths = Object.keys(monthlyTotal);
-  }
-
-  var dataTotal = [];
-  var dataRevisi = [];
-  for (var k = 0; k < activeMonths.length; k++) {
-    var name = activeMonths[k];
-    dataTotal.push(monthlyTotal[name] || 0);
-    dataRevisi.push(monthlyRevisi[name] || 0);
-  }
-
-  if (chartTrenInstance) chartTrenInstance.destroy();
-
-  chartTrenInstance = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: activeMonths,
-      datasets: [
-        {
-          label: 'Total Usulan',
-          data: dataTotal,
-          borderColor: '#2563eb',
-          backgroundColor: 'rgba(37, 99, 235, 0.1)',
-          fill: true,
-          tension: 0.3,
-          borderWidth: 2,
-          pointRadius: 4
-        },
-        {
-          label: 'Perlu Revisi (Kolom AE)',
-          data: dataRevisi,
-          borderColor: '#f59e0b',
-          backgroundColor: 'rgba(245, 158, 11, 0.15)',
-          fill: true,
-          tension: 0.3,
-          borderWidth: 2,
-          pointRadius: 4
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { position: 'top' }
-      },
-      scales: {
-        y: { beginAtZero: true, ticks: { precision: 0 } }
       }
     }
   });
