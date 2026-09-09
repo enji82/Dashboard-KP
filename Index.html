@@ -90,25 +90,32 @@ body {
   height: 100%;
 }
 
-.kpi-total::before { background: var(--primary-light); }
-.kpi-revisi::before { background: var(--status-revisi); }
-.kpi-ms::before { background: var(--status-ms); }
-.kpi-tms::before { background: var(--status-tms); }
+.kpi-total::before { background: #2563eb; }
+.kpi-approve::before { background: #10b981; }
+.kpi-revisidikirim::before { background: #0ea5e9; }
+.kpi-revisi::before { background: #f59e0b; }
+.kpi-belumdicek::before { background: #64748b; }
+.kpi-ditolak::before { background: #ef4444; }
+.kpi-sisulka::before { background: #8b5cf6; }
 
 .kpi-icon {
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.4rem;
+  font-size: 1.3rem;
+  flex-shrink: 0;
 }
 
 .icon-total { background: #eff6ff; color: #2563eb; }
+.icon-approve { background: #ecfdf5; color: #059669; }
+.icon-revisidikirim { background: #f0f9ff; color: #0284c7; }
 .icon-revisi { background: #fffbeb; color: #d97706; }
-.icon-ms { background: #ecfdf5; color: #059669; }
-.icon-tms { background: #fef2f2; color: #dc2626; }
+.icon-belumdicek { background: #f1f5f9; color: #475569; }
+.icon-ditolak { background: #fef2f2; color: #dc2626; }
+.icon-sisulka { background: #f5f3ff; color: #7c3aed; }
 
 /* Dashboard Cards */
 .dashboard-card {
@@ -262,16 +269,16 @@ body {
       </div>
     </div>
 
-    <!-- 4 KPI Cards Sorotan Cepat Status Kolom AE -->
-    <div class="row g-3 mb-4">
+    <!-- Kartu KPI Ringkasan: Total Usulan & 6 Kriteria Status Kolom AE -->
+    <div class="row g-2 mb-4">
       <!-- Total Usulan -->
-      <div class="col-6 col-md-3">
+      <div class="col-12 col-sm-6 col-md-4 col-xl">
         <div class="kpi-card kpi-total">
-          <div class="d-flex justify-content-between align-items-start">
+          <div class="d-flex justify-content-between align-items-center">
             <div>
-              <div class="text-muted small fw-semibold">Total Usulan KP</div>
-              <h2 class="h2 fw-bold mb-0 mt-2" id="kpiTotal">0</h2>
-              <div class="small text-muted mt-1" id="kpiSubtextTotal">Periode terpilih</div>
+              <div class="text-muted small fw-semibold">Total Usulan</div>
+              <h3 class="h3 fw-bold mb-0 mt-1" id="kpiTotal">0</h3>
+              <div class="small text-muted" style="font-size: 0.75rem;" id="kpiSubtextTotal">Semua Kriteria</div>
             </div>
             <div class="kpi-icon icon-total"><i class="bi bi-files"></i></div>
           </div>
@@ -279,43 +286,85 @@ body {
       </div>
 
       <!-- Approve -->
-      <div class="col-6 col-md-3">
-        <div class="kpi-card kpi-ms">
-          <div class="d-flex justify-content-between align-items-start">
+      <div class="col-6 col-sm-6 col-md-4 col-xl">
+        <div class="kpi-card kpi-approve">
+          <div class="d-flex justify-content-between align-items-center">
             <div>
-              <div class="text-success small fw-bold">Approve (Disetujui)</div>
-              <h2 class="h2 fw-bold mb-0 mt-2 text-success" id="kpiApprove">0</h2>
-              <div class="small text-success fw-semibold mt-1" id="kpiSubtextApprove">0% dari usulan</div>
+              <div class="text-success small fw-bold">Approve</div>
+              <h3 class="h3 fw-bold mb-0 mt-1 text-success" id="kpiApprove">0</h3>
+              <div class="small text-success fw-semibold" style="font-size: 0.75rem;" id="kpiSubtextApprove">0%</div>
             </div>
-            <div class="kpi-icon icon-ms"><i class="bi bi-check2-circle"></i></div>
+            <div class="kpi-icon icon-approve"><i class="bi bi-check2-circle"></i></div>
           </div>
         </div>
       </div>
 
-      <!-- Revisi & Revisi Dikirim -->
-      <div class="col-6 col-md-3">
-        <div class="kpi-card kpi-revisi">
-          <div class="d-flex justify-content-between align-items-start">
+      <!-- Revisi Dikirim -->
+      <div class="col-6 col-sm-6 col-md-4 col-xl">
+        <div class="kpi-card kpi-revisidikirim">
+          <div class="d-flex justify-content-between align-items-center">
             <div>
-              <div class="text-warning-emphasis small fw-bold">Revisi &amp; Dikirim</div>
-              <h2 class="h2 fw-bold mb-0 mt-2 text-warning" id="kpiRevisi">0</h2>
-              <div class="small text-warning-emphasis fw-semibold mt-1" id="kpiSubtextRevisi">0 Revisi &bull; 0 Dikirim</div>
+              <div class="text-info-emphasis small fw-bold">Revisi Dikirim</div>
+              <h3 class="h3 fw-bold mb-0 mt-1 text-info-emphasis" id="kpiRevisiDikirim">0</h3>
+              <div class="small text-info-emphasis fw-semibold" style="font-size: 0.75rem;" id="kpiSubtextRevisiDikirim">0%</div>
+            </div>
+            <div class="kpi-icon icon-revisidikirim"><i class="bi bi-send-check"></i></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Revisi -->
+      <div class="col-6 col-sm-6 col-md-4 col-xl">
+        <div class="kpi-card kpi-revisi">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <div class="text-warning-emphasis small fw-bold">Revisi</div>
+              <h3 class="h3 fw-bold mb-0 mt-1 text-warning" id="kpiRevisi">0</h3>
+              <div class="small text-warning-emphasis fw-semibold" style="font-size: 0.75rem;" id="kpiSubtextRevisi">0%</div>
             </div>
             <div class="kpi-icon icon-revisi"><i class="bi bi-pencil-square"></i></div>
           </div>
         </div>
       </div>
 
-      <!-- Belum Dicek / Lainnya -->
-      <div class="col-6 col-md-3">
-        <div class="kpi-card kpi-tms">
-          <div class="d-flex justify-content-between align-items-start">
+      <!-- Belum Dicek -->
+      <div class="col-6 col-sm-6 col-md-4 col-xl">
+        <div class="kpi-card kpi-belumdicek">
+          <div class="d-flex justify-content-between align-items-center">
             <div>
-              <div class="text-secondary small fw-bold">Belum Dicek / Ditolak</div>
-              <h2 class="h2 fw-bold mb-0 mt-2 text-dark" id="kpiLainnya">0</h2>
-              <div class="small text-muted fw-semibold mt-1" id="kpiSubtextLainnya">0 Belum Dicek &bull; 0 Ditolak</div>
+              <div class="text-secondary small fw-bold">Belum Dicek</div>
+              <h3 class="h3 fw-bold mb-0 mt-1 text-secondary" id="kpiBelumDicek">0</h3>
+              <div class="small text-muted fw-semibold" style="font-size: 0.75rem;" id="kpiSubtextBelumDicek">0%</div>
             </div>
-            <div class="kpi-icon" style="background: #f1f5f9; color: #475569;"><i class="bi bi-hourglass-split"></i></div>
+            <div class="kpi-icon icon-belumdicek"><i class="bi bi-hourglass-split"></i></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ditolak -->
+      <div class="col-6 col-sm-6 col-md-4 col-xl">
+        <div class="kpi-card kpi-ditolak">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <div class="text-danger small fw-bold">Ditolak</div>
+              <h3 class="h3 fw-bold mb-0 mt-1 text-danger" id="kpiDitolak">0</h3>
+              <div class="small text-danger fw-semibold" style="font-size: 0.75rem;" id="kpiSubtextDitolak">0%</div>
+            </div>
+            <div class="kpi-icon icon-ditolak"><i class="bi bi-x-circle"></i></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sisulka -->
+      <div class="col-6 col-sm-6 col-md-4 col-xl">
+        <div class="kpi-card kpi-sisulka">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <div class="small fw-bold" style="color: #7c3aed;">Sisulka</div>
+              <h3 class="h3 fw-bold mb-0 mt-1" style="color: #7c3aed;" id="kpiSisulka">0</h3>
+              <div class="small fw-semibold" style="color: #7c3aed; font-size: 0.75rem;" id="kpiSubtextSisulka">0%</div>
+            </div>
+            <div class="kpi-icon icon-sisulka"><i class="bi bi-folder2-open"></i></div>
           </div>
         </div>
       </div>
@@ -594,12 +643,12 @@ function onFilterChange() {
   renderMatrixTable(filtered);
 }
 
-// 1. Update 4 Kartu KPI
+// 1. Update Kartu KPI Sesuai Kriteria Kolom AE
 function updateKPICards(records) {
   var total = records.length;
   var countApprove = 0;
-  var countRevisi = 0;
   var countRevisiDikirim = 0;
+  var countRevisi = 0;
   var countBelumDicek = 0;
   var countDitolak = 0;
   var countSisulka = 0;
@@ -615,19 +664,26 @@ function updateKPICards(records) {
     else countBelumDicek++;
   }
 
-  var totalRevisiGabungan = countRevisi + countRevisiDikirim;
-  var totalLainnya = countBelumDicek + countDitolak + countSisulka;
+  var calcPct = function(cnt) {
+    return total > 0 ? ((cnt / total) * 100).toFixed(1) + '%' : '0%';
+  };
 
-  var pctApprove = total > 0 ? Math.round((countApprove / total) * 100) : 0;
-
+  // Set Angka Utama
   document.getElementById('kpiTotal').innerText = total.toLocaleString('id-ID');
   document.getElementById('kpiApprove').innerText = countApprove.toLocaleString('id-ID');
-  document.getElementById('kpiRevisi').innerText = totalRevisiGabungan.toLocaleString('id-ID');
-  document.getElementById('kpiLainnya').innerText = totalLainnya.toLocaleString('id-ID');
+  document.getElementById('kpiRevisiDikirim').innerText = countRevisiDikirim.toLocaleString('id-ID');
+  document.getElementById('kpiRevisi').innerText = countRevisi.toLocaleString('id-ID');
+  document.getElementById('kpiBelumDicek').innerText = countBelumDicek.toLocaleString('id-ID');
+  document.getElementById('kpiDitolak').innerText = countDitolak.toLocaleString('id-ID');
+  document.getElementById('kpiSisulka').innerText = countSisulka.toLocaleString('id-ID');
 
-  document.getElementById('kpiSubtextApprove').innerText = pctApprove + '% dari total usulan';
-  document.getElementById('kpiSubtextRevisi').innerText = countRevisi + ' Perlu Revisi &bull; ' + countRevisiDikirim + ' Dikirim';
-  document.getElementById('kpiSubtextLainnya').innerText = countBelumDicek + ' Belum Dicek &bull; ' + countDitolak + ' Ditolak &bull; ' + countSisulka + ' Sisulka';
+  // Set Persentase Subtext
+  document.getElementById('kpiSubtextApprove').innerText = calcPct(countApprove) + ' usulan';
+  document.getElementById('kpiSubtextRevisiDikirim').innerText = calcPct(countRevisiDikirim) + ' usulan';
+  document.getElementById('kpiSubtextRevisi').innerText = calcPct(countRevisi) + ' usulan';
+  document.getElementById('kpiSubtextBelumDicek').innerText = calcPct(countBelumDicek) + ' usulan';
+  document.getElementById('kpiSubtextDitolak').innerText = calcPct(countDitolak) + ' usulan';
+  document.getElementById('kpiSubtextSisulka').innerText = calcPct(countSisulka) + ' usulan';
 }
 
 // 2. Grafik Batang 1 Baris: 6 Status Kolom AE per Bulan (Januari s.d. Desember)
