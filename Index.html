@@ -896,24 +896,28 @@ function renderChartStatusBarisPenuh(records, selectedBulan) {
   var barValueLabelsPlugin = {
     id: 'barValueLabels',
     afterDatasetsDraw: function(chart) {
-      var chartCtx = chart.ctx;
-      chart.data.datasets.forEach(function(dataset, datasetIndex) {
-        var meta = chart.getDatasetMeta(datasetIndex);
-        if (meta.hidden) return;
+      try {
+        var chartCtx = chart.ctx;
+        chart.data.datasets.forEach(function(dataset, datasetIndex) {
+          var meta = chart.getDatasetMeta(datasetIndex);
+          if (meta.hidden) return;
 
-        meta.data.forEach(function(bar, index) {
-          var val = dataset.data[index];
-          if (val > 0) {
-            chartCtx.save();
-            chartCtx.font = 'bold 11px "Plus Jakarta Sans", sans-serif';
-            chartCtx.fillStyle = '#334155';
-            chartCtx.textAlign = 'center';
-            chartCtx.textBaseline = 'bottom';
-            chartCtx.fillText(val, bar.x, bar.y - 3);
-            chartCtx.restore();
-          }
+          meta.data.forEach(function(bar, index) {
+            var val = dataset.data[index];
+            if (val > 0 && bar && typeof bar.x === 'number' && typeof bar.y === 'number') {
+              chartCtx.save();
+              chartCtx.font = 'bold 11px "Plus Jakarta Sans", sans-serif';
+              chartCtx.fillStyle = '#334155';
+              chartCtx.textAlign = 'center';
+              chartCtx.textBaseline = 'bottom';
+              chartCtx.fillText(val, bar.x, bar.y - 3);
+              chartCtx.restore();
+            }
+          });
         });
-      });
+      } catch (err) {
+        console.warn('Gagal render barValueLabels:', err);
+      }
     }
   };
 
@@ -971,7 +975,7 @@ function renderChartStatusBarisPenuh(records, selectedBulan) {
       categoryPercentage: 0.88,
       layout: {
         padding: {
-          top: 20
+          top: 25
         }
       },
       plugins: {
@@ -1004,7 +1008,6 @@ function renderChartStatusBarisPenuh(records, selectedBulan) {
             display: true,
             drawOnChartArea: true,
             drawTicks: true,
-            offset: false,
             color: 'rgba(148, 163, 184, 0.35)',
             lineWidth: 1.2
           },
@@ -1020,7 +1023,11 @@ function renderChartStatusBarisPenuh(records, selectedBulan) {
         y: {
           stacked: false,
           beginAtZero: true,
-          grace: '10%',
+          suggestedMax: function() {
+            var allVals = [].concat(dataApprove, dataRevisiDikirim, dataRevisi, dataBelumDicek, dataDitolak, dataSisulka);
+            var maxVal = Math.max.apply(null, allVals);
+            return maxVal > 0 ? maxVal + 1 : 5;
+          }(),
           ticks: { precision: 0 },
           grid: {
             color: 'rgba(226, 232, 240, 0.7)'
