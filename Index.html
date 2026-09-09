@@ -18,7 +18,6 @@
   <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
 
-  <!-- Custom CSS Modular -->
   <style>
 /* Styling CSS Dashboard Kenaikan Pangkat (KP) Disdikbud Kab. Magelang */
 :root {
@@ -31,7 +30,6 @@
   --text-main: #0f172a;
   --text-muted: #64748b;
   --border-color: #e2e8f0;
-  
   --status-ms: #10b981;
   --status-btl: #f59e0b;
   --status-tms: #ef4444;
@@ -46,7 +44,6 @@ body {
   padding: 0;
 }
 
-/* Header & Navbar */
 .app-header {
   background: linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%);
   color: white;
@@ -65,7 +62,6 @@ body {
   text-transform: uppercase;
 }
 
-/* KPI Cards */
 .kpi-card {
   background: var(--card-bg);
   border-radius: 16px;
@@ -113,7 +109,6 @@ body {
 .icon-tms { background: #fef2f2; color: #dc2626; }
 .icon-proses { background: #f0fdf4; color: #0284c7; }
 
-/* Filter Container */
 .filter-box {
   background: var(--card-bg);
   border-radius: 14px;
@@ -122,7 +117,6 @@ body {
   box-shadow: 0 2px 4px rgba(0,0,0,0.02);
 }
 
-/* Charts & Content Cards */
 .dashboard-card {
   background: var(--card-bg);
   border-radius: 16px;
@@ -142,7 +136,6 @@ body {
   margin-bottom: 1.25rem;
 }
 
-/* Status Badges */
 .badge-status {
   padding: 0.35rem 0.75rem;
   font-weight: 600;
@@ -153,31 +146,12 @@ body {
   gap: 0.35rem;
 }
 
-.badge-status-ms {
-  background-color: #d1fae5;
-  color: #065f46;
-}
+.badge-status-ms { background-color: #d1fae5; color: #065f46; }
+.badge-status-btl { background-color: #fef3c7; color: #92400e; }
+.badge-status-tms { background-color: #fee2e2; color: #991b1b; }
+.badge-status-proses { background-color: #e0f2fe; color: #075985; }
 
-.badge-status-btl {
-  background-color: #fef3c7;
-  color: #92400e;
-}
-
-.badge-status-tms {
-  background-color: #fee2e2;
-  color: #991b1b;
-}
-
-.badge-status-proses {
-  background-color: #e0f2fe;
-  color: #075985;
-}
-
-/* Custom Table */
-.table-custom {
-  border-collapse: separate;
-  border-spacing: 0;
-}
+.table-custom { border-collapse: separate; border-spacing: 0; }
 
 .table-custom th {
   background-color: #f1f5f9;
@@ -197,11 +171,8 @@ body {
   border-bottom: 1px solid var(--border-color);
 }
 
-.table-custom tbody tr:hover {
-  background-color: #f8fafc;
-}
+.table-custom tbody tr:hover { background-color: #f8fafc; }
 
-/* Modal Styling */
 .modal-content-custom {
   border-radius: 20px;
   border: none;
@@ -226,14 +197,11 @@ body {
   font-size: 0.825rem;
 }
 
-/* Loading Overlay */
 #loadingOverlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(255, 255, 255, 0.88);
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(4px);
   display: flex;
   flex-direction: column;
@@ -243,19 +211,15 @@ body {
 }
 
 .spinner-pulse {
-  width: 50px;
-  height: 50px;
+  width: 50px; height: 50px;
   border-radius: 50%;
   border: 4px solid #e2e8f0;
   border-top-color: #1e3a8a;
   animation: spin 0.8s linear infinite;
 }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-</style>
-
+@keyframes spin { to { transform: rotate(360deg); } }
+  </style>
 </head>
 <body>
 
@@ -276,7 +240,7 @@ body {
           </div>
           <div>
             <div class="brand-badge mb-1">E-Layanan Kepegawaian</div>
-            <h1 class="h4 mb-0 fw-bold tracking-tight">Dashboard Kenaikan Pangkat (KP) PNS</h1>
+            <h1 class="h4 mb-0 fw-bold">Dashboard Kenaikan Pangkat (KP) PNS</h1>
             <div class="small text-light opacity-75">Dinas Pendidikan dan Kebudayaan Kabupaten Magelang</div>
           </div>
         </div>
@@ -298,7 +262,6 @@ body {
 
     <!-- KPI Cards Summary -->
     <div class="row g-3 mb-4">
-      <!-- Total Usulan -->
       <div class="col-6 col-md-4 col-xl">
         <div class="kpi-card kpi-total">
           <div class="d-flex justify-content-between align-items-center">
@@ -306,13 +269,10 @@ body {
               <div class="text-muted small fw-semibold">Total Usulan</div>
               <h2 class="h3 fw-bold mb-0 mt-1" id="kpiTotal">0</h2>
             </div>
-            <div class="kpi-icon icon-total">
-              <i class="bi bi-files"></i>
-            </div>
+            <div class="kpi-icon icon-total"><i class="bi bi-files"></i></div>
           </div>
         </div>
       </div>
-      <!-- Memenuhi Syarat (MS) -->
       <div class="col-6 col-md-4 col-xl">
         <div class="kpi-card kpi-ms">
           <div class="d-flex justify-content-between align-items-center">
@@ -320,13 +280,10 @@ body {
               <div class="text-muted small fw-semibold">Memenuhi Syarat (MS)</div>
               <h2 class="h3 fw-bold mb-0 mt-1 text-success" id="kpiMS">0</h2>
             </div>
-            <div class="kpi-icon icon-ms">
-              <i class="bi bi-check2-all"></i>
-            </div>
+            <div class="kpi-icon icon-ms"><i class="bi bi-check2-all"></i></div>
           </div>
         </div>
       </div>
-      <!-- Berkas Tidak Lengkap (BTL) -->
       <div class="col-6 col-md-4 col-xl">
         <div class="kpi-card kpi-btl">
           <div class="d-flex justify-content-between align-items-center">
@@ -334,13 +291,10 @@ body {
               <div class="text-muted small fw-semibold">Perlu Perbaikan (BTL)</div>
               <h2 class="h3 fw-bold mb-0 mt-1 text-warning" id="kpiBTL">0</h2>
             </div>
-            <div class="kpi-icon icon-btl">
-              <i class="bi bi-exclamation-triangle"></i>
-            </div>
+            <div class="kpi-icon icon-btl"><i class="bi bi-exclamation-triangle"></i></div>
           </div>
         </div>
       </div>
-      <!-- Tidak Memenuhi Syarat (TMS) -->
       <div class="col-6 col-md-6 col-xl">
         <div class="kpi-card kpi-tms">
           <div class="d-flex justify-content-between align-items-center">
@@ -348,13 +302,10 @@ body {
               <div class="text-muted small fw-semibold">Ditolak (TMS)</div>
               <h2 class="h3 fw-bold mb-0 mt-1 text-danger" id="kpiTMS">0</h2>
             </div>
-            <div class="kpi-icon icon-tms">
-              <i class="bi bi-x-circle"></i>
-            </div>
+            <div class="kpi-icon icon-tms"><i class="bi bi-x-circle"></i></div>
           </div>
         </div>
       </div>
-      <!-- Dalam Proses -->
       <div class="col-12 col-md-6 col-xl">
         <div class="kpi-card kpi-proses">
           <div class="d-flex justify-content-between align-items-center">
@@ -362,9 +313,7 @@ body {
               <div class="text-muted small fw-semibold">Dalam Proses</div>
               <h2 class="h3 fw-bold mb-0 mt-1 text-info" id="kpiProses">0</h2>
             </div>
-            <div class="kpi-icon icon-proses">
-              <i class="bi bi-hourglass-split"></i>
-            </div>
+            <div class="kpi-icon icon-proses"><i class="bi bi-hourglass-split"></i></div>
           </div>
         </div>
       </div>
@@ -412,7 +361,6 @@ body {
 
     <!-- Charts Section -->
     <div class="row g-3 mb-4">
-      <!-- Chart Usulan per Pangkat -->
       <div class="col-12 col-lg-5">
         <div class="dashboard-card">
           <div class="card-title-custom">
@@ -424,7 +372,6 @@ body {
           </div>
         </div>
       </div>
-      <!-- Chart Usulan per Kecamatan -->
       <div class="col-12 col-md-7 col-lg-4">
         <div class="dashboard-card">
           <div class="card-title-custom">
@@ -436,7 +383,6 @@ body {
           </div>
         </div>
       </div>
-      <!-- Chart Jenjang Pendidikan -->
       <div class="col-12 col-md-5 col-lg-3">
         <div class="dashboard-card">
           <div class="card-title-custom">
@@ -455,7 +401,7 @@ body {
       <div class="p-3 border-bottom d-flex flex-wrap justify-content-between align-items-center gap-2 bg-light">
         <div class="card-title-custom mb-0">
           <i class="bi bi-table text-primary"></i>
-          <span>Daftar Usulan & Tracking Berkas Pegawai</span>
+          <span>Daftar Usulan &amp; Tracking Berkas Pegawai</span>
         </div>
         <div class="d-flex align-items-center gap-2">
           <div class="input-group input-group-sm" style="max-width: 320px;">
@@ -464,15 +410,13 @@ body {
           </div>
         </div>
       </div>
-
-      <!-- Table Container -->
       <div class="table-responsive">
         <table class="table table-custom table-hover align-middle mb-0">
           <thead>
             <tr>
               <th style="width: 50px;" class="text-center">No</th>
               <th>Nama Pegawai / NIP</th>
-              <th>Unit Kerja & Wilayah</th>
+              <th>Unit Kerja &amp; Wilayah</th>
               <th>Pangkat (Lama &rarr; Baru)</th>
               <th>Status Usulan</th>
               <th>Periode</th>
@@ -485,8 +429,6 @@ body {
           </tbody>
         </table>
       </div>
-
-      <!-- Table Footer / Pagination -->
       <div class="p-3 border-top d-flex flex-wrap justify-content-between align-items-center gap-2">
         <div class="small text-muted" id="tableInfo">Menampilkan data...</div>
         <div id="paginationNav"></div>
@@ -495,7 +437,7 @@ body {
 
   </main>
 
-  <!-- Modal Detail Inspeksi Berkas & Verifikasi (53 Kolom) -->
+  <!-- Modal Detail Inspeksi Berkas -->
   <div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
       <div class="modal-content modal-content-custom">
@@ -509,8 +451,6 @@ body {
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body p-4">
-          
-          <!-- Header Informasi Pegawai -->
           <div class="bg-light p-3 rounded-4 mb-4 border">
             <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
               <div>
@@ -531,7 +471,6 @@ body {
             </div>
           </div>
 
-          <!-- Catatan Verifikator -->
           <div class="alert alert-info d-flex gap-2 align-items-start rounded-3 mb-4">
             <i class="bi bi-info-circle-fill fs-5 mt-1"></i>
             <div>
@@ -540,16 +479,14 @@ body {
             </div>
           </div>
 
-          <!-- Status Checklist Dokumen 16 Komponen -->
           <h6 class="fw-bold mb-3 d-flex align-items-center gap-2">
             <i class="bi bi-folder-check text-primary"></i>
-            <span>Checklist Kelengkapan & Berkas Pengajuan</span>
+            <span>Checklist Kelengkapan &amp; Berkas Pengajuan</span>
           </h6>
 
           <div class="row g-2" id="modalDocList">
             <!-- Diisi via JS -->
           </div>
-
         </div>
         <div class="modal-footer bg-light">
           <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>
@@ -566,32 +503,21 @@ body {
   <!-- Bootstrap 5 JS Bundle -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-  <!-- Custom JS Modular -->
   <script>
-/**
- * Frontend Logic Dashboard Kenaikan Pangkat (KP) Disdikbud Kab. Magelang
- */
-
-// Tangkap global error di console browser
-window.onerror = function(message, source, lineno, colno, error) {
-  console.error("Dashboard Global Error:", message, "Line:", lineno, "Col:", colno, error);
-  var overlay = document.getElementById('loadingOverlay');
-  if (overlay) {
-    overlay.innerHTML = "<div class=\"text-danger mb-2\"><i class=\"bi bi-exclamation-triangle-fill fs-1\"></i></div><div class=\"fw-bold text-danger\">Terjadi Kesalahan JavaScript</div><div class=\"small text-muted mt-1\">" + message + " (Baris: " + lineno + ")</div><button class=\"btn btn-sm btn-outline-primary mt-3\" onclick=\"location.reload()\">Muat Ulang Halaman</button>";
-  }
-};
+// ============================================================
+// Dashboard Kenaikan Pangkat (KP) Disdikbud Kab. Magelang
+// Frontend Logic - ES5 Compatible (No Template Literals/Arrow Fn)
+// ============================================================
 
 var allRecords = [];
 var filteredRecords = [];
 var chartPangkatInstance = null;
 var chartKecamatanInstance = null;
 var chartJenjangInstance = null;
-
-// Pagination state
 var currentPage = 1;
 var pageSize = 10;
 
-// On DOM Ready
+// ---- Init ----
 document.addEventListener('DOMContentLoaded', function() {
   loadData(false);
   setupEventListeners();
@@ -603,27 +529,22 @@ function setupEventListeners() {
   document.getElementById('filterJenjang').addEventListener('change', applyFilters);
   document.getElementById('filterKecamatan').addEventListener('change', applyFilters);
   document.getElementById('filterStatus').addEventListener('change', applyFilters);
-  
-  // Search input with debounce
+
   var searchInput = document.getElementById('tableSearchInput');
   var debounceTimeout;
   searchInput.addEventListener('input', function() {
     clearTimeout(debounceTimeout);
     debounceTimeout = setTimeout(function() {
       applyFilters();
-    }, 250);
+    }, 300);
   });
 }
 
-/**
- * Panggil GAS backend via google.script.run
- */
+// ---- Load Data dari GAS ----
 function loadData(isRefresh) {
   showLoading(true);
 
   if (typeof google === 'undefined' || !google.script || !google.script.run) {
-    // Fallback Dummy Data jika dijalankan lokal di browser preview
-    console.warn('Google Script Runner tidak terdeteksi. Menggunakan mode preview.');
     setTimeout(function() {
       handleDataSuccess(generateDummyData());
     }, 600);
@@ -650,32 +571,25 @@ function refreshData() {
 function handleDataSuccess(response) {
   showLoading(false);
   if (!response || !response.success) {
-    alert('Gagal mengambil data dashboard: ' + (response ? response.message : 'Unknown error'));
+    alert('Gagal mengambil data: ' + (response ? response.message : 'Unknown error'));
     return;
   }
-
   allRecords = response.records || [];
   populateFilterDropdowns(response.filterOptions);
-  
   if (response.updatedAt) {
     document.getElementById('lastUpdatedText').innerText = 'Data per: ' + response.updatedAt;
   }
-
   applyFilters();
 }
 
 function handleDataError(err) {
   showLoading(false);
-  console.error(err);
-  alert('Terjadi kesalahan saat memuat data: ' + err.message);
+  alert('Terjadi kesalahan saat memuat data: ' + (err && err.message ? err.message : String(err)));
 }
 
-/**
- * Mengisi opsi filter secara dinamis
- */
+// ---- Filter Dropdowns ----
 function populateFilterDropdowns(options) {
   if (!options) return;
-
   fillSelect('filterTahun', options.years, 'Semua Tahun');
   fillSelect('filterBulan', options.months, 'Semua Bulan');
   fillSelect('filterJenjang', options.levels, 'Semua Jenjang');
@@ -686,16 +600,17 @@ function populateFilterDropdowns(options) {
 function fillSelect(elementId, items, defaultLabel) {
   var el = document.getElementById(elementId);
   var currentVal = el.value;
-  el.innerHTML = `<option value="">${defaultLabel}</option>`;
+  el.innerHTML = '<option value="">' + defaultLabel + '</option>';
   if (items && Array.isArray(items)) {
-    items.forEach(item => {
+    for (var i = 0; i < items.length; i++) {
+      var item = items[i];
       if (item && item.toString().trim() !== '') {
         var opt = document.createElement('option');
         opt.value = item;
         opt.textContent = item;
         el.appendChild(opt);
       }
-    });
+    }
   }
   if (currentVal) el.value = currentVal;
 }
@@ -710,9 +625,7 @@ function resetFilters() {
   applyFilters();
 }
 
-/**
- * Filter record berdasarkan input pengguna
- */
+// ---- Apply Filters ----
 function applyFilters() {
   var tahun = document.getElementById('filterTahun').value.toLowerCase();
   var bulan = document.getElementById('filterBulan').value.toLowerCase();
@@ -721,23 +634,23 @@ function applyFilters() {
   var status = document.getElementById('filterStatus').value.toLowerCase();
   var search = document.getElementById('tableSearchInput').value.toLowerCase().trim();
 
-  filteredRecords = allRecords.filter(item => {
-    if (tahun && (item.tahun_ajuan || '').toLowerCase() !== tahun) return false;
-    if (bulan && (item.bulan_ajuan || '').toLowerCase() !== bulan) return false;
-    if (jenjang && (item.jenjang || '').toLowerCase() !== jenjang) return false;
-    if (kecamatan && (item.kec || '').toLowerCase() !== kecamatan) return false;
-    if (status && (item.status || '').toLowerCase() !== status) return false;
-
+  filteredRecords = [];
+  for (var i = 0; i < allRecords.length; i++) {
+    var item = allRecords[i];
+    if (tahun && (item.tahun_ajuan || '').toLowerCase() !== tahun) continue;
+    if (bulan && (item.bulan_ajuan || '').toLowerCase() !== bulan) continue;
+    if (jenjang && (item.jenjang || '').toLowerCase() !== jenjang) continue;
+    if (kecamatan && (item.kec || '').toLowerCase() !== kecamatan) continue;
+    if (status && (item.status || '').toLowerCase() !== status) continue;
     if (search) {
-      var matchNama = (item.nama || '').toLowerCase().includes(search);
-      var matchNip = (item.nip || '').toLowerCase().includes(search);
-      var matchUnit = (item.unit_kerja || '').toLowerCase().includes(search);
-      var matchJabatan = (item.jenis_jabatan || '').toLowerCase().includes(search);
-      if (!matchNama && !matchNip && !matchUnit && !matchJabatan) return false;
+      var matchNama = (item.nama || '').toLowerCase().indexOf(search) !== -1;
+      var matchNip = (item.nip || '').toLowerCase().indexOf(search) !== -1;
+      var matchUnit = (item.unit_kerja || '').toLowerCase().indexOf(search) !== -1;
+      var matchJabatan = (item.jenis_jabatan || '').toLowerCase().indexOf(search) !== -1;
+      if (!matchNama && !matchNip && !matchUnit && !matchJabatan) continue;
     }
-
-    return true;
-  });
+    filteredRecords.push(item);
+  }
 
   currentPage = 1;
   updateKPICards(filteredRecords);
@@ -745,20 +658,16 @@ function applyFilters() {
   renderTable();
 }
 
-/**
- * Update nilai di KPI Cards
- */
+// ---- KPI Cards ----
 function updateKPICards(records) {
   var ms = 0, btl = 0, tms = 0, proses = 0;
-
-  records.forEach(r => {
-    var s = (r.status || '').toLowerCase();
-    if (s.includes('memenuhi') || s.includes('ms')) ms++;
-    else if (s.includes('tidak lengkap') || s.includes('btl')) btl++;
-    else if (s.includes('tidak memenuhi') || s.includes('tms')) tms++;
+  for (var i = 0; i < records.length; i++) {
+    var s = (records[i].status || '').toLowerCase();
+    if (s.indexOf('memenuhi') !== -1 || s === 'ms') ms++;
+    else if (s.indexOf('tidak lengkap') !== -1 || s === 'btl') btl++;
+    else if (s.indexOf('tidak memenuhi') !== -1 || s === 'tms') tms++;
     else proses++;
-  });
-
+  }
   document.getElementById('kpiTotal').innerText = records.length.toLocaleString('id-ID');
   document.getElementById('kpiMS').innerText = ms.toLocaleString('id-ID');
   document.getElementById('kpiBTL').innerText = btl.toLocaleString('id-ID');
@@ -766,9 +675,7 @@ function updateKPICards(records) {
   document.getElementById('kpiProses').innerText = proses.toLocaleString('id-ID');
 }
 
-/**
- * Visualisasi Data dengan Chart.js
- */
+// ---- Charts ----
 function updateCharts(records) {
   renderPangkatChart(records);
   renderKecamatanChart(records);
@@ -778,35 +685,26 @@ function updateCharts(records) {
 function renderPangkatChart(records) {
   var ctx = document.getElementById('chartPangkat').getContext('2d');
   var pangkatCount = {};
-
-  records.forEach(r => {
-    var p = r.ajuan_pangkat && r.ajuan_pangkat !== '-' ? r.ajuan_pangkat : (r.pangkat_saat_ini || 'Belum Ditentukan');
+  for (var i = 0; i < records.length; i++) {
+    var r = records[i];
+    var p = (r.ajuan_pangkat && r.ajuan_pangkat !== '-') ? r.ajuan_pangkat : (r.pangkat_saat_ini || 'Belum Ditentukan');
     pangkatCount[p] = (pangkatCount[p] || 0) + 1;
-  });
-
-  // Urutkan berdasarkan frekuensi terbanyak
-  var sortedKeys = Object.keys(pangkatCount).sort((a,b) => pangkatCount[b] - pangkatCount[a]).slice(0, 8);
-  var dataValues = sortedKeys.map(k => pangkatCount[k]);
+  }
+  var keys = Object.keys(pangkatCount).sort(function(a, b) { return pangkatCount[b] - pangkatCount[a]; }).slice(0, 8);
+  var vals = [];
+  for (var j = 0; j < keys.length; j++) vals.push(pangkatCount[keys[j]]);
 
   if (chartPangkatInstance) chartPangkatInstance.destroy();
-
   chartPangkatInstance = new Chart(ctx, {
     type: 'bar',
     data: {
-      labels: sortedKeys,
-      datasets: [{
-        label: 'Jumlah Usulan',
-        data: dataValues,
-        backgroundColor: '#3b82f6',
-        borderRadius: 8
-      }]
+      labels: keys,
+      datasets: [{ label: 'Jumlah Usulan', data: vals, backgroundColor: '#3b82f6', borderRadius: 8 }]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false }
-      },
+      plugins: { legend: { display: false } },
       scales: {
         y: { beginAtZero: true, ticks: { precision: 0 } },
         x: { ticks: { autoSkip: false, maxRotation: 45, minRotation: 0 } }
@@ -818,38 +716,27 @@ function renderPangkatChart(records) {
 function renderKecamatanChart(records) {
   var ctx = document.getElementById('chartKecamatan').getContext('2d');
   var kecCount = {};
-
-  records.forEach(r => {
-    var k = r.kec && r.kec !== '-' ? r.kec : 'Lainnya';
+  for (var i = 0; i < records.length; i++) {
+    var k = (records[i].kec && records[i].kec !== '-') ? records[i].kec : 'Lainnya';
     kecCount[k] = (kecCount[k] || 0) + 1;
-  });
-
-  var sortedKeys = Object.keys(kecCount).sort((a, b) => kecCount[b] - kecCount[a]).slice(0, 10);
-  var dataValues = sortedKeys.map(k => kecCount[k]);
+  }
+  var keys = Object.keys(kecCount).sort(function(a, b) { return kecCount[b] - kecCount[a]; }).slice(0, 10);
+  var vals = [];
+  for (var j = 0; j < keys.length; j++) vals.push(kecCount[keys[j]]);
 
   if (chartKecamatanInstance) chartKecamatanInstance.destroy();
-
   chartKecamatanInstance = new Chart(ctx, {
     type: 'bar',
     data: {
-      labels: sortedKeys,
-      datasets: [{
-        label: 'Usulan KP',
-        data: dataValues,
-        backgroundColor: '#0284c7',
-        borderRadius: 6
-      }]
+      labels: keys,
+      datasets: [{ label: 'Usulan KP', data: vals, backgroundColor: '#0284c7', borderRadius: 6 }]
     },
     options: {
       indexAxis: 'y',
       responsive: true,
       maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false }
-      },
-      scales: {
-        x: { beginAtZero: true, ticks: { precision: 0 } }
-      }
+      plugins: { legend: { display: false } },
+      scales: { x: { beginAtZero: true, ticks: { precision: 0 } } }
     }
   });
 }
@@ -857,45 +744,36 @@ function renderKecamatanChart(records) {
 function renderJenjangChart(records) {
   var ctx = document.getElementById('chartJenjang').getContext('2d');
   var jenjangCount = {};
-
-  records.forEach(r => {
-    var j = r.jenjang && r.jenjang !== '-' ? r.jenjang : 'Lainnya';
+  for (var i = 0; i < records.length; i++) {
+    var j = (records[i].jenjang && records[i].jenjang !== '-') ? records[i].jenjang : 'Lainnya';
     jenjangCount[j] = (jenjangCount[j] || 0) + 1;
-  });
-
+  }
   var labels = Object.keys(jenjangCount);
-  var values = labels.map(l => jenjangCount[l]);
+  var values = [];
+  for (var k = 0; k < labels.length; k++) values.push(jenjangCount[labels[k]]);
 
   if (chartJenjangInstance) chartJenjangInstance.destroy();
-
   chartJenjangInstance = new Chart(ctx, {
     type: 'doughnut',
     data: {
       labels: labels,
-      datasets: [{
-        data: values,
-        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#64748b']
-      }]
+      datasets: [{ data: values, backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#64748b'] }]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      plugins: {
-        legend: { position: 'bottom' }
-      }
+      plugins: { legend: { position: 'bottom' } }
     }
   });
 }
 
-/**
- * Render Tabel Data & Pagination
- */
+// ---- Tabel & Pagination ----
 function renderTable() {
   var tbody = document.getElementById('tableBody');
   var total = filteredRecords.length;
 
   if (total === 0) {
-    tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-muted">Tidak ada data usulan yang cocok dengan filter</td></tr>`;
+    tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-muted">Tidak ada data usulan yang cocok dengan filter</td></tr>';
     document.getElementById('tableInfo').innerText = 'Menampilkan 0 data';
     renderPagination(0);
     return;
@@ -906,81 +784,70 @@ function renderTable() {
   var pageItems = filteredRecords.slice(start, end);
 
   var html = '';
-  pageItems.forEach((r, idx) => {
+  for (var i = 0; i < pageItems.length; i++) {
+    var r = pageItems[i];
     var badgeClass = getBadgeClass(r.status);
     var nipClean = (r.nip || '').replace(/^'/, '');
+    var rowNum = start + i + 1;
 
-    html += `
-      <tr>
-        <td class="text-center font-monospace">${start + idx + 1}</td>
-        <td>
-          <div class="fw-bold">${escapeHtml(r.nama)}</div>
-          <div class="small text-muted font-monospace">NIP. ${escapeHtml(nipClean)}</div>
-        </td>
-        <td>
-          <div>${escapeHtml(r.unit_kerja)}</div>
-          <div class="small text-muted">${escapeHtml(r.kec)} &bull; ${escapeHtml(r.jenjang)}</div>
-        </td>
-        <td>
-          <div class="small">${escapeHtml(r.pangkat_saat_ini)}</div>
-          <div class="small text-primary fw-bold">&rarr; ${escapeHtml(r.ajuan_pangkat)}</div>
-        </td>
-        <td>
-          <span class="badge ${badgeClass} badge-status">${escapeHtml(r.status)}</span>
-        </td>
-        <td class="small">
-          <span class="badge bg-light text-dark border">${escapeHtml(r.bulan_ajuan)} ${escapeHtml(r.tahun_ajuan)}</span>
-        </td>
-        <td class="small text-muted">${escapeHtml(r.pemeriksa || '-')}</td>
-        <td class="text-center">
-          <button class="btn btn-sm btn-outline-primary" onclick="showDetailModal('${r.id}')">
-            <i class="bi bi-eye me-1"></i>Detail
-          </button>
-        </td>
-      </tr>
-    `;
-  });
+    html += '<tr>';
+    html += '<td class="text-center font-monospace">' + rowNum + '</td>';
+    html += '<td>';
+    html += '<div class="fw-bold">' + escapeHtml(r.nama) + '</div>';
+    html += '<div class="small text-muted font-monospace">NIP. ' + escapeHtml(nipClean) + '</div>';
+    html += '</td>';
+    html += '<td>';
+    html += '<div>' + escapeHtml(r.unit_kerja) + '</div>';
+    html += '<div class="small text-muted">' + escapeHtml(r.kec) + ' &bull; ' + escapeHtml(r.jenjang) + '</div>';
+    html += '</td>';
+    html += '<td>';
+    html += '<div class="small">' + escapeHtml(r.pangkat_saat_ini) + '</div>';
+    html += '<div class="small text-primary fw-bold">&rarr; ' + escapeHtml(r.ajuan_pangkat) + '</div>';
+    html += '</td>';
+    html += '<td><span class="badge ' + badgeClass + ' badge-status">' + escapeHtml(r.status) + '</span></td>';
+    html += '<td class="small"><span class="badge bg-light text-dark border">' + escapeHtml(r.bulan_ajuan) + ' ' + escapeHtml(r.tahun_ajuan) + '</span></td>';
+    html += '<td class="small text-muted">' + escapeHtml(r.pemeriksa || '-') + '</td>';
+    html += '<td class="text-center">';
+    html += '<button class="btn btn-sm btn-outline-primary" onclick="showDetailModal(\'' + r.id + '\')">';
+    html += '<i class="bi bi-eye me-1"></i>Detail</button>';
+    html += '</td>';
+    html += '</tr>';
+  }
 
   tbody.innerHTML = html;
-  document.getElementById('tableInfo').innerText = `Menampilkan ${start + 1} s.d. ${end} dari ${total} usulan`;
+  document.getElementById('tableInfo').innerText = 'Menampilkan ' + (start + 1) + ' s.d. ' + end + ' dari ' + total + ' usulan';
   renderPagination(total);
 }
 
 function getBadgeClass(status) {
   var s = (status || '').toLowerCase();
-  if (s.includes('memenuhi') || s.includes('ms')) return 'badge-status-ms';
-  if (s.includes('tidak lengkap') || s.includes('btl')) return 'badge-status-btl';
-  if (s.includes('tidak memenuhi') || s.includes('tms')) return 'badge-status-tms';
+  if (s.indexOf('memenuhi') !== -1 || s === 'ms') return 'badge-status-ms';
+  if (s.indexOf('tidak lengkap') !== -1 || s === 'btl') return 'badge-status-btl';
+  if (s.indexOf('tidak memenuhi') !== -1 || s === 'tms') return 'badge-status-tms';
   return 'badge-status-proses';
 }
 
 function renderPagination(total) {
   var container = document.getElementById('paginationNav');
   var totalPages = Math.ceil(total / pageSize);
-  if (totalPages <= 1) {
-    container.innerHTML = '';
-    return;
-  }
+  if (totalPages <= 1) { container.innerHTML = ''; return; }
 
-  var html = `<ul class="pagination pagination-sm m-0 justify-content-end">`;
-  html += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
-    <button class="page-link" onclick="goToPage(${currentPage - 1})">Prev</button>
-  </li>`;
+  var html = '<ul class="pagination pagination-sm m-0 justify-content-end">';
+  html += '<li class="page-item ' + (currentPage === 1 ? 'disabled' : '') + '">';
+  html += '<button class="page-link" onclick="goToPage(' + (currentPage - 1) + ')">Prev</button></li>';
 
   for (var i = 1; i <= totalPages; i++) {
     if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
-      html += `<li class="page-item ${currentPage === i ? 'active' : ''}">
-        <button class="page-link" onclick="goToPage(${i})">${i}</button>
-      </li>`;
+      html += '<li class="page-item ' + (currentPage === i ? 'active' : '') + '">';
+      html += '<button class="page-link" onclick="goToPage(' + i + ')">' + i + '</button></li>';
     } else if (i === currentPage - 2 || i === currentPage + 2) {
-      html += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+      html += '<li class="page-item disabled"><span class="page-link">...</span></li>';
     }
   }
 
-  html += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
-    <button class="page-link" onclick="goToPage(${currentPage + 1})">Next</button>
-  </li>`;
-  html += `</ul>`;
+  html += '<li class="page-item ' + (currentPage === totalPages ? 'disabled' : '') + '">';
+  html += '<button class="page-link" onclick="goToPage(' + (currentPage + 1) + ')">Next</button></li>';
+  html += '</ul>';
 
   container.innerHTML = html;
 }
@@ -990,29 +857,31 @@ function goToPage(page) {
   renderTable();
 }
 
-/**
- * Modal Detail Inspeksi Kelengkapan Dokumen (53 Kolom)
- */
+// ---- Modal Detail ----
 function showDetailModal(recordId) {
-  var record = allRecords.find(r => r.id.toString() === recordId.toString());
+  var record = null;
+  for (var i = 0; i < allRecords.length; i++) {
+    if (allRecords[i].id.toString() === recordId.toString()) {
+      record = allRecords[i];
+      break;
+    }
+  }
   if (!record) return;
 
   var nipClean = (record.nip || '').replace(/^'/, '');
   document.getElementById('modalNama').innerText = record.nama;
   document.getElementById('modalNIP').innerText = nipClean;
-  document.getElementById('modalUnitKerja').innerText = `${record.unit_kerja} (${record.kec}) - ${record.jenjang}`;
+  document.getElementById('modalUnitKerja').innerText = record.unit_kerja + ' (' + record.kec + ') - ' + record.jenjang;
   document.getElementById('modalJabatan').innerText = record.jenis_jabatan;
-  document.getElementById('modalPangkat').innerText = `${record.pangkat_saat_ini} -> ${record.ajuan_pangkat}`;
-  document.getElementById('modalPeriode').innerText = `${record.bulan_ajuan} ${record.tahun_ajuan}`;
+  document.getElementById('modalPangkat').innerText = record.pangkat_saat_ini + ' -> ' + record.ajuan_pangkat;
+  document.getElementById('modalPeriode').innerText = record.bulan_ajuan + ' ' + record.tahun_ajuan;
   document.getElementById('modalPemeriksa').innerText = record.pemeriksa || '-';
   document.getElementById('modalCatatan').innerText = record.catatan || 'Tidak ada catatan khusus dari pemeriksa.';
 
   var statusEl = document.getElementById('modalStatusBadge');
-  statusEl.className = `badge ${getBadgeClass(record.status)} badge-status fs-6`;
+  statusEl.className = 'badge ' + getBadgeClass(record.status) + ' badge-status fs-6';
   statusEl.innerText = record.status;
 
-  // Render Checklist Verifikasi & Dokumen Pengajuan
-  var docContainer = document.getElementById('modalDocList');
   var checklistItems = [
     { label: 'SK PNS', keyFile: 'sk_pns', keyVerif: 'sk_pns' },
     { label: 'SK CPNS', keyFile: 'sk_cpns', keyVerif: 'sk_cpns' },
@@ -1033,97 +902,100 @@ function showDetailModal(recordId) {
   ];
 
   var docHtml = '';
-  checklistItems.forEach(item => {
-    var fileUrl = record.dokumen_pengajuan ? record.dokumen_pengajuan[item.keyFile] : '';
-    var verifStatus = record.verifikasi_dokumen ? (record.verifikasi_dokumen[item.keyVerif] || '-') : '-';
-    
-    var verifBadge = `<span class="badge bg-secondary">${escapeHtml(verifStatus)}</span>`;
+  for (var ci = 0; ci < checklistItems.length; ci++) {
+    var it = checklistItems[ci];
+    var fileUrl = (record.dokumen_pengajuan && record.dokumen_pengajuan[it.keyFile]) ? record.dokumen_pengajuan[it.keyFile] : '';
+    var verifStatus = (record.verifikasi_dokumen && record.verifikasi_dokumen[it.keyVerif]) ? record.verifikasi_dokumen[it.keyVerif] : '-';
     var vLower = verifStatus.toLowerCase();
-    if (vLower.includes('sesuai') || vLower.includes('lengkap') || vLower.includes('ok') || vLower.includes('ms')) {
-      verifBadge = `<span class="badge bg-success-subtle text-success border border-success-subtle"><i class="bi bi-check-circle me-1"></i>${escapeHtml(verifStatus)}</span>`;
-    } else if (vLower.includes('btl') || vLower.includes('perbaikan') || vLower.includes('kurang')) {
-      verifBadge = `<span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle"><i class="bi bi-exclamation-triangle me-1"></i>${escapeHtml(verifStatus)}</span>`;
-    } else if (vLower.includes('tms') || vLower.includes('tolak')) {
-      verifBadge = `<span class="badge bg-danger-subtle text-danger border border-danger-subtle"><i class="bi bi-x-circle me-1"></i>${escapeHtml(verifStatus)}</span>`;
+
+    var verifBadge;
+    if (vLower.indexOf('sesuai') !== -1 || vLower.indexOf('lengkap') !== -1 || vLower === 'ok' || vLower === 'ms') {
+      verifBadge = '<span class="badge bg-success-subtle text-success border border-success-subtle"><i class="bi bi-check-circle me-1"></i>' + escapeHtml(verifStatus) + '</span>';
+    } else if (vLower.indexOf('btl') !== -1 || vLower.indexOf('perbaikan') !== -1 || vLower.indexOf('kurang') !== -1) {
+      verifBadge = '<span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle"><i class="bi bi-exclamation-triangle me-1"></i>' + escapeHtml(verifStatus) + '</span>';
+    } else if (vLower.indexOf('tms') !== -1 || vLower.indexOf('tolak') !== -1) {
+      verifBadge = '<span class="badge bg-danger-subtle text-danger border border-danger-subtle"><i class="bi bi-x-circle me-1"></i>' + escapeHtml(verifStatus) + '</span>';
+    } else {
+      verifBadge = '<span class="badge bg-secondary">' + escapeHtml(verifStatus) + '</span>';
     }
 
-    docHtml += `
-      <div class="col-md-6 mb-2">
-        <div class="doc-pill">
-          <div>
-            <div class="fw-semibold text-truncate" style="max-width: 200px;">${item.label}</div>
-            <div class="mt-1">${verifBadge}</div>
-          </div>
-          <div>
-            ${fileUrl && fileUrl.toString().startsWith('http') ? 
-              `<a href="${escapeHtml(fileUrl)}" target="_blank" class="btn btn-sm btn-light border shadow-sm text-primary">
-                <i class="bi bi-file-earmark-arrow-down me-1"></i>Buka
-              </a>` : 
-              `<span class="badge bg-light text-muted border">Tidak Ada Berkas</span>`
-            }
-          </div>
-        </div>
-      </div>
-    `;
-  });
+    var fileBtn;
+    if (fileUrl && fileUrl.toString().indexOf('http') === 0) {
+      fileBtn = '<a href="' + escapeHtml(fileUrl) + '" target="_blank" class="btn btn-sm btn-light border shadow-sm text-primary"><i class="bi bi-file-earmark-arrow-down me-1"></i>Buka</a>';
+    } else {
+      fileBtn = '<span class="badge bg-light text-muted border">Tidak Ada Berkas</span>';
+    }
 
-  docContainer.innerHTML = docHtml;
+    docHtml += '<div class="col-md-6 mb-2">';
+    docHtml += '<div class="doc-pill">';
+    docHtml += '<div>';
+    docHtml += '<div class="fw-semibold text-truncate" style="max-width: 200px;">' + escapeHtml(it.label) + '</div>';
+    docHtml += '<div class="mt-1">' + verifBadge + '</div>';
+    docHtml += '</div>';
+    docHtml += '<div>' + fileBtn + '</div>';
+    docHtml += '</div>';
+    docHtml += '</div>';
+  }
+
+  document.getElementById('modalDocList').innerHTML = docHtml;
 
   var modal = new bootstrap.Modal(document.getElementById('detailModal'));
   modal.show();
 }
 
-/**
- * Ekspor Data Terfilter ke File CSV
- */
+// ---- Export CSV ----
 function exportFilteredCSV() {
   if (filteredRecords.length === 0) {
     alert('Tidak ada data untuk diekspor!');
     return;
   }
 
-  var headers = ['ID', 'NIP', 'Nama', 'Unit Kerja', 'Kecamatan', 'Jenjang', 'Pangkat Saat Ini', 'Ajuan Pangkat', 'Bulan Ajuan', 'Tahun Ajuan', 'Status', 'Catatan', 'Pemeriksa'];
+  var headers = ['ID','NIP','Nama','Unit Kerja','Kecamatan','Jenjang','Pangkat Saat Ini','Ajuan Pangkat','Bulan Ajuan','Tahun Ajuan','Status','Catatan','Pemeriksa'];
   var csvRows = [headers.join(',')];
 
-  filteredRecords.forEach(r => {
+  for (var i = 0; i < filteredRecords.length; i++) {
+    var r = filteredRecords[i];
     var nipClean = (r.nip || '').replace(/^'/, '');
     var row = [
       r.id,
-      `"${nipClean}"`,
-      `"${(r.nama || '').replace(/"/g, '""')}"`,
-      `"${(r.unit_kerja || '').replace(/"/g, '""')}"`,
-      `"${(r.kec || '').replace(/"/g, '""')}"`,
-      `"${(r.jenjang || '').replace(/"/g, '""')}"`,
-      `"${(r.pangkat_saat_ini || '').replace(/"/g, '""')}"`,
-      `"${(r.ajuan_pangkat || '').replace(/"/g, '""')}"`,
-      `"${(r.bulan_ajuan || '').replace(/"/g, '""')}"`,
-      `"${(r.tahun_ajuan || '').replace(/"/g, '""')}"`,
-      `"${(r.status || '').replace(/"/g, '""')}"`,
-      `"${(r.catatan || '').replace(/"/g, '""')}"`,
-      `"${(r.pemeriksa || '').replace(/"/g, '""')}"`
+      '"' + nipClean + '"',
+      '"' + (r.nama || '').replace(/"/g, '""') + '"',
+      '"' + (r.unit_kerja || '').replace(/"/g, '""') + '"',
+      '"' + (r.kec || '').replace(/"/g, '""') + '"',
+      '"' + (r.jenjang || '').replace(/"/g, '""') + '"',
+      '"' + (r.pangkat_saat_ini || '').replace(/"/g, '""') + '"',
+      '"' + (r.ajuan_pangkat || '').replace(/"/g, '""') + '"',
+      '"' + (r.bulan_ajuan || '').replace(/"/g, '""') + '"',
+      '"' + (r.tahun_ajuan || '').replace(/"/g, '""') + '"',
+      '"' + (r.status || '').replace(/"/g, '""') + '"',
+      '"' + (r.catatan || '').replace(/"/g, '""') + '"',
+      '"' + (r.pemeriksa || '').replace(/"/g, '""') + '"'
     ];
     csvRows.push(row.join(','));
-  });
+  }
 
   var bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
   var blob = new Blob([bom, csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
   var url = URL.createObjectURL(blob);
   var link = document.createElement('a');
   link.setAttribute('href', url);
-  link.setAttribute('download', `Rekap_Kenaikan_Pangkat_Disdikbud_${new Date().toISOString().slice(0,10)}.csv`);
+  var today = new Date();
+  var dateStr = today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0');
+  link.setAttribute('download', 'Rekap_Kenaikan_Pangkat_Disdikbud_' + dateStr + '.csv');
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
 }
 
+// ---- Helpers ----
 function showLoading(show) {
   var overlay = document.getElementById('loadingOverlay');
   if (overlay) overlay.style.display = show ? 'flex' : 'none';
 }
 
-function escapeHtml(string) {
-  if (!string) return '';
-  return String(string)
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
@@ -1131,9 +1003,7 @@ function escapeHtml(string) {
     .replace(/'/g, '&#039;');
 }
 
-/**
- * Helper untuk dummy data saat testing lokal
- */
+// ---- Dummy Data (Preview/Dev Mode) ----
 function generateDummyData() {
   var sampleStatuses = ['Memenuhi Syarat', 'Berkas Tidak Lengkap', 'Tidak Memenuhi Syarat', 'Dalam Proses'];
   var sampleKec = ['Muntilan', 'Mertoyudan', 'Borobudur', 'Secang', 'Salaman', 'Grabag'];
@@ -1147,27 +1017,19 @@ function generateDummyData() {
       npsn: '2030' + (100 + i),
       kec: sampleKec[i % sampleKec.length],
       jenjang: sampleJenjang[i % sampleJenjang.length],
-      unit_kerja: `SD Negeri ${i} Magelang`,
-      nip: `'19850101201001100${i}`,
-      nama: `Guru Teladan ${i}, S.Pd.`,
+      unit_kerja: 'SD Negeri ' + i + ' Magelang',
+      nip: "'19850101201001100" + i,
+      nama: 'Guru Teladan ' + i + ', S.Pd.',
       bulan_ajuan: (i % 2 === 0) ? 'Februari' : 'April',
       tahun_ajuan: '2026',
       status: sampleStatuses[i % sampleStatuses.length],
-      catatan: i % 4 === 1 ? 'PAK konversi belum ditandatangani basah' : 'Semua dokumen telah sesuai syarat',
+      catatan: (i % 4 === 1) ? 'PAK konversi belum ditandatangani basah' : 'Semua dokumen telah sesuai syarat',
       jenis_jabatan: 'Guru Ahli Muda',
       pangkat_saat_ini: samplePangkat[i % samplePangkat.length],
       ajuan_pangkat: samplePangkat[(i + 1) % samplePangkat.length],
-      pemeriksa: `Verifikator ${(i % 3) + 1}`,
-      dokumen_pengajuan: {
-        sk_pns: 'https://drive.google.com',
-        sk_cpns: 'https://drive.google.com',
-        skkp: 'https://drive.google.com'
-      },
-      verifikasi_dokumen: {
-        sk_pns: 'Sesuai',
-        sk_cpns: 'Sesuai',
-        skkp: 'Sesuai'
-      }
+      pemeriksa: 'Verifikator ' + ((i % 3) + 1),
+      dokumen_pengajuan: { sk_pns: 'https://drive.google.com', sk_cpns: 'https://drive.google.com', skkp: 'https://drive.google.com' },
+      verifikasi_dokumen: { sk_pns: 'Sesuai', sk_cpns: 'Sesuai', skkp: 'Sesuai' }
     });
   }
 
@@ -1185,7 +1047,7 @@ function generateDummyData() {
     updatedAt: '09/09/2026, 17.50 WIB'
   };
 }
-</script>
+  </script>
 
 </body>
 </html>
