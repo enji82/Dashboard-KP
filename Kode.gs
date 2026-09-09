@@ -86,9 +86,9 @@ function getDashboardData(forceRefresh) {
   if (rawValues.length <= 1) {
     return JSON.stringify({
       success: true,
-      stats: { total: 0, ms: 0, btl: 0, tms: 0, proses: 0 },
+      stats: { total: 0, ms: 0, revisi: 0, tms: 0, proses: 0 },
       records: [],
-      filterOptions: { years: [], months: [], subdistricts: [], levels: [], statuses: [] }
+      filterOptions: { years: [], months: [] }
     });
   }
 
@@ -104,27 +104,33 @@ function getDashboardData(forceRefresh) {
 
   const yearsSet = new Set();
   const monthsSet = new Set();
-  const subdistrictsSet = new Set();
-  const levelsSet = new Set();
-  const statusSet = new Set();
 
   let countMS = 0;
-  let countBTL = 0;
+  let countRevisi = 0;
   let countTMS = 0;
   let countProses = 0;
 
-  const records = rows.map((r, index) => {
-    // Normalisasi status
+  const records = [];
+
+  for (let index = 0; index < rows.length; index++) {
+    const r = rows[index];
+    // Jika baris kosong, lewati
+    if (!r[6] && !r[5] && !r[4]) continue;
+
+    // Normalisasi status Kolom AE (index 30)
     const rawStatus = cleanStr(r[30]);
     const upperStatus = rawStatus.toUpperCase();
 
     let cleanStatus = 'Dalam Proses';
-    if (upperStatus.includes('MS') || upperStatus.includes('MEMENUHI SYARAT') || upperStatus.includes('SETUJU') || upperStatus.includes('TERBIT SK')) {
+    let isRevisi = false;
+
+    if (upperStatus.includes('REVISI') || upperStatus.includes('BTL') || upperStatus.includes('TIDAK LENGKAP') || upperStatus.includes('PERBAIKAN')) {
+      cleanStatus = 'Perlu Revisi';
+      isRevisi = true;
+      countRevisi++;
+    } else if (upperStatus.includes('MS') || upperStatus.includes('MEMENUHI SYARAT') || upperStatus.includes('SETUJU') || upperStatus.includes('TERBIT SK')) {
       cleanStatus = 'Memenuhi Syarat';
       countMS++;
-    } else if (upperStatus.includes('BTL') || upperStatus.includes('TIDAK LENGKAP') || upperStatus.includes('PERBAIKAN')) {
-      cleanStatus = 'Berkas Tidak Lengkap';
-      countBTL++;
     } else if (upperStatus.includes('TMS') || upperStatus.includes('TOLAK') || upperStatus.includes('TIDAK MEMENUHI')) {
       cleanStatus = 'Tidak Memenuhi Syarat';
       countTMS++;
@@ -135,81 +141,33 @@ function getDashboardData(forceRefresh) {
 
     const tahun = cleanStr(r[9]);
     const bulan = cleanStr(r[8]);
-    const kec = cleanStr(r[2]);
-    const jenjang = cleanStr(r[3]);
+    const kec = cleanStr(r[2]) || 'Lainnya';
+    const jenjang = cleanStr(r[3]) || 'Lainnya';
+    const ajuanPangkat = cleanStr(r[34]) || cleanStr(r[33]) || 'Belum Ditentukan';
 
     if (tahun) yearsSet.add(tahun);
     if (bulan) monthsSet.add(bulan);
-    if (kec) subdistrictsSet.add(kec);
-    if (jenjang) levelsSet.add(jenjang);
-    if (cleanStatus) statusSet.add(cleanStatus);
 
-    return {
+    records.push({
       id: cleanStr(r[0]) || (index + 1).toString(),
-      npsn: cleanStr(r[1]) || '-',
-      kec: kec || '-',
-      jenjang: jenjang || '-',
-      unit_kerja: cleanStr(r[4]) || '-',
-      nip: cleanStr(r[5]) || '-',
-      nama: cleanStr(r[6]) || '-',
-      no_hp: cleanStr(r[7]) || '-',
-      bulan_ajuan: bulan || '-',
-      tahun_ajuan: tahun || '-',
-      email: cleanStr(r[10]) || '-',
-      
-      // Dokumen Awal (L - AB, AC)
-      dokumen_pengajuan: {
-        sk_pns: cleanStr(r[11]),
-        sk_cpns: cleanStr(r[12]),
-        skkp: cleanStr(r[13]),
-        skp_1_th: cleanStr(r[14]),
-        skp_2_th: cleanStr(r[15]),
-        ijazah_terakhir: cleanStr(r[16]),
-        transkrip_nilai: cleanStr(r[17]),
-        stlud: cleanStr(r[18]),
-        sib: cleanStr(r[19]),
-        hudis: cleanStr(r[20]),
-        ijin_gelar: cleanStr(r[21]),
-        sk_jabatan_beruntun: cleanStr(r[22]),
-        pak_gabungan: cleanStr(r[23]),
-        serdik: cleanStr(r[24]),
-        sertifikat_ukom: cleanStr(r[25]),
-        surat_pengantar_korwil: cleanStr(r[26]),
-        jabfung_ukkj: cleanStr(r[27]),
-        url_full: cleanStr(r[28])
-      },
-
-      // Verifikasi & Status
-      tanggal_revisi: cleanStr(r[29]) || '-',
+      kec: kec,
+      jenjang: jenjang,
+      bulan_ajuan: bulan || 'Tidak Diketahui',
+      tahun_ajuan: tahun || 'Tidak Diketahui',
       status: cleanStatus,
       raw_status: rawStatus,
-      catatan: cleanStr(r[31]) || '-',
-      jenis_jabatan: cleanStr(r[32]) || '-',
-      pangkat_saat_ini: cleanStr(r[33]) || '-',
-      ajuan_pangkat: cleanStr(r[34]) || '-',
-      pemeriksa: cleanStr(r[35]) || '-',
+      is_revisi: isRevisi,
+      ajuan_pangkat: ajuanPangkat
+    });
+  }
 
-      // Checklist Hasil Verifikasi Pemeriksa (AK - BA)
-      verifikasi_dokumen: {
-        sk_pns: cleanStr(r[36]) || '-',
-        sk_cpns: cleanStr(r[37]) || '-',
-        skkp: cleanStr(r[38]) || '-',
-        evaluasi_kinerja_1_th: cleanStr(r[39]) || '-',
-        evaluasi_kinerja_2_th: cleanStr(r[40]) || '-',
-        ijazah_terakhir: cleanStr(r[41]) || '-',
-        transkrip_nilai: cleanStr(r[42]) || '-',
-        stlud: cleanStr(r[43]) || '-',
-        sib: cleanStr(r[44]) || '-',
-        hudis: cleanStr(r[45]) || '-',
-        ijin_gelar: cleanStr(r[46]) || '-',
-        sk_jabatan_beruntun: cleanStr(r[47]) || '-',
-        pak_gabungan: cleanStr(r[48]) || '-',
-        serdik: cleanStr(r[49]) || '-',
-        sertifikat_ukom: cleanStr(r[50]) || '-',
-        surat_pengantar_korwil: cleanStr(r[51]) || '-',
-        lain_lain: cleanStr(r[52]) || '-'
-      }
-    };
+  // Urutan bulan standar Indonesia untuk sorting
+  const bulanUrut = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+  const sortedMonths = Array.from(monthsSet).sort((a, b) => {
+    let ia = bulanUrut.indexOf(a);
+    let ib = bulanUrut.indexOf(b);
+    if (ia !== -1 && ib !== -1) return ia - ib;
+    return a.localeCompare(b);
   });
 
   const payload = {
@@ -217,17 +175,14 @@ function getDashboardData(forceRefresh) {
     stats: {
       total: records.length,
       ms: countMS,
-      btl: countBTL,
+      revisi: countRevisi,
       tms: countTMS,
       proses: countProses
     },
     records: records,
     filterOptions: {
       years: Array.from(yearsSet).sort().reverse(),
-      months: Array.from(monthsSet).sort(),
-      subdistricts: Array.from(subdistrictsSet).sort(),
-      levels: Array.from(levelsSet).sort(),
-      statuses: Array.from(statusSet).sort()
+      months: sortedMonths
     },
     updatedAt: Utilities.formatDate(new Date(), 'Asia/Jakarta', 'dd-MM-yyyy HH:mm:ss') + ' WIB'
   };
@@ -235,11 +190,8 @@ function getDashboardData(forceRefresh) {
   const jsonString = JSON.stringify(payload);
 
   try {
-    // Simpan di cache untuk mempercepat akses pengguna berikutnya
     cache.put(cacheKey, jsonString, CONFIG.CACHE_EXPIRATION_SECONDS);
-  } catch (err) {
-    // Abaikan jika payload melampaui limit ukuran cache
-  }
+  } catch (err) {}
 
   return jsonString;
 } catch (error) {

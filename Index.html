@@ -4,12 +4,12 @@
   <base target="_top">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Dashboard Kenaikan Pangkat (KP) - Disdikbud Kabupaten Magelang</title>
+  <title>Dashboard Eksekutif Kenaikan Pangkat (KP) - Disdikbud Kab. Magelang</title>
 
   <!-- Google Font: Plus Jakarta Sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <!-- Bootstrap 5 & Bootstrap Icons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -19,25 +19,23 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
 
   <style>
-/* Styling CSS Dashboard Kenaikan Pangkat (KP) Disdikbud Kab. Magelang */
 :root {
   --primary-color: #1e3a8a;
-  --primary-light: #3b82f6;
-  --primary-dark: #172554;
-  --accent-color: #0284c7;
-  --bg-color: #f8fafc;
+  --primary-light: #2563eb;
+  --primary-subtle: #dbeafe;
+  --bg-color: #f1f5f9;
   --card-bg: #ffffff;
   --text-main: #0f172a;
   --text-muted: #64748b;
   --border-color: #e2e8f0;
+  
   --status-ms: #10b981;
-  --status-btl: #f59e0b;
+  --status-revisi: #f59e0b;
   --status-tms: #ef4444;
-  --status-proses: #3b82f6;
 }
 
 body {
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background-color: var(--bg-color);
   color: var(--text-main);
   margin: 0;
@@ -48,34 +46,39 @@ body {
   background: linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%);
   color: white;
   padding: 1.25rem 0;
-  box-shadow: 0 4px 20px -5px rgba(15, 23, 42, 0.2);
+  box-shadow: 0 4px 15px -3px rgba(15, 23, 42, 0.2);
 }
 
 .brand-badge {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.18);
   backdrop-filter: blur(8px);
   padding: 0.25rem 0.75rem;
   border-radius: 9999px;
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }
 
+/* Selector Periode Cepat */
+.period-control-card {
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid var(--border-color);
+  padding: 1rem 1.25rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.04);
+}
+
+/* KPI Cards */
 .kpi-card {
   background: var(--card-bg);
   border-radius: 16px;
   padding: 1.25rem;
   border: 1px solid var(--border-color);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -2px rgba(0, 0, 0, 0.03);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.04);
   position: relative;
   overflow: hidden;
-}
-
-.kpi-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+  height: 100%;
 }
 
 .kpi-card::before {
@@ -83,125 +86,96 @@ body {
   position: absolute;
   top: 0;
   left: 0;
-  width: 4px;
+  width: 5px;
   height: 100%;
 }
 
 .kpi-total::before { background: var(--primary-light); }
+.kpi-revisi::before { background: var(--status-revisi); }
 .kpi-ms::before { background: var(--status-ms); }
-.kpi-btl::before { background: var(--status-btl); }
 .kpi-tms::before { background: var(--status-tms); }
-.kpi-proses::before { background: var(--status-proses); }
 
 .kpi-icon {
-  width: 46px;
-  height: 46px;
+  width: 48px;
+  height: 48px;
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.35rem;
+  font-size: 1.4rem;
 }
 
 .icon-total { background: #eff6ff; color: #2563eb; }
+.icon-revisi { background: #fffbeb; color: #d97706; }
 .icon-ms { background: #ecfdf5; color: #059669; }
-.icon-btl { background: #fffbeb; color: #d97706; }
 .icon-tms { background: #fef2f2; color: #dc2626; }
-.icon-proses { background: #f0fdf4; color: #0284c7; }
 
-.filter-box {
-  background: var(--card-bg);
-  border-radius: 14px;
-  border: 1px solid var(--border-color);
-  padding: 1.25rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-}
-
+/* Dashboard Cards */
 .dashboard-card {
   background: var(--card-bg);
   border-radius: 16px;
   border: 1px solid var(--border-color);
-  padding: 1.5rem;
+  padding: 1.25rem 1.5rem;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03);
   height: 100%;
 }
 
 .card-title-custom {
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 700;
   color: var(--text-main);
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1rem;
 }
 
-.badge-status {
-  padding: 0.35rem 0.75rem;
-  font-weight: 600;
-  font-size: 0.75rem;
-  border-radius: 30px;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-}
-
-.badge-status-ms { background-color: #d1fae5; color: #065f46; }
-.badge-status-btl { background-color: #fef3c7; color: #92400e; }
-.badge-status-tms { background-color: #fee2e2; color: #991b1b; }
-.badge-status-proses { background-color: #e0f2fe; color: #075985; }
-
-.table-custom { border-collapse: separate; border-spacing: 0; }
-
-.table-custom th {
-  background-color: #f1f5f9;
-  color: #475569;
-  font-weight: 600;
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  border-top: none;
-  padding: 0.85rem 1rem;
-}
-
-.table-custom td {
-  padding: 0.85rem 1rem;
-  vertical-align: middle;
+/* Tabel Matriks Rekapitulasi */
+.table-matrix {
+  border-collapse: separate;
+  border-spacing: 0;
   font-size: 0.875rem;
+}
+
+.table-matrix th {
+  background-color: #f8fafc;
+  color: #334155;
+  font-weight: 700;
+  padding: 0.75rem 0.85rem;
+  border-top: 1px solid var(--border-color);
+  border-bottom: 2px solid var(--border-color);
+  white-space: nowrap;
+}
+
+.table-matrix td {
+  padding: 0.65rem 0.85rem;
   border-bottom: 1px solid var(--border-color);
+  vertical-align: middle;
 }
 
-.table-custom tbody tr:hover { background-color: #f8fafc; }
-
-.modal-content-custom {
-  border-radius: 20px;
-  border: none;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  overflow: hidden;
+.table-matrix tr:hover td {
+  background-color: #f8fafc;
 }
 
-.modal-header-custom {
-  background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
-  color: white;
-  padding: 1.25rem 1.5rem;
+.table-matrix tfoot td {
+  font-weight: 800;
+  background-color: #f1f5f9;
+  border-top: 2px solid #cbd5e1;
 }
 
-.doc-pill {
-  padding: 0.5rem 0.75rem;
-  border-radius: 10px;
-  background: #f8fafc;
-  border: 1px solid var(--border-color);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.825rem;
+.badge-revisi {
+  background-color: #fef3c7;
+  color: #92400e;
+  font-weight: 700;
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
 }
 
 #loadingOverlay {
   position: fixed;
   top: 0; left: 0;
   width: 100%; height: 100%;
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(4px);
   display: flex;
   flex-direction: column;
@@ -211,7 +185,7 @@ body {
 }
 
 .spinner-pulse {
-  width: 50px; height: 50px;
+  width: 48px; height: 48px;
   border-radius: 50%;
   border: 4px solid #e2e8f0;
   border-top-color: #1e3a8a;
@@ -226,7 +200,7 @@ body {
   <!-- Loading Overlay -->
   <div id="loadingOverlay">
     <div class="spinner-pulse mb-3"></div>
-    <div class="fw-bold text-secondary">Memuat Data Kenaikan Pangkat...</div>
+    <div class="fw-bold text-secondary">Memuat Data Dashboard KP...</div>
     <div class="small text-muted">Dinas Pendidikan dan Kebudayaan Kab. Magelang</div>
   </div>
 
@@ -235,22 +209,19 @@ body {
     <div class="container-fluid px-4">
       <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
         <div class="d-flex align-items-center gap-3">
-          <div class="bg-white rounded-circle p-2 shadow-sm d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-            <i class="bi bi-award-fill text-primary fs-3"></i>
+          <div class="bg-white rounded-circle p-2 shadow-sm d-flex align-items-center justify-content-center" style="width: 46px; height: 46px;">
+            <i class="bi bi-bar-chart-line-fill text-primary fs-4"></i>
           </div>
           <div>
-            <div class="brand-badge mb-1">E-Layanan Kepegawaian</div>
-            <h1 class="h4 mb-0 fw-bold">Dashboard Kenaikan Pangkat (KP) PNS</h1>
+            <div class="brand-badge mb-1">Executive Cockpit</div>
+            <h1 class="h4 mb-0 fw-bold">Monitoring Kenaikan Pangkat (KP) PNS</h1>
             <div class="small text-light opacity-75">Dinas Pendidikan dan Kebudayaan Kabupaten Magelang</div>
           </div>
         </div>
         <div class="d-flex align-items-center gap-2">
           <span class="badge bg-white bg-opacity-25 text-white px-3 py-2 small" id="lastUpdatedText">Data memuat...</span>
           <button class="btn btn-light btn-sm fw-semibold shadow-sm" onclick="refreshData()">
-            <i class="bi bi-arrow-clockwise me-1"></i>Refresh Data
-          </button>
-          <button class="btn btn-outline-light btn-sm fw-semibold" onclick="exportFilteredCSV()">
-            <i class="bi bi-download me-1"></i>Ekspor CSV
+            <i class="bi bi-arrow-clockwise me-1"></i>Refresh
           </button>
         </div>
       </div>
@@ -258,750 +229,648 @@ body {
   </header>
 
   <!-- Main Container -->
-  <main class="container-fluid px-4 py-4">
+  <main class="container-fluid px-4 py-3">
 
-    <!-- KPI Cards Summary -->
-    <div class="row g-3 mb-4">
-      <div class="col-6 col-md-4 col-xl">
-        <div class="kpi-card kpi-total">
-          <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <div class="text-muted small fw-semibold">Total Usulan</div>
-              <h2 class="h3 fw-bold mb-0 mt-1" id="kpiTotal">0</h2>
-            </div>
-            <div class="kpi-icon icon-total"><i class="bi bi-files"></i></div>
-          </div>
-        </div>
-      </div>
-      <div class="col-6 col-md-4 col-xl">
-        <div class="kpi-card kpi-ms">
-          <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <div class="text-muted small fw-semibold">Memenuhi Syarat (MS)</div>
-              <h2 class="h3 fw-bold mb-0 mt-1 text-success" id="kpiMS">0</h2>
-            </div>
-            <div class="kpi-icon icon-ms"><i class="bi bi-check2-all"></i></div>
-          </div>
-        </div>
-      </div>
-      <div class="col-6 col-md-4 col-xl">
-        <div class="kpi-card kpi-btl">
-          <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <div class="text-muted small fw-semibold">Perlu Perbaikan (BTL)</div>
-              <h2 class="h3 fw-bold mb-0 mt-1 text-warning" id="kpiBTL">0</h2>
-            </div>
-            <div class="kpi-icon icon-btl"><i class="bi bi-exclamation-triangle"></i></div>
-          </div>
-        </div>
-      </div>
-      <div class="col-6 col-md-6 col-xl">
-        <div class="kpi-card kpi-tms">
-          <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <div class="text-muted small fw-semibold">Ditolak (TMS)</div>
-              <h2 class="h3 fw-bold mb-0 mt-1 text-danger" id="kpiTMS">0</h2>
-            </div>
-            <div class="kpi-icon icon-tms"><i class="bi bi-x-circle"></i></div>
-          </div>
-        </div>
-      </div>
-      <div class="col-12 col-md-6 col-xl">
-        <div class="kpi-card kpi-proses">
-          <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <div class="text-muted small fw-semibold">Dalam Proses</div>
-              <h2 class="h3 fw-bold mb-0 mt-1 text-info" id="kpiProses">0</h2>
-            </div>
-            <div class="kpi-icon icon-proses"><i class="bi bi-hourglass-split"></i></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Filter Multi Kriteria -->
-    <div class="filter-box mb-4">
-      <div class="row g-2 align-items-center">
+    <!-- Kontrol Periode Utama -->
+    <div class="period-control-card mb-4">
+      <div class="row g-3 align-items-center">
         <div class="col-12 col-md-auto d-flex align-items-center gap-2">
-          <i class="bi bi-funnel text-primary fs-5"></i>
-          <span class="fw-bold text-secondary small text-uppercase">Filter Usulan:</span>
+          <i class="bi bi-calendar3 text-primary fs-4"></i>
+          <div>
+            <div class="fw-bold text-dark text-uppercase small" style="letter-spacing: 0.05em;">Periode Pemantauan</div>
+            <div class="small text-muted">Pilih tahun dan bulan ajuan untuk memfilter ringkasan</div>
+          </div>
         </div>
-        <div class="col-6 col-md-2">
-          <select id="filterTahun" class="form-select form-select-sm">
+        <div class="col-6 col-md-3 col-lg-2 ms-md-auto">
+          <label class="form-label small fw-semibold text-secondary mb-1">Tahun Ajuan:</label>
+          <select id="selectTahun" class="form-select form-select-sm fw-bold">
             <option value="">Semua Tahun</option>
           </select>
         </div>
-        <div class="col-6 col-md-2">
-          <select id="filterBulan" class="form-select form-select-sm">
+        <div class="col-6 col-md-3 col-lg-2">
+          <label class="form-label small fw-semibold text-secondary mb-1">Bulan Ajuan:</label>
+          <select id="selectBulan" class="form-select form-select-sm fw-bold">
             <option value="">Semua Bulan</option>
           </select>
         </div>
-        <div class="col-6 col-md-2">
-          <select id="filterJenjang" class="form-select form-select-sm">
-            <option value="">Semua Jenjang</option>
-          </select>
-        </div>
-        <div class="col-6 col-md-2">
-          <select id="filterKecamatan" class="form-select form-select-sm">
-            <option value="">Semua Kecamatan</option>
-          </select>
-        </div>
-        <div class="col-6 col-md-2">
-          <select id="filterStatus" class="form-select form-select-sm">
-            <option value="">Semua Status</option>
-          </select>
-        </div>
-        <div class="col-12 col-md-auto ms-md-auto text-end">
-          <button class="btn btn-outline-secondary btn-sm" onclick="resetFilters()">
-            <i class="bi bi-arrow-counterclockwise me-1"></i>Reset
+        <div class="col-12 col-md-auto">
+          <label class="form-label d-none d-md-block mb-1 small text-transparent">&nbsp;</label>
+          <button class="btn btn-outline-secondary btn-sm w-100" onclick="resetPeriode()">
+            <i class="bi bi-arrow-counterclockwise me-1"></i>Semua Periode
           </button>
         </div>
       </div>
     </div>
 
-    <!-- Charts Section -->
+    <!-- 4 KPI Cards Sorotan Cepat -->
     <div class="row g-3 mb-4">
-      <div class="col-12 col-lg-5">
-        <div class="dashboard-card">
-          <div class="card-title-custom">
-            <i class="bi bi-bar-chart-steps text-primary"></i>
-            <span>Distribusi Usulan Kenaikan Pangkat</span>
-          </div>
-          <div style="position: relative; height: 260px;">
-            <canvas id="chartPangkat"></canvas>
-          </div>
-        </div>
-      </div>
-      <div class="col-12 col-md-7 col-lg-4">
-        <div class="dashboard-card">
-          <div class="card-title-custom">
-            <i class="bi bi-geo-alt-fill text-danger"></i>
-            <span>Top Kecamatan Pengusul</span>
-          </div>
-          <div style="position: relative; height: 260px;">
-            <canvas id="chartKecamatan"></canvas>
+      <!-- Total Usulan -->
+      <div class="col-6 col-md-3">
+        <div class="kpi-card kpi-total">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <div class="text-muted small fw-semibold">Total Usulan KP</div>
+              <h2 class="h2 fw-bold mb-0 mt-2" id="kpiTotal">0</h2>
+              <div class="small text-muted mt-1" id="kpiSubtextTotal">Periode terpilih</div>
+            </div>
+            <div class="kpi-icon icon-total"><i class="bi bi-files"></i></div>
           </div>
         </div>
       </div>
-      <div class="col-12 col-md-5 col-lg-3">
-        <div class="dashboard-card">
-          <div class="card-title-custom">
-            <i class="bi bi-pie-chart-fill text-success"></i>
-            <span>Sebaran Jenjang</span>
+
+      <!-- Perlu Revisi (Kolom AE) -->
+      <div class="col-6 col-md-3">
+        <div class="kpi-card kpi-revisi">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <div class="text-warning-emphasis small fw-bold">Perlu Revisi (Kolom AE)</div>
+              <h2 class="h2 fw-bold mb-0 mt-2 text-warning" id="kpiRevisi">0</h2>
+              <div class="small text-warning-emphasis fw-semibold mt-1" id="kpiSubtextRevisi">0% dari usulan</div>
+            </div>
+            <div class="kpi-icon icon-revisi"><i class="bi bi-pencil-square"></i></div>
           </div>
-          <div style="position: relative; height: 260px;">
-            <canvas id="chartJenjang"></canvas>
+        </div>
+      </div>
+
+      <!-- Memenuhi Syarat (MS) -->
+      <div class="col-6 col-md-3">
+        <div class="kpi-card kpi-ms">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <div class="text-success small fw-bold">Memenuhi Syarat (MS)</div>
+              <h2 class="h2 fw-bold mb-0 mt-2 text-success" id="kpiMS">0</h2>
+              <div class="small text-success fw-semibold mt-1" id="kpiSubtextMS">0% dari usulan</div>
+            </div>
+            <div class="kpi-icon icon-ms"><i class="bi bi-check2-circle"></i></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tidak Memenuhi Syarat (TMS) -->
+      <div class="col-6 col-md-3">
+        <div class="kpi-card kpi-tms">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <div class="text-danger small fw-bold">Ditolak (TMS)</div>
+              <h2 class="h2 fw-bold mb-0 mt-2 text-danger" id="kpiTMS">0</h2>
+              <div class="small text-danger fw-semibold mt-1" id="kpiSubtextTMS">0% dari usulan</div>
+            </div>
+            <div class="kpi-icon icon-tms"><i class="bi bi-x-circle"></i></div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Tabel Tracking Berkas -->
-    <div class="dashboard-card p-0 overflow-hidden mb-4">
-      <div class="p-3 border-bottom d-flex flex-wrap justify-content-between align-items-center gap-2 bg-light">
-        <div class="card-title-custom mb-0">
-          <i class="bi bi-table text-primary"></i>
-          <span>Daftar Usulan &amp; Tracking Berkas Pegawai</span>
-        </div>
-        <div class="d-flex align-items-center gap-2">
-          <div class="input-group input-group-sm" style="max-width: 320px;">
-            <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
-            <input type="text" id="tableSearchInput" class="form-control border-start-0 ps-0" placeholder="Cari Nama / NIP / Unit Kerja...">
+    <!-- Grafik Section: 2 Grafik Berdampingan -->
+    <div class="row g-3 mb-4">
+      <!-- Grafik 1: Ajuan Golongan Kenaikan Pangkat -->
+      <div class="col-12 col-lg-6">
+        <div class="dashboard-card">
+          <div class="card-title-custom justify-content-between">
+            <div>
+              <i class="bi bi-award text-primary"></i>
+              <span>Ajuan Kenaikan Pangkat (Golongan)</span>
+            </div>
+            <span class="badge bg-light text-primary border" id="badgeGolonganPeriode">Semua Periode</span>
+          </div>
+          <div style="position: relative; height: 280px;">
+            <canvas id="chartGolongan"></canvas>
           </div>
         </div>
       </div>
+
+      <!-- Grafik 2: Tren Bulanan Usulan vs Revisi -->
+      <div class="col-12 col-lg-6">
+        <div class="dashboard-card">
+          <div class="card-title-custom justify-content-between">
+            <div>
+              <i class="bi bi-graph-up text-success"></i>
+              <span>Tren Bulanan: Total Usulan vs Berkas Revisi</span>
+            </div>
+            <span class="badge bg-light text-success border" id="badgeTrenTahun">Tahun 2026</span>
+          </div>
+          <div style="position: relative; height: 280px;">
+            <canvas id="chartTrenBulanan"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabel Matriks Rekapitulasi Wilayah: Kecamatan vs Jenjang -->
+    <div class="dashboard-card p-0 overflow-hidden mb-4">
+      <div class="p-3 border-bottom d-flex flex-wrap justify-content-between align-items-center gap-2 bg-light">
+        <div>
+          <div class="fw-bold text-dark d-flex align-items-center gap-2">
+            <i class="bi bi-grid-3x3-gap-fill text-primary"></i>
+            <span>Matriks Rekapitulasi Usulan per Kecamatan &amp; Jenjang</span>
+          </div>
+          <div class="small text-muted mt-1" id="matrixSubtext">Menampilkan sebaran usulan dan jumlah berkas revisi per wilayah</div>
+        </div>
+        <div>
+          <button class="btn btn-outline-primary btn-sm fw-semibold" onclick="exportMatrixCSV()">
+            <i class="bi bi-file-earmark-spreadsheet me-1"></i>Ekspor Rekap CSV
+          </button>
+        </div>
+      </div>
+
       <div class="table-responsive">
-        <table class="table table-custom table-hover align-middle mb-0">
+        <table class="table table-matrix table-hover mb-0 text-center">
           <thead>
             <tr>
-              <th style="width: 50px;" class="text-center">No</th>
-              <th>Nama Pegawai / NIP</th>
-              <th>Unit Kerja &amp; Wilayah</th>
-              <th>Pangkat (Lama &rarr; Baru)</th>
-              <th>Status Usulan</th>
-              <th>Periode</th>
-              <th>Verifikator</th>
-              <th class="text-center" style="width: 90px;">Aksi</th>
+              <th class="text-start" style="min-width: 170px;">Kecamatan</th>
+              <th style="width: 85px;">TK</th>
+              <th style="width: 85px;">SD</th>
+              <th style="width: 85px;">SMP</th>
+              <th style="width: 85px;">SKB / Lainnya</th>
+              <th style="width: 110px;" class="bg-primary-subtle text-primary fw-bold">Total Usulan</th>
+              <th style="width: 120px;" class="bg-warning-subtle text-warning-emphasis fw-bold">Jumlah Revisi</th>
             </tr>
           </thead>
-          <tbody id="tableBody">
-            <!-- Diisi via JS -->
+          <tbody id="matrixTableBody">
+            <!-- Diisi via JavaScript -->
           </tbody>
+          <tfoot id="matrixTableFoot">
+            <!-- Baris Total Kabupaten -->
+          </tfoot>
         </table>
-      </div>
-      <div class="p-3 border-top d-flex flex-wrap justify-content-between align-items-center gap-2">
-        <div class="small text-muted" id="tableInfo">Menampilkan data...</div>
-        <div id="paginationNav"></div>
       </div>
     </div>
 
   </main>
 
-  <!-- Modal Detail Inspeksi Berkas -->
-  <div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-      <div class="modal-content modal-content-custom">
-        <div class="modal-header-custom d-flex justify-content-between align-items-center">
-          <div>
-            <h5 class="modal-title fw-bold text-white mb-0" id="detailModalLabel">
-              <i class="bi bi-person-badge-fill me-2"></i>Detail Verifikasi Berkas Usulan KP
-            </h5>
-            <div class="small text-white opacity-75 mt-1">Dinas Pendidikan dan Kebudayaan Kab. Magelang</div>
-          </div>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body p-4">
-          <div class="bg-light p-3 rounded-4 mb-4 border">
-            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
-              <div>
-                <h5 class="fw-bold mb-1 text-primary" id="modalNama">-</h5>
-                <div class="font-monospace small text-muted">NIP. <span id="modalNIP">-</span></div>
-                <div class="small mt-1 text-secondary"><i class="bi bi-building me-1"></i><span id="modalUnitKerja">-</span></div>
-              </div>
-              <div class="text-end">
-                <span id="modalStatusBadge" class="badge bg-secondary badge-status fs-6">-</span>
-                <div class="small text-muted mt-1">Periode: <span class="fw-semibold" id="modalPeriode">-</span></div>
-              </div>
-            </div>
-            <hr class="my-2">
-            <div class="row g-2 small">
-              <div class="col-md-4"><strong>Jabatan:</strong> <span id="modalJabatan">-</span></div>
-              <div class="col-md-4"><strong>Kenaikan:</strong> <span id="modalPangkat" class="text-primary fw-semibold">-</span></div>
-              <div class="col-md-4"><strong>Verifikator:</strong> <span id="modalPemeriksa">-</span></div>
-            </div>
-          </div>
-
-          <div class="alert alert-info d-flex gap-2 align-items-start rounded-3 mb-4">
-            <i class="bi bi-info-circle-fill fs-5 mt-1"></i>
-            <div>
-              <div class="fw-bold">Catatan Pemeriksa / Keterangan BTL:</div>
-              <div id="modalCatatan" class="mt-1 small">-</div>
-            </div>
-          </div>
-
-          <h6 class="fw-bold mb-3 d-flex align-items-center gap-2">
-            <i class="bi bi-folder-check text-primary"></i>
-            <span>Checklist Kelengkapan &amp; Berkas Pengajuan</span>
-          </h6>
-
-          <div class="row g-2" id="modalDocList">
-            <!-- Diisi via JS -->
-          </div>
-        </div>
-        <div class="modal-footer bg-light">
-          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Footer -->
   <footer class="text-center py-3 text-muted small border-top bg-white">
-    &copy; 2026 Disdikbud Kabupaten Magelang &bull; Sistem Monitoring Kenaikan Pangkat PNS
+    &copy; 2026 Dinas Pendidikan dan Kebudayaan Kabupaten Magelang &bull; Dashboard Eksekutif Kenaikan Pangkat PNS
   </footer>
 
   <!-- Bootstrap 5 JS Bundle -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
   <script>
-// ============================================================
-// Dashboard Kenaikan Pangkat (KP) Disdikbud Kab. Magelang
-// Frontend Logic - ES5 Compatible (No Template Literals/Arrow Fn)
-// ============================================================
+// =================================================================
+// Dashboard Eksekutif Kenaikan Pangkat (KP) - Disdikbud Magelang
+// Frontend Logic (ES5 Compliant - No Template Literals)
+// =================================================================
 
 var allRecords = [];
-var filteredRecords = [];
-var chartPangkatInstance = null;
-var chartKecamatanInstance = null;
-var chartJenjangInstance = null;
-var currentPage = 1;
-var pageSize = 10;
+var chartGolonganInstance = null;
+var chartTrenInstance = null;
 
-// ---- Init ----
 document.addEventListener('DOMContentLoaded', function() {
-  loadData(false);
-  setupEventListeners();
+  loadDashboardData(false);
+  setupListeners();
 });
 
-function setupEventListeners() {
-  document.getElementById('filterTahun').addEventListener('change', applyFilters);
-  document.getElementById('filterBulan').addEventListener('change', applyFilters);
-  document.getElementById('filterJenjang').addEventListener('change', applyFilters);
-  document.getElementById('filterKecamatan').addEventListener('change', applyFilters);
-  document.getElementById('filterStatus').addEventListener('change', applyFilters);
-
-  var searchInput = document.getElementById('tableSearchInput');
-  var debounceTimeout;
-  searchInput.addEventListener('input', function() {
-    clearTimeout(debounceTimeout);
-    debounceTimeout = setTimeout(function() {
-      applyFilters();
-    }, 300);
-  });
+function setupListeners() {
+  document.getElementById('selectTahun').addEventListener('change', onFilterChange);
+  document.getElementById('selectBulan').addEventListener('change', onFilterChange);
 }
 
-// ---- Load Data dari GAS ----
-function loadData(isRefresh) {
+function loadDashboardData(isRefresh) {
   showLoading(true);
 
   if (typeof google === 'undefined' || !google.script || !google.script.run) {
+    // Mode Preview / Lokal jika dijalankan tanpa GAS runtime
     setTimeout(function() {
-      handleDataSuccess(generateDummyData());
-    }, 600);
+      handleSuccess(generateDummyExecutiveData());
+    }, 500);
     return;
   }
 
   if (isRefresh) {
     google.script.run
-      .withSuccessHandler(handleDataSuccess)
-      .withFailureHandler(handleDataError)
+      .withSuccessHandler(handleSuccess)
+      .withFailureHandler(handleError)
       .refreshDashboardData();
   } else {
     google.script.run
-      .withSuccessHandler(handleDataSuccess)
-      .withFailureHandler(handleDataError)
+      .withSuccessHandler(handleSuccess)
+      .withFailureHandler(handleError)
       .getDashboardData(false);
   }
 }
 
 function refreshData() {
-  loadData(true);
+  loadDashboardData(true);
 }
 
-function handleDataSuccess(rawResponse) {
+function handleSuccess(rawResponse) {
   showLoading(false);
   var response = rawResponse;
   if (typeof rawResponse === 'string') {
     try {
       response = JSON.parse(rawResponse);
     } catch (e) {
-      alert('Gagal membaca data dari server (JSON Parse Error): ' + e.message);
+      alert('Gagal mem-parse respon data server: ' + e.message);
       return;
     }
   }
 
   if (!response || !response.success) {
-    var errMsg = (response && response.message) ? response.message : 'Respon kosong atau tidak valid dari server.';
-    alert('Gagal mengambil data: ' + errMsg);
+    var msg = (response && response.message) ? response.message : 'Respon data tidak valid.';
+    alert('Gagal memuat data: ' + msg);
     return;
   }
+
   allRecords = response.records || [];
-  populateFilterDropdowns(response.filterOptions);
+  populatePeriodeSelects(response.filterOptions);
+
   if (response.updatedAt) {
     document.getElementById('lastUpdatedText').innerText = 'Data per: ' + response.updatedAt;
   }
-  applyFilters();
+
+  onFilterChange();
 }
 
-function handleDataError(err) {
+function handleError(err) {
   showLoading(false);
-  alert('Terjadi kesalahan saat memuat data: ' + (err && err.message ? err.message : String(err)));
+  alert('Terjadi kesalahan server: ' + (err && err.message ? err.message : String(err)));
 }
 
-// ---- Filter Dropdowns ----
-function populateFilterDropdowns(options) {
-  if (!options) return;
-  fillSelect('filterTahun', options.years, 'Semua Tahun');
-  fillSelect('filterBulan', options.months, 'Semua Bulan');
-  fillSelect('filterJenjang', options.levels, 'Semua Jenjang');
-  fillSelect('filterKecamatan', options.subdistricts, 'Semua Kecamatan');
-  fillSelect('filterStatus', options.statuses, 'Semua Status');
-}
+function populatePeriodeSelects(filterOptions) {
+  if (!filterOptions) return;
 
-function fillSelect(elementId, items, defaultLabel) {
-  var el = document.getElementById(elementId);
-  var currentVal = el.value;
-  el.innerHTML = '<option value="">' + defaultLabel + '</option>';
-  if (items && Array.isArray(items)) {
-    for (var i = 0; i < items.length; i++) {
-      var item = items[i];
-      if (item && item.toString().trim() !== '') {
+  var selTahun = document.getElementById('selectTahun');
+  var selBulan = document.getElementById('selectBulan');
+  var curTahun = selTahun.value;
+  var curBulan = selBulan.value;
+
+  selTahun.innerHTML = '<option value="">Semua Tahun</option>';
+  selBulan.innerHTML = '<option value="">Semua Bulan</option>';
+
+  if (filterOptions.years && Array.isArray(filterOptions.years)) {
+    for (var i = 0; i < filterOptions.years.length; i++) {
+      var y = filterOptions.years[i];
+      if (y) {
         var opt = document.createElement('option');
-        opt.value = item;
-        opt.textContent = item;
-        el.appendChild(opt);
+        opt.value = y;
+        opt.textContent = y;
+        selTahun.appendChild(opt);
       }
     }
   }
-  if (currentVal) el.value = currentVal;
-}
 
-function resetFilters() {
-  document.getElementById('filterTahun').value = '';
-  document.getElementById('filterBulan').value = '';
-  document.getElementById('filterJenjang').value = '';
-  document.getElementById('filterKecamatan').value = '';
-  document.getElementById('filterStatus').value = '';
-  document.getElementById('tableSearchInput').value = '';
-  applyFilters();
-}
-
-// ---- Apply Filters ----
-function applyFilters() {
-  var tahun = document.getElementById('filterTahun').value.toLowerCase();
-  var bulan = document.getElementById('filterBulan').value.toLowerCase();
-  var jenjang = document.getElementById('filterJenjang').value.toLowerCase();
-  var kecamatan = document.getElementById('filterKecamatan').value.toLowerCase();
-  var status = document.getElementById('filterStatus').value.toLowerCase();
-  var search = document.getElementById('tableSearchInput').value.toLowerCase().trim();
-
-  filteredRecords = [];
-  for (var i = 0; i < allRecords.length; i++) {
-    var item = allRecords[i];
-    if (tahun && (item.tahun_ajuan || '').toLowerCase() !== tahun) continue;
-    if (bulan && (item.bulan_ajuan || '').toLowerCase() !== bulan) continue;
-    if (jenjang && (item.jenjang || '').toLowerCase() !== jenjang) continue;
-    if (kecamatan && (item.kec || '').toLowerCase() !== kecamatan) continue;
-    if (status && (item.status || '').toLowerCase() !== status) continue;
-    if (search) {
-      var matchNama = (item.nama || '').toLowerCase().indexOf(search) !== -1;
-      var matchNip = (item.nip || '').toLowerCase().indexOf(search) !== -1;
-      var matchUnit = (item.unit_kerja || '').toLowerCase().indexOf(search) !== -1;
-      var matchJabatan = (item.jenis_jabatan || '').toLowerCase().indexOf(search) !== -1;
-      if (!matchNama && !matchNip && !matchUnit && !matchJabatan) continue;
+  if (filterOptions.months && Array.isArray(filterOptions.months)) {
+    for (var j = 0; j < filterOptions.months.length; j++) {
+      var m = filterOptions.months[j];
+      if (m) {
+        var opt2 = document.createElement('option');
+        opt2.value = m;
+        opt2.textContent = m;
+        selBulan.appendChild(opt2);
+      }
     }
-    filteredRecords.push(item);
   }
 
-  currentPage = 1;
-  updateKPICards(filteredRecords);
-  updateCharts(filteredRecords);
-  renderTable();
+  if (curTahun) selTahun.value = curTahun;
+  if (curBulan) selBulan.value = curBulan;
 }
 
-// ---- KPI Cards ----
+function resetPeriode() {
+  document.getElementById('selectTahun').value = '';
+  document.getElementById('selectBulan').value = '';
+  onFilterChange();
+}
+
+// Saat user memilih tahun atau bulan
+function onFilterChange() {
+  var selectedTahun = document.getElementById('selectTahun').value;
+  var selectedBulan = document.getElementById('selectBulan').value;
+
+  // Filter record sesuai periode
+  var filtered = [];
+  for (var i = 0; i < allRecords.length; i++) {
+    var rec = allRecords[i];
+    if (selectedTahun && rec.tahun_ajuan !== selectedTahun) continue;
+    if (selectedBulan && rec.bulan_ajuan !== selectedBulan) continue;
+    filtered.push(rec);
+  }
+
+  // Label badge periode
+  var labelPeriode = 'Semua Periode';
+  if (selectedBulan && selectedTahun) {
+    labelPeriode = selectedBulan + ' ' + selectedTahun;
+  } else if (selectedBulan) {
+    labelPeriode = 'Bulan ' + selectedBulan;
+  } else if (selectedTahun) {
+    labelPeriode = 'Tahun ' + selectedTahun;
+  }
+  document.getElementById('badgeGolonganPeriode').innerText = labelPeriode;
+  document.getElementById('matrixSubtext').innerText = 'Data rekapitulasi periode: ' + labelPeriode;
+
+  updateKPICards(filtered);
+  renderChartGolongan(filtered);
+  renderChartTrenBulanan(selectedTahun);
+  renderMatrixTable(filtered);
+}
+
+// 1. Update 4 Kartu KPI
 function updateKPICards(records) {
-  var ms = 0, btl = 0, tms = 0, proses = 0;
-  for (var i = 0; i < records.length; i++) {
-    var s = (records[i].status || '').toLowerCase();
-    if (s.indexOf('memenuhi') !== -1 || s === 'ms') ms++;
-    else if (s.indexOf('tidak lengkap') !== -1 || s === 'btl') btl++;
-    else if (s.indexOf('tidak memenuhi') !== -1 || s === 'tms') tms++;
-    else proses++;
-  }
-  document.getElementById('kpiTotal').innerText = records.length.toLocaleString('id-ID');
-  document.getElementById('kpiMS').innerText = ms.toLocaleString('id-ID');
-  document.getElementById('kpiBTL').innerText = btl.toLocaleString('id-ID');
-  document.getElementById('kpiTMS').innerText = tms.toLocaleString('id-ID');
-  document.getElementById('kpiProses').innerText = proses.toLocaleString('id-ID');
-}
+  var total = records.length;
+  var revisi = 0;
+  var ms = 0;
+  var tms = 0;
 
-// ---- Charts ----
-function updateCharts(records) {
-  renderPangkatChart(records);
-  renderKecamatanChart(records);
-  renderJenjangChart(records);
-}
-
-function renderPangkatChart(records) {
-  var ctx = document.getElementById('chartPangkat').getContext('2d');
-  var pangkatCount = {};
   for (var i = 0; i < records.length; i++) {
     var r = records[i];
-    var p = (r.ajuan_pangkat && r.ajuan_pangkat !== '-') ? r.ajuan_pangkat : (r.pangkat_saat_ini || 'Belum Ditentukan');
-    pangkatCount[p] = (pangkatCount[p] || 0) + 1;
-  }
-  var keys = Object.keys(pangkatCount).sort(function(a, b) { return pangkatCount[b] - pangkatCount[a]; }).slice(0, 8);
-  var vals = [];
-  for (var j = 0; j < keys.length; j++) vals.push(pangkatCount[keys[j]]);
-
-  if (chartPangkatInstance) chartPangkatInstance.destroy();
-  chartPangkatInstance = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: keys,
-      datasets: [{ label: 'Jumlah Usulan', data: vals, backgroundColor: '#3b82f6', borderRadius: 8 }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
-      scales: {
-        y: { beginAtZero: true, ticks: { precision: 0 } },
-        x: { ticks: { autoSkip: false, maxRotation: 45, minRotation: 0 } }
-      }
+    if (r.is_revisi) {
+      revisi++;
+    } else {
+      var s = (r.status || '').toLowerCase();
+      if (s.indexOf('memenuhi') !== -1 || s === 'ms') ms++;
+      else if (s.indexOf('tidak memenuhi') !== -1 || s === 'tms') tms++;
     }
-  });
+  }
+
+  document.getElementById('kpiTotal').innerText = total.toLocaleString('id-ID');
+  document.getElementById('kpiRevisi').innerText = revisi.toLocaleString('id-ID');
+  document.getElementById('kpiMS').innerText = ms.toLocaleString('id-ID');
+  document.getElementById('kpiTMS').innerText = tms.toLocaleString('id-ID');
+
+  var pctRevisi = total > 0 ? Math.round((revisi / total) * 100) : 0;
+  var pctMS = total > 0 ? Math.round((ms / total) * 100) : 0;
+  var pctTMS = total > 0 ? Math.round((tms / total) * 100) : 0;
+
+  document.getElementById('kpiSubtextRevisi').innerText = pctRevisi + '% dari total usulan';
+  document.getElementById('kpiSubtextMS').innerText = pctMS + '% dari total usulan';
+  document.getElementById('kpiSubtextTMS').innerText = pctTMS + '% dari total usulan';
 }
 
-function renderKecamatanChart(records) {
-  var ctx = document.getElementById('chartKecamatan').getContext('2d');
-  var kecCount = {};
-  for (var i = 0; i < records.length; i++) {
-    var k = (records[i].kec && records[i].kec !== '-') ? records[i].kec : 'Lainnya';
-    kecCount[k] = (kecCount[k] || 0) + 1;
-  }
-  var keys = Object.keys(kecCount).sort(function(a, b) { return kecCount[b] - kecCount[a]; }).slice(0, 10);
-  var vals = [];
-  for (var j = 0; j < keys.length; j++) vals.push(kecCount[keys[j]]);
+// 2. Grafik Ajuan Kenaikan Pangkat (Golongan)
+function renderChartGolongan(records) {
+  var ctx = document.getElementById('chartGolongan').getContext('2d');
+  var pangkatCounts = {};
 
-  if (chartKecamatanInstance) chartKecamatanInstance.destroy();
-  chartKecamatanInstance = new Chart(ctx, {
+  for (var i = 0; i < records.length; i++) {
+    var p = records[i].ajuan_pangkat || 'Belum Ditentukan';
+    pangkatCounts[p] = (pangkatCounts[p] || 0) + 1;
+  }
+
+  // Sort dari ajuan terbanyak
+  var keys = Object.keys(pangkatCounts).sort(function(a, b) {
+    return pangkatCounts[b] - pangkatCounts[a];
+  }).slice(0, 10);
+
+  var vals = [];
+  for (var j = 0; j < keys.length; j++) {
+    vals.push(pangkatCounts[keys[j]]);
+  }
+
+  if (chartGolonganInstance) chartGolonganInstance.destroy();
+
+  chartGolonganInstance = new Chart(ctx, {
     type: 'bar',
     data: {
       labels: keys,
-      datasets: [{ label: 'Usulan KP', data: vals, backgroundColor: '#0284c7', borderRadius: 6 }]
+      datasets: [{
+        label: 'Jumlah Ajuan',
+        data: vals,
+        backgroundColor: '#2563eb',
+        borderRadius: 6
+      }]
     },
     options: {
       indexAxis: 'y',
       responsive: true,
       maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
-      scales: { x: { beginAtZero: true, ticks: { precision: 0 } } }
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: function(ctx) { return ' ' + ctx.raw + ' orang pengusul'; }
+          }
+        }
+      },
+      scales: {
+        x: { beginAtZero: true, ticks: { precision: 0 } }
+      }
     }
   });
 }
 
-function renderJenjangChart(records) {
-  var ctx = document.getElementById('chartJenjang').getContext('2d');
-  var jenjangCount = {};
-  for (var i = 0; i < records.length; i++) {
-    var j = (records[i].jenjang && records[i].jenjang !== '-') ? records[i].jenjang : 'Lainnya';
-    jenjangCount[j] = (jenjangCount[j] || 0) + 1;
-  }
-  var labels = Object.keys(jenjangCount);
-  var values = [];
-  for (var k = 0; k < labels.length; k++) values.push(jenjangCount[labels[k]]);
+// 3. Grafik Tren Bulanan: Usulan vs Revisi
+function renderChartTrenBulanan(selectedTahun) {
+  var ctx = document.getElementById('chartTrenBulanan').getContext('2d');
+  var bulanOrder = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
-  if (chartJenjangInstance) chartJenjangInstance.destroy();
-  chartJenjangInstance = new Chart(ctx, {
-    type: 'doughnut',
+  var tahunAktif = selectedTahun;
+  if (!tahunAktif && allRecords.length > 0) {
+    tahunAktif = allRecords[0].tahun_ajuan;
+  }
+  document.getElementById('badgeTrenTahun').innerText = tahunAktif ? 'Tahun ' + tahunAktif : 'Sepanjang Tahun';
+
+  var monthlyTotal = {};
+  var monthlyRevisi = {};
+
+  for (var i = 0; i < allRecords.length; i++) {
+    var r = allRecords[i];
+    if (tahunAktif && r.tahun_ajuan !== tahunAktif) continue;
+    var b = r.bulan_ajuan;
+    if (!b || b === 'Tidak Diketahui') continue;
+
+    monthlyTotal[b] = (monthlyTotal[b] || 0) + 1;
+    if (r.is_revisi) {
+      monthlyRevisi[b] = (monthlyRevisi[b] || 0) + 1;
+    }
+  }
+
+  // Tentukan label bulan yang muncul
+  var activeMonths = [];
+  for (var m = 0; m < bulanOrder.length; m++) {
+    var bln = bulanOrder[m];
+    if (monthlyTotal[bln] !== undefined) {
+      activeMonths.push(bln);
+    }
+  }
+  if (activeMonths.length === 0) {
+    activeMonths = Object.keys(monthlyTotal);
+  }
+
+  var dataTotal = [];
+  var dataRevisi = [];
+  for (var k = 0; k < activeMonths.length; k++) {
+    var name = activeMonths[k];
+    dataTotal.push(monthlyTotal[name] || 0);
+    dataRevisi.push(monthlyRevisi[name] || 0);
+  }
+
+  if (chartTrenInstance) chartTrenInstance.destroy();
+
+  chartTrenInstance = new Chart(ctx, {
+    type: 'line',
     data: {
-      labels: labels,
-      datasets: [{ data: values, backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#64748b'] }]
+      labels: activeMonths,
+      datasets: [
+        {
+          label: 'Total Usulan',
+          data: dataTotal,
+          borderColor: '#2563eb',
+          backgroundColor: 'rgba(37, 99, 235, 0.1)',
+          fill: true,
+          tension: 0.3,
+          borderWidth: 2,
+          pointRadius: 4
+        },
+        {
+          label: 'Perlu Revisi (Kolom AE)',
+          data: dataRevisi,
+          borderColor: '#f59e0b',
+          backgroundColor: 'rgba(245, 158, 11, 0.15)',
+          fill: true,
+          tension: 0.3,
+          borderWidth: 2,
+          pointRadius: 4
+        }
+      ]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      plugins: { legend: { position: 'bottom' } }
+      plugins: {
+        legend: { position: 'top' }
+      },
+      scales: {
+        y: { beginAtZero: true, ticks: { precision: 0 } }
+      }
     }
   });
 }
 
-// ---- Tabel & Pagination ----
-function renderTable() {
-  var tbody = document.getElementById('tableBody');
-  var total = filteredRecords.length;
+// 4. Tabel Matriks Rekapitulasi: Kecamatan x Jenjang
+var currentMatrixRows = [];
 
-  if (total === 0) {
-    tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-muted">Tidak ada data usulan yang cocok dengan filter</td></tr>';
-    document.getElementById('tableInfo').innerText = 'Menampilkan 0 data';
-    renderPagination(0);
+function renderMatrixTable(records) {
+  var tbody = document.getElementById('matrixTableBody');
+  var tfoot = document.getElementById('matrixTableFoot');
+
+  var mapKec = {};
+
+  for (var i = 0; i < records.length; i++) {
+    var r = records[i];
+    var kec = r.kec || 'Lainnya';
+    var jenjang = (r.jenjang || '').toUpperCase();
+
+    if (!mapKec[kec]) {
+      mapKec[kec] = { tk: 0, sd: 0, smp: 0, skb: 0, total: 0, revisi: 0 };
+    }
+
+    if (jenjang.indexOf('TK') !== -1 || jenjang.indexOf('PAUD') !== -1) {
+      mapKec[kec].tk++;
+    } else if (jenjang.indexOf('SD') !== -1) {
+      mapKec[kec].sd++;
+    } else if (jenjang.indexOf('SMP') !== -1) {
+      mapKec[kec].smp++;
+    } else {
+      mapKec[kec].skb++;
+    }
+
+    mapKec[kec].total++;
+    if (r.is_revisi) {
+      mapKec[kec].revisi++;
+    }
+  }
+
+  var sortedKec = Object.keys(mapKec).sort(function(a, b) {
+    return mapKec[b].total - mapKec[a].total;
+  });
+
+  currentMatrixRows = [];
+  var sumTK = 0, sumSD = 0, sumSMP = 0, sumSKB = 0, sumTotal = 0, sumRevisi = 0;
+
+  var tbodyHtml = '';
+  if (sortedKec.length === 0) {
+    tbodyHtml = '<tr><td colspan="7" class="text-center py-4 text-muted">Tidak ada data usulan pada periode ini</td></tr>';
+  } else {
+    for (var k = 0; k < sortedKec.length; k++) {
+      var kName = sortedKec[k];
+      var d = mapKec[kName];
+
+      sumTK += d.tk;
+      sumSD += d.sd;
+      sumSMP += d.smp;
+      sumSKB += d.skb;
+      sumTotal += d.total;
+      sumRevisi += d.revisi;
+
+      currentMatrixRows.push({
+        kec: kName,
+        tk: d.tk,
+        sd: d.sd,
+        smp: d.smp,
+        skb: d.skb,
+        total: d.total,
+        revisi: d.revisi
+      });
+
+      tbodyHtml += '<tr>';
+      tbodyHtml += '<td class="text-start fw-semibold"><i class="bi bi-geo-alt text-secondary me-1"></i>' + escapeHtml(kName) + '</td>';
+      tbodyHtml += '<td>' + d.tk + '</td>';
+      tbodyHtml += '<td>' + d.sd + '</td>';
+      tbodyHtml += '<td>' + d.smp + '</td>';
+      tbodyHtml += '<td>' + d.skb + '</td>';
+      tbodyHtml += '<td class="fw-bold text-primary bg-light">' + d.total + '</td>';
+      tbodyHtml += '<td>';
+      if (d.revisi > 0) {
+        tbodyHtml += '<span class="badge-revisi"><i class="bi bi-exclamation-triangle-fill me-1"></i>' + d.revisi + '</span>';
+      } else {
+        tbodyHtml += '<span class="text-muted">-</span>';
+      }
+      tbodyHtml += '</td>';
+      tbodyHtml += '</tr>';
+    }
+  }
+  tbody.innerHTML = tbodyHtml;
+
+  // Footer Total Kabupaten
+  var tfootHtml = '<tr>';
+  tfootHtml += '<td class="text-start">TOTAL KABUPATEN</td>';
+  tfootHtml += '<td>' + sumTK + '</td>';
+  tfootHtml += '<td>' + sumSD + '</td>';
+  tfootHtml += '<td>' + sumSMP + '</td>';
+  tfootHtml += '<td>' + sumSKB + '</td>';
+  tfootHtml += '<td class="text-primary">' + sumTotal + '</td>';
+  tfootHtml += '<td class="text-warning-emphasis">' + sumRevisi + '</td>';
+  tfootHtml += '</tr>';
+  tfoot.innerHTML = tfootHtml;
+}
+
+// Ekspor Tabel Matriks ke CSV
+function exportMatrixCSV() {
+  if (currentMatrixRows.length === 0) {
+    alert('Tidak ada data matriks untuk diekspor!');
     return;
   }
 
-  var start = (currentPage - 1) * pageSize;
-  var end = Math.min(start + pageSize, total);
-  var pageItems = filteredRecords.slice(start, end);
+  var selTahun = document.getElementById('selectTahun').value || 'SemuaTahun';
+  var selBulan = document.getElementById('selectBulan').value || 'SemuaBulan';
 
-  var html = '';
-  for (var i = 0; i < pageItems.length; i++) {
-    var r = pageItems[i];
-    var badgeClass = getBadgeClass(r.status);
-    var nipClean = (r.nip || '').replace(/^'/, '');
-    var rowNum = start + i + 1;
-
-    html += '<tr>';
-    html += '<td class="text-center font-monospace">' + rowNum + '</td>';
-    html += '<td>';
-    html += '<div class="fw-bold">' + escapeHtml(r.nama) + '</div>';
-    html += '<div class="small text-muted font-monospace">NIP. ' + escapeHtml(nipClean) + '</div>';
-    html += '</td>';
-    html += '<td>';
-    html += '<div>' + escapeHtml(r.unit_kerja) + '</div>';
-    html += '<div class="small text-muted">' + escapeHtml(r.kec) + ' &bull; ' + escapeHtml(r.jenjang) + '</div>';
-    html += '</td>';
-    html += '<td>';
-    html += '<div class="small">' + escapeHtml(r.pangkat_saat_ini) + '</div>';
-    html += '<div class="small text-primary fw-bold">&rarr; ' + escapeHtml(r.ajuan_pangkat) + '</div>';
-    html += '</td>';
-    html += '<td><span class="badge ' + badgeClass + ' badge-status">' + escapeHtml(r.status) + '</span></td>';
-    html += '<td class="small"><span class="badge bg-light text-dark border">' + escapeHtml(r.bulan_ajuan) + ' ' + escapeHtml(r.tahun_ajuan) + '</span></td>';
-    html += '<td class="small text-muted">' + escapeHtml(r.pemeriksa || '-') + '</td>';
-    html += '<td class="text-center">';
-    html += '<button class="btn btn-sm btn-outline-primary" onclick="showDetailModal(\'' + r.id + '\')">';
-    html += '<i class="bi bi-eye me-1"></i>Detail</button>';
-    html += '</td>';
-    html += '</tr>';
-  }
-
-  tbody.innerHTML = html;
-  document.getElementById('tableInfo').innerText = 'Menampilkan ' + (start + 1) + ' s.d. ' + end + ' dari ' + total + ' usulan';
-  renderPagination(total);
-}
-
-function getBadgeClass(status) {
-  var s = (status || '').toLowerCase();
-  if (s.indexOf('memenuhi') !== -1 || s === 'ms') return 'badge-status-ms';
-  if (s.indexOf('tidak lengkap') !== -1 || s === 'btl') return 'badge-status-btl';
-  if (s.indexOf('tidak memenuhi') !== -1 || s === 'tms') return 'badge-status-tms';
-  return 'badge-status-proses';
-}
-
-function renderPagination(total) {
-  var container = document.getElementById('paginationNav');
-  var totalPages = Math.ceil(total / pageSize);
-  if (totalPages <= 1) { container.innerHTML = ''; return; }
-
-  var html = '<ul class="pagination pagination-sm m-0 justify-content-end">';
-  html += '<li class="page-item ' + (currentPage === 1 ? 'disabled' : '') + '">';
-  html += '<button class="page-link" onclick="goToPage(' + (currentPage - 1) + ')">Prev</button></li>';
-
-  for (var i = 1; i <= totalPages; i++) {
-    if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
-      html += '<li class="page-item ' + (currentPage === i ? 'active' : '') + '">';
-      html += '<button class="page-link" onclick="goToPage(' + i + ')">' + i + '</button></li>';
-    } else if (i === currentPage - 2 || i === currentPage + 2) {
-      html += '<li class="page-item disabled"><span class="page-link">...</span></li>';
-    }
-  }
-
-  html += '<li class="page-item ' + (currentPage === totalPages ? 'disabled' : '') + '">';
-  html += '<button class="page-link" onclick="goToPage(' + (currentPage + 1) + ')">Next</button></li>';
-  html += '</ul>';
-
-  container.innerHTML = html;
-}
-
-function goToPage(page) {
-  currentPage = page;
-  renderTable();
-}
-
-// ---- Modal Detail ----
-function showDetailModal(recordId) {
-  var record = null;
-  for (var i = 0; i < allRecords.length; i++) {
-    if (allRecords[i].id.toString() === recordId.toString()) {
-      record = allRecords[i];
-      break;
-    }
-  }
-  if (!record) return;
-
-  var nipClean = (record.nip || '').replace(/^'/, '');
-  document.getElementById('modalNama').innerText = record.nama;
-  document.getElementById('modalNIP').innerText = nipClean;
-  document.getElementById('modalUnitKerja').innerText = record.unit_kerja + ' (' + record.kec + ') - ' + record.jenjang;
-  document.getElementById('modalJabatan').innerText = record.jenis_jabatan;
-  document.getElementById('modalPangkat').innerText = record.pangkat_saat_ini + ' -> ' + record.ajuan_pangkat;
-  document.getElementById('modalPeriode').innerText = record.bulan_ajuan + ' ' + record.tahun_ajuan;
-  document.getElementById('modalPemeriksa').innerText = record.pemeriksa || '-';
-  document.getElementById('modalCatatan').innerText = record.catatan || 'Tidak ada catatan khusus dari pemeriksa.';
-
-  var statusEl = document.getElementById('modalStatusBadge');
-  statusEl.className = 'badge ' + getBadgeClass(record.status) + ' badge-status fs-6';
-  statusEl.innerText = record.status;
-
-  var checklistItems = [
-    { label: 'SK PNS', keyFile: 'sk_pns', keyVerif: 'sk_pns' },
-    { label: 'SK CPNS', keyFile: 'sk_cpns', keyVerif: 'sk_cpns' },
-    { label: 'SK Kenaikan Pangkat Terakhir (SKKP)', keyFile: 'skkp', keyVerif: 'skkp' },
-    { label: 'Dokumen Kinerja 1 Th Terakhir', keyFile: 'skp_1_th', keyVerif: 'evaluasi_kinerja_1_th' },
-    { label: 'Dokumen Kinerja 2 Th Terakhir', keyFile: 'skp_2_th', keyVerif: 'evaluasi_kinerja_2_th' },
-    { label: 'Ijazah Terakhir', keyFile: 'ijazah_terakhir', keyVerif: 'ijazah_terakhir' },
-    { label: 'Transkrip Nilai', keyFile: 'transkrip_nilai', keyVerif: 'transkrip_nilai' },
-    { label: 'STLUD', keyFile: 'stlud', keyVerif: 'stlud' },
-    { label: 'Surat Ijin Belajar (SIB)', keyFile: 'sib', keyVerif: 'sib' },
-    { label: 'Surat Bebas Hukuman Disiplin (HUDIS)', keyFile: 'hudis', keyVerif: 'hudis' },
-    { label: 'Ijin Penggunaan Gelar', keyFile: 'ijin_gelar', keyVerif: 'ijin_gelar' },
-    { label: 'SK Jabatan Beruntun', keyFile: 'sk_jabatan_beruntun', keyVerif: 'sk_jabatan_beruntun' },
-    { label: 'PAK Gabungan / Konversi', keyFile: 'pak_gabungan', keyVerif: 'pak_gabungan' },
-    { label: 'Sertifikat Pendidik (SERDIK)', keyFile: 'serdik', keyVerif: 'serdik' },
-    { label: 'Sertifikat UKOM / UKKJ', keyFile: 'sertifikat_ukom', keyVerif: 'sertifikat_ukom' },
-    { label: 'Surat Pengantar Korwil', keyFile: 'surat_pengantar_korwil', keyVerif: 'surat_pengantar_korwil' }
-  ];
-
-  var docHtml = '';
-  for (var ci = 0; ci < checklistItems.length; ci++) {
-    var it = checklistItems[ci];
-    var fileUrl = (record.dokumen_pengajuan && record.dokumen_pengajuan[it.keyFile]) ? record.dokumen_pengajuan[it.keyFile] : '';
-    var verifStatus = (record.verifikasi_dokumen && record.verifikasi_dokumen[it.keyVerif]) ? record.verifikasi_dokumen[it.keyVerif] : '-';
-    var vLower = verifStatus.toLowerCase();
-
-    var verifBadge;
-    if (vLower.indexOf('sesuai') !== -1 || vLower.indexOf('lengkap') !== -1 || vLower === 'ok' || vLower === 'ms') {
-      verifBadge = '<span class="badge bg-success-subtle text-success border border-success-subtle"><i class="bi bi-check-circle me-1"></i>' + escapeHtml(verifStatus) + '</span>';
-    } else if (vLower.indexOf('btl') !== -1 || vLower.indexOf('perbaikan') !== -1 || vLower.indexOf('kurang') !== -1) {
-      verifBadge = '<span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle"><i class="bi bi-exclamation-triangle me-1"></i>' + escapeHtml(verifStatus) + '</span>';
-    } else if (vLower.indexOf('tms') !== -1 || vLower.indexOf('tolak') !== -1) {
-      verifBadge = '<span class="badge bg-danger-subtle text-danger border border-danger-subtle"><i class="bi bi-x-circle me-1"></i>' + escapeHtml(verifStatus) + '</span>';
-    } else {
-      verifBadge = '<span class="badge bg-secondary">' + escapeHtml(verifStatus) + '</span>';
-    }
-
-    var fileBtn;
-    if (fileUrl && fileUrl.toString().indexOf('http') === 0) {
-      fileBtn = '<a href="' + escapeHtml(fileUrl) + '" target="_blank" class="btn btn-sm btn-light border shadow-sm text-primary"><i class="bi bi-file-earmark-arrow-down me-1"></i>Buka</a>';
-    } else {
-      fileBtn = '<span class="badge bg-light text-muted border">Tidak Ada Berkas</span>';
-    }
-
-    docHtml += '<div class="col-md-6 mb-2">';
-    docHtml += '<div class="doc-pill">';
-    docHtml += '<div>';
-    docHtml += '<div class="fw-semibold text-truncate" style="max-width: 200px;">' + escapeHtml(it.label) + '</div>';
-    docHtml += '<div class="mt-1">' + verifBadge + '</div>';
-    docHtml += '</div>';
-    docHtml += '<div>' + fileBtn + '</div>';
-    docHtml += '</div>';
-    docHtml += '</div>';
-  }
-
-  document.getElementById('modalDocList').innerHTML = docHtml;
-
-  var modal = new bootstrap.Modal(document.getElementById('detailModal'));
-  modal.show();
-}
-
-// ---- Export CSV ----
-function exportFilteredCSV() {
-  if (filteredRecords.length === 0) {
-    alert('Tidak ada data untuk diekspor!');
-    return;
-  }
-
-  var headers = ['ID','NIP','Nama','Unit Kerja','Kecamatan','Jenjang','Pangkat Saat Ini','Ajuan Pangkat','Bulan Ajuan','Tahun Ajuan','Status','Catatan','Pemeriksa'];
-  var csvRows = [headers.join(',')];
-
-  for (var i = 0; i < filteredRecords.length; i++) {
-    var r = filteredRecords[i];
-    var nipClean = (r.nip || '').replace(/^'/, '');
-    var row = [
-      r.id,
-      '"' + nipClean + '"',
-      '"' + (r.nama || '').replace(/"/g, '""') + '"',
-      '"' + (r.unit_kerja || '').replace(/"/g, '""') + '"',
-      '"' + (r.kec || '').replace(/"/g, '""') + '"',
-      '"' + (r.jenjang || '').replace(/"/g, '""') + '"',
-      '"' + (r.pangkat_saat_ini || '').replace(/"/g, '""') + '"',
-      '"' + (r.ajuan_pangkat || '').replace(/"/g, '""') + '"',
-      '"' + (r.bulan_ajuan || '').replace(/"/g, '""') + '"',
-      '"' + (r.tahun_ajuan || '').replace(/"/g, '""') + '"',
-      '"' + (r.status || '').replace(/"/g, '""') + '"',
-      '"' + (r.catatan || '').replace(/"/g, '""') + '"',
-      '"' + (r.pemeriksa || '').replace(/"/g, '""') + '"'
-    ];
-    csvRows.push(row.join(','));
+  var csv = ['Kecamatan,TK,SD,SMP,SKB/Lainnya,Total Usulan,Jumlah Revisi'];
+  for (var i = 0; i < currentMatrixRows.length; i++) {
+    var r = currentMatrixRows[i];
+    csv.push([
+      '"' + r.kec + '"',
+      r.tk,
+      r.sd,
+      r.smp,
+      r.skb,
+      r.total,
+      r.revisi
+    ].join(','));
   }
 
   var bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
-  var blob = new Blob([bom, csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+  var blob = new Blob([bom, csv.join('\n')], { type: 'text/csv;charset=utf-8;' });
   var url = URL.createObjectURL(blob);
   var link = document.createElement('a');
   link.setAttribute('href', url);
-  var today = new Date();
-  var dateStr = today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0');
-  link.setAttribute('download', 'Rekap_Kenaikan_Pangkat_Disdikbud_' + dateStr + '.csv');
+  link.setAttribute('download', 'Rekap_Matriks_KP_' + selBulan + '_' + selTahun + '.csv');
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
 }
 
-// ---- Helpers ----
 function showLoading(show) {
-  var overlay = document.getElementById('loadingOverlay');
-  if (overlay) overlay.style.display = show ? 'flex' : 'none';
+  var el = document.getElementById('loadingOverlay');
+  if (el) el.style.display = show ? 'flex' : 'none';
 }
 
 function escapeHtml(str) {
@@ -1014,48 +883,38 @@ function escapeHtml(str) {
     .replace(/'/g, '&#039;');
 }
 
-// ---- Dummy Data (Preview/Dev Mode) ----
-function generateDummyData() {
-  var sampleStatuses = ['Memenuhi Syarat', 'Berkas Tidak Lengkap', 'Tidak Memenuhi Syarat', 'Dalam Proses'];
-  var sampleKec = ['Muntilan', 'Mertoyudan', 'Borobudur', 'Secang', 'Salaman', 'Grabag'];
-  var sampleJenjang = ['SD', 'SMP', 'TK', 'SKB'];
-  var samplePangkat = ['Penata Muda (III/a)', 'Penata Muda Tk.I (III/b)', 'Penata (III/c)', 'Pembina (IV/a)', 'Pembina Tk.I (IV/b)'];
+// Dummy data untuk pengetesan
+function generateDummyExecutiveData() {
+  var sampleKec = ['Mertoyudan', 'Muntilan', 'Borobudur', 'Secang', 'Salaman', 'Grabag', 'Bandongan', 'Tempuran', 'Tegalrejo'];
+  var sampleJenjang = ['SD', 'SD', 'SMP', 'TK', 'SKB'];
+  var samplePangkat = ['Penata Muda (III/a)', 'Penata Muda Tk.I (III/b)', 'Penata (III/c)', 'Penata Tk.I (III/d)', 'Pembina (IV/a)'];
+  var sampleBulan = ['Februari', 'April', 'Juni', 'Agustus', 'Oktober', 'Desember'];
 
   var records = [];
-  for (var i = 1; i <= 45; i++) {
+  for (var i = 1; i <= 240; i++) {
+    var isRev = (i % 5 === 0);
+    var bln = sampleBulan[i % sampleBulan.length];
     records.push({
-      id: i,
-      npsn: '2030' + (100 + i),
+      id: i.toString(),
       kec: sampleKec[i % sampleKec.length],
       jenjang: sampleJenjang[i % sampleJenjang.length],
-      unit_kerja: 'SD Negeri ' + i + ' Magelang',
-      nip: "'19850101201001100" + i,
-      nama: 'Guru Teladan ' + i + ', S.Pd.',
-      bulan_ajuan: (i % 2 === 0) ? 'Februari' : 'April',
+      bulan_ajuan: bln,
       tahun_ajuan: '2026',
-      status: sampleStatuses[i % sampleStatuses.length],
-      catatan: (i % 4 === 1) ? 'PAK konversi belum ditandatangani basah' : 'Semua dokumen telah sesuai syarat',
-      jenis_jabatan: 'Guru Ahli Muda',
-      pangkat_saat_ini: samplePangkat[i % samplePangkat.length],
-      ajuan_pangkat: samplePangkat[(i + 1) % samplePangkat.length],
-      pemeriksa: 'Verifikator ' + ((i % 3) + 1),
-      dokumen_pengajuan: { sk_pns: 'https://drive.google.com', sk_cpns: 'https://drive.google.com', skkp: 'https://drive.google.com' },
-      verifikasi_dokumen: { sk_pns: 'Sesuai', sk_cpns: 'Sesuai', skkp: 'Sesuai' }
+      status: isRev ? 'Perlu Revisi' : (i % 3 === 0 ? 'Memenuhi Syarat' : 'Dalam Proses'),
+      raw_status: isRev ? 'BTL / Perbaikan Berkas' : 'MS',
+      is_revisi: isRev,
+      ajuan_pangkat: samplePangkat[i % samplePangkat.length]
     });
   }
 
   return {
     success: true,
-    stats: { total: 45, ms: 20, btl: 10, tms: 5, proses: 10 },
     records: records,
     filterOptions: {
-      years: ['2026', '2025', '2024'],
-      months: ['Februari', 'April', 'Juni', 'Agustus', 'Oktober', 'Desember'],
-      subdistricts: sampleKec,
-      levels: sampleJenjang,
-      statuses: sampleStatuses
+      years: ['2026', '2025'],
+      months: sampleBulan
     },
-    updatedAt: '09/09/2026, 17.50 WIB'
+    updatedAt: '09-09-2026 19.05 WIB'
   };
 }
   </script>
