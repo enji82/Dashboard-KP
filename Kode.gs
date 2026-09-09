@@ -138,14 +138,14 @@ function getDashboardData(forceRefresh) {
     const jenjang = cleanStr(r[3]) || 'Lainnya';
     const ajuanPangkat = cleanStr(r[34]) || cleanStr(r[33]) || 'Belum Ditentukan';
 
-    // Kolom AG (Index 32): Jenis KP (jab fungsional guru, reguler (non guru), penyesuaian ijazah)
+    // Kolom AG (Index 32): Jenis KP (jab fungsional guru, reguler (non guru), penyesuaian ijasah / penyesuaian ijazah)
     const rawJenisKP = cleanStr(r[32]).toLowerCase();
     let jenisKP = '';
     if (rawJenisKP.indexOf('fungsional') !== -1 || rawJenisKP.indexOf('guru') !== -1) {
       jenisKP = 'Fungsional';
     } else if (rawJenisKP.indexOf('reguler') !== -1) {
       jenisKP = 'Reguler';
-    } else if (rawJenisKP.indexOf('ijazah') !== -1 || rawJenisKP.indexOf('pi') !== -1) {
+    } else if (rawJenisKP.indexOf('ijasah') !== -1 || rawJenisKP.indexOf('ijazah') !== -1 || rawJenisKP.indexOf('pi') !== -1) {
       jenisKP = 'PI';
     } else if (rawJenisKP) {
       jenisKP = cleanStr(r[32]);

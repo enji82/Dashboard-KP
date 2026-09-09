@@ -769,7 +769,7 @@ function onFilterChange() {
         var rawJ = (rec.raw_jenis_kp || '').toLowerCase();
         if (selectedJenisKP === 'Fungsional' && (rawJ.indexOf('fungsional') === -1 && rawJ.indexOf('guru') === -1)) continue;
         else if (selectedJenisKP === 'Reguler' && rawJ.indexOf('reguler') === -1) continue;
-        else if (selectedJenisKP === 'PI' && (rawJ.indexOf('ijazah') === -1 && rawJ.indexOf('pi') === -1)) continue;
+        else if (selectedJenisKP === 'PI' && (rawJ.indexOf('ijasah') === -1 && rawJ.indexOf('ijazah') === -1 && rawJ.indexOf('pi') === -1)) continue;
         else if (selectedJenisKP !== 'Fungsional' && selectedJenisKP !== 'Reguler' && selectedJenisKP !== 'PI') continue;
       }
     }
