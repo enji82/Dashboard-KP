@@ -232,9 +232,7 @@ body {
 }
 
 /* Freeze Kolom Pertama (Kecamatan) */
-.table-matrix th:first-child,
-.table-matrix td:first-child,
-.table-matrix tfoot td:first-child {
+.table-matrix .freeze-col {
   position: sticky;
   left: 0;
   background-color: #ffffff;
@@ -242,17 +240,17 @@ body {
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
 }
 
-.table-matrix th:first-child {
+.table-matrix thead th.freeze-col {
   background-color: #f8fafc;
   z-index: 3;
 }
 
-.table-matrix tfoot td:first-child {
+.table-matrix tfoot td.freeze-col {
   background-color: #f1f5f9;
   z-index: 3;
 }
 
-.table-matrix tr:hover td:first-child {
+.table-matrix tbody tr:hover td.freeze-col {
   background-color: #f1f5f9;
 }
 
@@ -533,26 +531,26 @@ body {
       </div>
 
       <div class="table-responsive">
-        <table class="table table-matrix table-hover mb-0 text-center" style="table-layout: fixed; width: 100%; min-width: 980px;">
+        <table class="table table-matrix table-hover mb-0 text-center" style="width: 100%; min-width: 1100px;">
           <thead>
             <tr>
-              <th rowspan="2" class="text-start align-middle" style="width: 18%;">Kecamatan</th>
-              <th colspan="5" class="bg-light border-bottom text-secondary small text-uppercase fw-bold" style="width: 30%;">Sebaran Jenjang</th>
-              <th colspan="6" class="bg-light border-bottom text-secondary small text-uppercase fw-bold" style="width: 42%;">Status Usulan</th>
-              <th rowspan="2" class="bg-primary-subtle text-primary fw-bold align-middle" style="width: 10%;">Total Usulan</th>
+              <th rowspan="2" class="text-start align-middle freeze-col" style="min-width: 160px; width: 17%;">Kecamatan</th>
+              <th colspan="5" class="bg-light border-bottom text-secondary small text-uppercase fw-bold">Sebaran Jenjang</th>
+              <th colspan="6" class="bg-light border-bottom text-secondary small text-uppercase fw-bold">Status Usulan</th>
+              <th rowspan="2" class="bg-primary-subtle text-primary fw-bold align-middle" style="min-width: 90px; width: 9%;">Total Usulan</th>
             </tr>
             <tr>
-              <th style="width: 6%;">TK</th>
-              <th style="width: 6%;">SD</th>
-              <th style="width: 6%;">SMP</th>
-              <th style="width: 6%;">SKB</th>
-              <th style="width: 6%;">KORWIL</th>
-              <th style="width: 7%;" class="text-success">Approve</th>
-              <th style="width: 7%;" class="text-info-emphasis">Revisi Kirim</th>
-              <th style="width: 7%;" class="text-warning-emphasis">Revisi</th>
-              <th style="width: 7%;" class="text-secondary">Belum Cek</th>
-              <th style="width: 7%;" class="text-danger">Ditolak</th>
-              <th style="width: 7%;" class="text-purple" style="color: #8b5cf6;">Sisulka</th>
+              <th style="min-width: 60px;">TK</th>
+              <th style="min-width: 60px;">SD</th>
+              <th style="min-width: 60px;">SMP</th>
+              <th style="min-width: 60px;">SKB</th>
+              <th style="min-width: 68px;">KORWIL</th>
+              <th style="min-width: 72px;" class="text-success">Approve</th>
+              <th style="min-width: 86px;" class="text-info-emphasis">Revisi Kirim</th>
+              <th style="min-width: 68px;" class="text-warning-emphasis">Revisi</th>
+              <th style="min-width: 78px;" class="text-secondary">Belum Cek</th>
+              <th style="min-width: 68px;" class="text-danger">Ditolak</th>
+              <th style="min-width: 68px;" style="color: #8b5cf6;">Sisulka</th>
             </tr>
           </thead>
           <tbody id="matrixTableBody">
@@ -1500,7 +1498,7 @@ function renderMatrixTable(records) {
       });
 
       tbodyHtml += '<tr>';
-      tbodyHtml += '<td class="text-start fw-semibold"><i class="bi bi-geo-alt text-secondary me-1"></i>' + escapeHtml(kName) + '</td>';
+      tbodyHtml += '<td class="text-start fw-semibold freeze-col"><i class="bi bi-geo-alt text-secondary me-1"></i>' + escapeHtml(kName) + '</td>';
       tbodyHtml += '<td>' + formatCell(d.tk) + '</td>';
       tbodyHtml += '<td>' + formatCell(d.sd) + '</td>';
       tbodyHtml += '<td>' + formatCell(d.smp) + '</td>';
@@ -1520,7 +1518,7 @@ function renderMatrixTable(records) {
 
   // Footer Total Kabupaten
   var tfootHtml = '<tr>';
-  tfootHtml += '<td class="text-start">TOTAL KABUPATEN</td>';
+  tfootHtml += '<td class="text-start freeze-col">TOTAL KABUPATEN</td>';
   tfootHtml += '<td>' + formatCell(sumTK) + '</td>';
   tfootHtml += '<td>' + formatCell(sumSD) + '</td>';
   tfootHtml += '<td>' + formatCell(sumSMP) + '</td>';
