@@ -445,20 +445,17 @@ body {
       </div>
     </div>
 
-    <!-- Grafik Batang 1 Baris Penuh: Status Kolom AE per Bulan (Januari s.d. Desember) Berdampingan -->
+    <!-- Grafik Batang 1 Baris Penuh: Jumlah Usulan per Bulan (Januari s.d. Desember) Berdampingan -->
     <div class="row g-3 mb-4">
       <div class="col-12">
         <div class="dashboard-card">
           <div class="card-title-custom justify-content-between flex-wrap gap-2">
             <div class="d-flex align-items-center gap-2">
               <i class="bi bi-bar-chart-fill text-primary fs-5"></i>
-              <span class="fw-bold fs-6">Grafik Status Usulan (Kolom AE) per Bulan (Januari - Desember)</span>
+              <span class="fw-bold fs-6">Jumlah Usulan per Bulan</span>
             </div>
-            <div class="d-flex align-items-center gap-2">
-              <label for="selectTahunGrafik" class="small text-muted fw-semibold mb-0"><i class="bi bi-funnel me-1"></i>Filter Tahun Ajuan:</label>
-              <select id="selectTahunGrafik" class="form-select form-select-sm fw-bold border-primary shadow-sm" style="width: auto; min-width: 140px;" onchange="onTahunGrafikChange(this.value)">
-                <option value="">Semua Tahun</option>
-              </select>
+            <div>
+              <span class="badge bg-light text-primary border" id="badgeChartBulanPeriode">Semua Periode</span>
             </div>
           </div>
           <div style="position: relative; height: 350px;">
@@ -620,7 +617,6 @@ function handleError(err) {
 // Mengisi dropdown Tahun (Kolom J), Bulan (Kolom I), Jenjang, dan Kecamatan
 function populatePeriodeSelects(filterOptions) {
   var selTahun = document.getElementById('selectTahun');
-  var selTahunGrafik = document.getElementById('selectTahunGrafik');
   var selBulan = document.getElementById('selectBulan');
   var selJenjang = document.getElementById('selectJenjang');
   var selKecamatan = document.getElementById('selectKecamatan');
@@ -631,7 +627,6 @@ function populatePeriodeSelects(filterOptions) {
   var curKecamatan = selKecamatan ? selKecamatan.value : '';
 
   if (selTahun) selTahun.innerHTML = '<option value="">Semua Tahun</option>';
-  if (selTahunGrafik) selTahunGrafik.innerHTML = '<option value="">Semua Tahun</option>';
   if (selBulan) selBulan.innerHTML = '<option value="">Semua Bulan</option>';
   if (selJenjang) selJenjang.innerHTML = '<option value="">Semua Jenjang</option>';
   if (selKecamatan) selKecamatan.innerHTML = '<option value="">Semua Kecamatan</option>';
@@ -661,18 +656,11 @@ function populatePeriodeSelects(filterOptions) {
   // Isian Tahun sesuai Kolom J
   for (var i = 0; i < yearsList.length; i++) {
     var y = yearsList[i];
-    if (y) {
+    if (y && selTahun) {
       var opt = document.createElement('option');
       opt.value = y;
       opt.textContent = 'Tahun ' + y;
-      if (selTahun) selTahun.appendChild(opt);
-
-      if (selTahunGrafik) {
-        var optG = document.createElement('option');
-        optG.value = y;
-        optG.textContent = 'Tahun ' + y;
-        selTahunGrafik.appendChild(optG);
-      }
+      selTahun.appendChild(opt);
     }
   }
 
@@ -709,31 +697,19 @@ function populatePeriodeSelects(filterOptions) {
     }
   }
 
-  if (curTahun && selTahun) {
-    selTahun.value = curTahun;
-    if (selTahunGrafik) selTahunGrafik.value = curTahun;
-  }
+  if (curTahun && selTahun) selTahun.value = curTahun;
   if (curBulan && selBulan) selBulan.value = curBulan;
   if (curJenjang && selJenjang) selJenjang.value = curJenjang;
   if (curKecamatan && selKecamatan) selKecamatan.value = curKecamatan;
 }
 
-// Handler saat filter tahun di kartu grafik diubah
-function onTahunGrafikChange(val) {
-  var selTahun = document.getElementById('selectTahun');
-  if (selTahun) selTahun.value = val;
-  onFilterChange();
-}
-
 function resetPeriode() {
   var selTahun = document.getElementById('selectTahun');
-  var selTahunGrafik = document.getElementById('selectTahunGrafik');
   var selBulan = document.getElementById('selectBulan');
   var selJenjang = document.getElementById('selectJenjang');
   var selKecamatan = document.getElementById('selectKecamatan');
 
   if (selTahun) selTahun.value = '';
-  if (selTahunGrafik) selTahunGrafik.value = '';
   if (selBulan) selBulan.value = '';
   if (selJenjang) selJenjang.value = '';
   if (selKecamatan) selKecamatan.value = '';
@@ -746,11 +722,6 @@ function onFilterChange() {
   var selectedBulan = document.getElementById('selectBulan') ? document.getElementById('selectBulan').value : '';
   var selectedJenjang = document.getElementById('selectJenjang') ? document.getElementById('selectJenjang').value : '';
   var selectedKecamatan = document.getElementById('selectKecamatan') ? document.getElementById('selectKecamatan').value : '';
-
-  var selTahunGrafik = document.getElementById('selectTahunGrafik');
-  if (selTahunGrafik && selTahunGrafik.value !== selectedTahun) {
-    selTahunGrafik.value = selectedTahun;
-  }
 
   // Filter record sesuai kriteria
   var filtered = [];
@@ -783,6 +754,9 @@ function onFilterChange() {
   }
 
   var labelPeriode = labelParts.join(' | ');
+  if (document.getElementById('badgeChartBulanPeriode')) {
+    document.getElementById('badgeChartBulanPeriode').innerText = selectedTahun ? ('Tahun ' + selectedTahun) : 'Semua Tahun';
+  }
   document.getElementById('badgeGolonganPeriode').innerText = labelPeriode;
   document.getElementById('matrixSubtext').innerText = 'Data rekapitulasi periode: ' + labelPeriode;
 
