@@ -877,6 +877,16 @@ function renderChartStatusBarisPenuh(records, selectedBulan) {
   var dataDitolak = [];
   var dataSisulka = [];
 
+  for (var k = 0; k < activeBulanList.length; k++) {
+    var bKey = activeBulanList[k];
+    dataApprove.push(mapApprove[bKey] || 0);
+    dataRevisiDikirim.push(mapRevisiDikirim[bKey] || 0);
+    dataRevisi.push(mapRevisi[bKey] || 0);
+    dataBelumDicek.push(mapBelumDicek[bKey] || 0);
+    dataDitolak.push(mapDitolak[bKey] || 0);
+    dataSisulka.push(mapSisulka[bKey] || 0);
+  }
+
   // Hitung total usulan per bulan untuk ditampilkan di bawah nama bulan
   var displayLabels = [];
   for (var l = 0; l < activeBulanList.length; l++) {
