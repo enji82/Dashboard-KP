@@ -1097,7 +1097,15 @@ function renderChartStatusBarisPenuh(records, selectedBulan) {
 function renderChartGolongan(records) {
   var ctx = document.getElementById('chartGolongan').getContext('2d');
 
-  // Kumpulkan daftar golongan dan hitung sebaran 6 status kolom AE
+  // Urutan standar golongan PNS dari I/b sampai IV/d
+  var daftarGolonganUrut = [
+    'I/b', 'I/c', 'I/d',
+    'II/a', 'II/b', 'II/c', 'II/d',
+    'III/a', 'III/b', 'III/c', 'III/d',
+    'IV/a', 'IV/b', 'IV/c', 'IV/d'
+  ];
+
+  // Inisialisasi map per golongan sesuai urutan standar
   var mapApprove = {};
   var mapRevisiDikirim = {};
   var mapRevisi = {};
@@ -1106,44 +1114,52 @@ function renderChartGolongan(records) {
   var mapSisulka = {};
   var totalPerGol = {};
 
-  for (var i = 0; i < records.length; i++) {
-    var r = records[i];
-    var gol = (r.ajuan_pangkat || 'Belum Ditentukan').trim();
-    if (!gol) gol = 'Belum Ditentukan';
-
-    if (!totalPerGol[gol]) {
-      totalPerGol[gol] = 0;
-      mapApprove[gol] = 0;
-      mapRevisiDikirim[gol] = 0;
-      mapRevisi[gol] = 0;
-      mapBelumDicek[gol] = 0;
-      mapDitolak[gol] = 0;
-      mapSisulka[gol] = 0;
-    }
-
-    totalPerGol[gol]++;
-    var st = (r.status_ae || r.status || '').trim();
-    if (st === 'Approve') {
-      mapApprove[gol]++;
-    } else if (st === 'Revisi Dikirim') {
-      mapRevisiDikirim[gol]++;
-    } else if (st === 'Revisi') {
-      mapRevisi[gol]++;
-    } else if (st === 'Belum Dicek') {
-      mapBelumDicek[gol]++;
-    } else if (st === 'Ditolak') {
-      mapDitolak[gol]++;
-    } else if (st === 'Sisulka') {
-      mapSisulka[gol]++;
-    } else {
-      mapBelumDicek[gol]++;
-    }
+  for (var g = 0; g < daftarGolonganUrut.length; g++) {
+    var code = daftarGolonganUrut[g];
+    totalPerGol[code] = 0;
+    mapApprove[code] = 0;
+    mapRevisiDikirim[code] = 0;
+    mapRevisi[code] = 0;
+    mapBelumDicek[code] = 0;
+    mapDitolak[code] = 0;
+    mapSisulka[code] = 0;
   }
 
-  // Urutkan golongan dari jumlah usulan terbanyak (maksimal 10 teratas agar tetap nyaman dibaca)
-  var sortedGolongan = Object.keys(totalPerGol).sort(function(a, b) {
-    return totalPerGol[b] - totalPerGol[a];
-  }).slice(0, 10);
+  // Helper untuk mengekstrak kode golongan (misal: "Penata, III/c" -> "III/c")
+  var extractGolonganCode = function(str) {
+    if (!str) return '';
+    var match = str.match(/\b(I{1,3}|IV)\/[a-d]\b/i);
+    return match ? match[0].toUpperCase() : '';
+  };
+
+  for (var i = 0; i < records.length; i++) {
+    var r = records[i];
+    var rawPangkat = (r.ajuan_pangkat || '').trim();
+    var golCode = extractGolonganCode(rawPangkat);
+
+    // Jika tidak cocok dengan pola standar, lewati jika kosong atau masukkan ke kategori terdekat jika relevan
+    if (!golCode || !totalPerGol.hasOwnProperty(golCode)) {
+      continue;
+    }
+
+    totalPerGol[golCode]++;
+    var st = (r.status_ae || r.status || '').trim();
+    if (st === 'Approve') {
+      mapApprove[golCode]++;
+    } else if (st === 'Revisi Dikirim') {
+      mapRevisiDikirim[golCode]++;
+    } else if (st === 'Revisi') {
+      mapRevisi[golCode]++;
+    } else if (st === 'Belum Dicek') {
+      mapBelumDicek[golCode]++;
+    } else if (st === 'Ditolak') {
+      mapDitolak[golCode]++;
+    } else if (st === 'Sisulka') {
+      mapSisulka[golCode]++;
+    } else {
+      mapBelumDicek[golCode]++;
+    }
+  }
 
   var dataApprove = [];
   var dataRevisiDikirim = [];
@@ -1153,8 +1169,9 @@ function renderChartGolongan(records) {
   var dataSisulka = [];
   var displayLabels = [];
 
-  for (var k = 0; k < sortedGolongan.length; k++) {
-    var gKey = sortedGolongan[k];
+  // Tampilkan seluruh golongan dari I/b sampai IV/d secara urut
+  for (var k = 0; k < daftarGolonganUrut.length; k++) {
+    var gKey = daftarGolonganUrut[k];
     dataApprove.push(mapApprove[gKey] || 0);
     dataRevisiDikirim.push(mapRevisiDikirim[gKey] || 0);
     dataRevisi.push(mapRevisi[gKey] || 0);
@@ -1162,7 +1179,7 @@ function renderChartGolongan(records) {
     dataDitolak.push(mapDitolak[gKey] || 0);
     dataSisulka.push(mapSisulka[gKey] || 0);
 
-    // Multi-line label: Baris 1 nama golongan, Baris 2 total usulan
+    // Multi-line label: Baris 1 nama golongan singkat (cth: III/c), Baris 2 total usulan (cth: (45))
     displayLabels.push([gKey, '(' + (totalPerGol[gKey] || 0) + ')']);
   }
 
@@ -1292,7 +1309,7 @@ function renderChartGolongan(records) {
               weight: '600'
             },
             color: '#475569',
-            maxRotation: 25,
+            maxRotation: 0,
             minRotation: 0
           }
         },
