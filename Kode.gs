@@ -171,8 +171,9 @@ function getDashboardData(forceRefresh) {
     });
   }
 
-  // Pastikan SKB tersedia di pilihan jenjang jika dibutuhkan
+  // Pastikan SKB dan KORWIL tersedia di pilihan jenjang jika dibutuhkan
   jenjangSet.add('SKB');
+  jenjangSet.add('KORWIL');
 
   // Urutan bulan standar Indonesia untuk sorting
   const bulanUrut = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
