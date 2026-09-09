@@ -458,7 +458,7 @@ body {
               <span class="badge bg-light text-primary border" id="badgeChartBulanPeriode">Semua Periode</span>
             </div>
           </div>
-          <div style="position: relative; height: 350px;">
+          <div style="position: relative; height: 380px;">
             <canvas id="chartStatusBarisPenuh"></canvas>
           </div>
         </div>
@@ -877,67 +877,103 @@ function renderChartStatusBarisPenuh(records, selectedBulan) {
   var dataDitolak = [];
   var dataSisulka = [];
 
-  for (var k = 0; k < activeBulanList.length; k++) {
-    var bKey = activeBulanList[k];
-    dataApprove.push(mapApprove[bKey] || 0);
-    dataRevisiDikirim.push(mapRevisiDikirim[bKey] || 0);
-    dataRevisi.push(mapRevisi[bKey] || 0);
-    dataBelumDicek.push(mapBelumDicek[bKey] || 0);
-    dataDitolak.push(mapDitolak[bKey] || 0);
-    dataSisulka.push(mapSisulka[bKey] || 0);
+  // Hitung total usulan per bulan untuk ditampilkan di bawah nama bulan
+  var displayLabels = [];
+  for (var l = 0; l < activeBulanList.length; l++) {
+    var bNameKey = activeBulanList[l];
+    var totalBulan = (mapApprove[bNameKey] || 0) +
+                     (mapRevisiDikirim[bNameKey] || 0) +
+                     (mapRevisi[bNameKey] || 0) +
+                     (mapBelumDicek[bNameKey] || 0) +
+                     (mapDitolak[bNameKey] || 0) +
+                     (mapSisulka[bNameKey] || 0);
+
+    // Multi-line label: Baris 1 nama bulan, Baris 2 total usulan
+    displayLabels.push([bNameKey, '(' + totalBulan + ')']);
   }
+
+  // Plugin Chart.js kustom: Angka di atas batang bernilai (> 0)
+  var barValueLabelsPlugin = {
+    id: 'barValueLabels',
+    afterDatasetsDraw: function(chart) {
+      var chartCtx = chart.ctx;
+      chart.data.datasets.forEach(function(dataset, datasetIndex) {
+        var meta = chart.getDatasetMeta(datasetIndex);
+        if (meta.hidden) return;
+
+        meta.data.forEach(function(bar, index) {
+          var val = dataset.data[index];
+          if (val > 0) {
+            chartCtx.save();
+            chartCtx.font = 'bold 11px "Plus Jakarta Sans", sans-serif';
+            chartCtx.fillStyle = '#334155';
+            chartCtx.textAlign = 'center';
+            chartCtx.textBaseline = 'bottom';
+            chartCtx.fillText(val, bar.x, bar.y - 3);
+            chartCtx.restore();
+          }
+        });
+      });
+    }
+  };
 
   if (chartStatusBarisPenuhInstance) chartStatusBarisPenuhInstance.destroy();
 
   chartStatusBarisPenuhInstance = new Chart(ctx, {
     type: 'bar',
     data: {
-      labels: activeBulanList,
+      labels: displayLabels,
       datasets: [
         {
           label: 'Approve',
           data: dataApprove,
           backgroundColor: '#10b981',
-          borderRadius: 3
+          borderRadius: 4
         },
         {
           label: 'Revisi Dikirim',
           data: dataRevisiDikirim,
           backgroundColor: '#0ea5e9',
-          borderRadius: 3
+          borderRadius: 4
         },
         {
           label: 'Revisi',
           data: dataRevisi,
           backgroundColor: '#f59e0b',
-          borderRadius: 3
+          borderRadius: 4
         },
         {
           label: 'Belum Dicek',
           data: dataBelumDicek,
           backgroundColor: '#64748b',
-          borderRadius: 3
+          borderRadius: 4
         },
         {
           label: 'Ditolak',
           data: dataDitolak,
           backgroundColor: '#ef4444',
-          borderRadius: 3
+          borderRadius: 4
         },
         {
           label: 'Sisulka',
           data: dataSisulka,
           backgroundColor: '#8b5cf6',
-          borderRadius: 3
+          borderRadius: 4
         }
       ]
     },
+    plugins: [barValueLabelsPlugin],
     options: {
       responsive: true,
       maintainAspectRatio: false,
       maxBarThickness: 45,
-      barPercentage: 0.85,
-      categoryPercentage: 0.8,
+      barPercentage: 0.9,
+      categoryPercentage: 0.88,
+      layout: {
+        padding: {
+          top: 20
+        }
+      },
       plugins: {
         legend: {
           position: 'top',
@@ -949,6 +985,12 @@ function renderChartStatusBarisPenuh(records, selectedBulan) {
         },
         tooltip: {
           callbacks: {
+            title: function(tooltipItems) {
+              if (!tooltipItems || tooltipItems.length === 0) return '';
+              var item = tooltipItems[0];
+              var label = item.chart.data.labels[item.dataIndex];
+              return Array.isArray(label) ? label[0] : label;
+            },
             label: function(context) {
               return ' ' + context.dataset.label + ': ' + context.raw + ' usulan';
             }
@@ -958,12 +1000,31 @@ function renderChartStatusBarisPenuh(records, selectedBulan) {
       scales: {
         x: {
           stacked: false,
-          grid: { display: false }
+          grid: {
+            display: true,
+            drawOnChartArea: true,
+            drawTicks: true,
+            offset: false,
+            color: 'rgba(148, 163, 184, 0.35)',
+            lineWidth: 1.2
+          },
+          ticks: {
+            font: {
+              family: "'Plus Jakarta Sans', sans-serif",
+              size: 11,
+              weight: '600'
+            },
+            color: '#475569'
+          }
         },
         y: {
           stacked: false,
           beginAtZero: true,
-          ticks: { precision: 0 }
+          grace: '10%',
+          ticks: { precision: 0 },
+          grid: {
+            color: 'rgba(226, 232, 240, 0.7)'
+          }
         }
       }
     }
