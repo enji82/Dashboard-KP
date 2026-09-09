@@ -1,0 +1,609 @@
+<script>
+/**
+ * Frontend Logic Dashboard Kenaikan Pangkat (KP) Disdikbud Kab. Magelang
+ */
+
+let allRecords = [];
+let filteredRecords = [];
+let chartPangkatInstance = null;
+let chartKecamatanInstance = null;
+let chartJenjangInstance = null;
+
+// Pagination state
+let currentPage = 1;
+const pageSize = 10;
+
+// On DOM Ready
+document.addEventListener('DOMContentLoaded', () => {
+  loadData(false);
+  setupEventListeners();
+});
+
+function setupEventListeners() {
+  document.getElementById('filterTahun').addEventListener('change', applyFilters);
+  document.getElementById('filterBulan').addEventListener('change', applyFilters);
+  document.getElementById('filterJenjang').addEventListener('change', applyFilters);
+  document.getElementById('filterKecamatan').addEventListener('change', applyFilters);
+  document.getElementById('filterStatus').addEventListener('change', applyFilters);
+  
+  // Search input with debounce
+  const searchInput = document.getElementById('tableSearchInput');
+  let debounceTimeout;
+  searchInput.addEventListener('input', () => {
+    clearTimeout(debounceTimeout);
+    debounceTimeout = setTimeout(() => {
+      applyFilters();
+    }, 250);
+  });
+}
+
+/**
+ * Panggil GAS backend via google.script.run
+ */
+function loadData(isRefresh) {
+  showLoading(true);
+
+  if (typeof google === 'undefined' || !google.script || !google.script.run) {
+    // Fallback Dummy Data jika dijalankan lokal di browser preview
+    console.warn('Google Script Runner tidak terdeteksi. Menggunakan mode preview.');
+    setTimeout(() => {
+      handleDataSuccess(generateDummyData());
+    }, 600);
+    return;
+  }
+
+  if (isRefresh) {
+    google.script.run
+      .withSuccessHandler(handleDataSuccess)
+      .withFailureHandler(handleDataError)
+      .refreshDashboardData();
+  } else {
+    google.script.run
+      .withSuccessHandler(handleDataSuccess)
+      .withFailureHandler(handleDataError)
+      .getDashboardData(false);
+  }
+}
+
+function refreshData() {
+  loadData(true);
+}
+
+function handleDataSuccess(response) {
+  showLoading(false);
+  if (!response || !response.success) {
+    alert('Gagal mengambil data dashboard: ' + (response ? response.message : 'Unknown error'));
+    return;
+  }
+
+  allRecords = response.records || [];
+  populateFilterDropdowns(response.filterOptions);
+  
+  if (response.updatedAt) {
+    document.getElementById('lastUpdatedText').innerText = 'Data per: ' + response.updatedAt;
+  }
+
+  applyFilters();
+}
+
+function handleDataError(err) {
+  showLoading(false);
+  console.error(err);
+  alert('Terjadi kesalahan saat memuat data: ' + err.message);
+}
+
+/**
+ * Mengisi opsi filter secara dinamis
+ */
+function populateFilterDropdowns(options) {
+  if (!options) return;
+
+  fillSelect('filterTahun', options.years, 'Semua Tahun');
+  fillSelect('filterBulan', options.months, 'Semua Bulan');
+  fillSelect('filterJenjang', options.levels, 'Semua Jenjang');
+  fillSelect('filterKecamatan', options.subdistricts, 'Semua Kecamatan');
+  fillSelect('filterStatus', options.statuses, 'Semua Status');
+}
+
+function fillSelect(elementId, items, defaultLabel) {
+  const el = document.getElementById(elementId);
+  const currentVal = el.value;
+  el.innerHTML = `<option value="">${defaultLabel}</option>`;
+  if (items && Array.isArray(items)) {
+    items.forEach(item => {
+      if (item && item.toString().trim() !== '') {
+        const opt = document.createElement('option');
+        opt.value = item;
+        opt.textContent = item;
+        el.appendChild(opt);
+      }
+    });
+  }
+  if (currentVal) el.value = currentVal;
+}
+
+function resetFilters() {
+  document.getElementById('filterTahun').value = '';
+  document.getElementById('filterBulan').value = '';
+  document.getElementById('filterJenjang').value = '';
+  document.getElementById('filterKecamatan').value = '';
+  document.getElementById('filterStatus').value = '';
+  document.getElementById('tableSearchInput').value = '';
+  applyFilters();
+}
+
+/**
+ * Filter record berdasarkan input pengguna
+ */
+function applyFilters() {
+  const tahun = document.getElementById('filterTahun').value.toLowerCase();
+  const bulan = document.getElementById('filterBulan').value.toLowerCase();
+  const jenjang = document.getElementById('filterJenjang').value.toLowerCase();
+  const kecamatan = document.getElementById('filterKecamatan').value.toLowerCase();
+  const status = document.getElementById('filterStatus').value.toLowerCase();
+  const search = document.getElementById('tableSearchInput').value.toLowerCase().trim();
+
+  filteredRecords = allRecords.filter(item => {
+    if (tahun && (item.tahun_ajuan || '').toLowerCase() !== tahun) return false;
+    if (bulan && (item.bulan_ajuan || '').toLowerCase() !== bulan) return false;
+    if (jenjang && (item.jenjang || '').toLowerCase() !== jenjang) return false;
+    if (kecamatan && (item.kec || '').toLowerCase() !== kecamatan) return false;
+    if (status && (item.status || '').toLowerCase() !== status) return false;
+
+    if (search) {
+      const matchNama = (item.nama || '').toLowerCase().includes(search);
+      const matchNip = (item.nip || '').toLowerCase().includes(search);
+      const matchUnit = (item.unit_kerja || '').toLowerCase().includes(search);
+      const matchJabatan = (item.jenis_jabatan || '').toLowerCase().includes(search);
+      if (!matchNama && !matchNip && !matchUnit && !matchJabatan) return false;
+    }
+
+    return true;
+  });
+
+  currentPage = 1;
+  updateKPICards(filteredRecords);
+  updateCharts(filteredRecords);
+  renderTable();
+}
+
+/**
+ * Update nilai di KPI Cards
+ */
+function updateKPICards(records) {
+  let ms = 0, btl = 0, tms = 0, proses = 0;
+
+  records.forEach(r => {
+    const s = (r.status || '').toLowerCase();
+    if (s.includes('memenuhi') || s.includes('ms')) ms++;
+    else if (s.includes('tidak lengkap') || s.includes('btl')) btl++;
+    else if (s.includes('tidak memenuhi') || s.includes('tms')) tms++;
+    else proses++;
+  });
+
+  document.getElementById('kpiTotal').innerText = records.length.toLocaleString('id-ID');
+  document.getElementById('kpiMS').innerText = ms.toLocaleString('id-ID');
+  document.getElementById('kpiBTL').innerText = btl.toLocaleString('id-ID');
+  document.getElementById('kpiTMS').innerText = tms.toLocaleString('id-ID');
+  document.getElementById('kpiProses').innerText = proses.toLocaleString('id-ID');
+}
+
+/**
+ * Visualisasi Data dengan Chart.js
+ */
+function updateCharts(records) {
+  renderPangkatChart(records);
+  renderKecamatanChart(records);
+  renderJenjangChart(records);
+}
+
+function renderPangkatChart(records) {
+  const ctx = document.getElementById('chartPangkat').getContext('2d');
+  const pangkatCount = {};
+
+  records.forEach(r => {
+    const p = r.ajuan_pangkat && r.ajuan_pangkat !== '-' ? r.ajuan_pangkat : (r.pangkat_saat_ini || 'Belum Ditentukan');
+    pangkatCount[p] = (pangkatCount[p] || 0) + 1;
+  });
+
+  // Urutkan berdasarkan frekuensi terbanyak
+  const sortedKeys = Object.keys(pangkatCount).sort((a,b) => pangkatCount[b] - pangkatCount[a]).slice(0, 8);
+  const dataValues = sortedKeys.map(k => pangkatCount[k]);
+
+  if (chartPangkatInstance) chartPangkatInstance.destroy();
+
+  chartPangkatInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: sortedKeys,
+      datasets: [{
+        label: 'Jumlah Usulan',
+        data: dataValues,
+        backgroundColor: '#3b82f6',
+        borderRadius: 8
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        y: { beginAtZero: true, ticks: { precision: 0 } },
+        x: { ticks: { autoSkip: false, maxRotation: 45, minRotation: 0 } }
+      }
+    }
+  });
+}
+
+function renderKecamatanChart(records) {
+  const ctx = document.getElementById('chartKecamatan').getContext('2d');
+  const kecCount = {};
+
+  records.forEach(r => {
+    const k = r.kec && r.kec !== '-' ? r.kec : 'Lainnya';
+    kecCount[k] = (kecCount[k] || 0) + 1;
+  });
+
+  const sortedKeys = Object.keys(kecCount).sort((a, b) => kecCount[b] - kecCount[a]).slice(0, 10);
+  const dataValues = sortedKeys.map(k => kecCount[k]);
+
+  if (chartKecamatanInstance) chartKecamatanInstance.destroy();
+
+  chartKecamatanInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: sortedKeys,
+      datasets: [{
+        label: 'Usulan KP',
+        data: dataValues,
+        backgroundColor: '#0284c7',
+        borderRadius: 6
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        x: { beginAtZero: true, ticks: { precision: 0 } }
+      }
+    }
+  });
+}
+
+function renderJenjangChart(records) {
+  const ctx = document.getElementById('chartJenjang').getContext('2d');
+  const jenjangCount = {};
+
+  records.forEach(r => {
+    const j = r.jenjang && r.jenjang !== '-' ? r.jenjang : 'Lainnya';
+    jenjangCount[j] = (jenjangCount[j] || 0) + 1;
+  });
+
+  const labels = Object.keys(jenjangCount);
+  const values = labels.map(l => jenjangCount[l]);
+
+  if (chartJenjangInstance) chartJenjangInstance.destroy();
+
+  chartJenjangInstance = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: labels,
+      datasets: [{
+        data: values,
+        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#64748b']
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom' }
+      }
+    }
+  });
+}
+
+/**
+ * Render Tabel Data & Pagination
+ */
+function renderTable() {
+  const tbody = document.getElementById('tableBody');
+  const total = filteredRecords.length;
+
+  if (total === 0) {
+    tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-muted">Tidak ada data usulan yang cocok dengan filter</td></tr>`;
+    document.getElementById('tableInfo').innerText = 'Menampilkan 0 data';
+    renderPagination(0);
+    return;
+  }
+
+  const start = (currentPage - 1) * pageSize;
+  const end = Math.min(start + pageSize, total);
+  const pageItems = filteredRecords.slice(start, end);
+
+  let html = '';
+  pageItems.forEach((r, idx) => {
+    const badgeClass = getBadgeClass(r.status);
+    const nipClean = (r.nip || '').replace(/^'/, '');
+
+    html += `
+      <tr>
+        <td class="text-center font-monospace">${start + idx + 1}</td>
+        <td>
+          <div class="fw-bold">${escapeHtml(r.nama)}</div>
+          <div class="small text-muted font-monospace">NIP. ${escapeHtml(nipClean)}</div>
+        </td>
+        <td>
+          <div>${escapeHtml(r.unit_kerja)}</div>
+          <div class="small text-muted">${escapeHtml(r.kec)} &bull; ${escapeHtml(r.jenjang)}</div>
+        </td>
+        <td>
+          <div class="small">${escapeHtml(r.pangkat_saat_ini)}</div>
+          <div class="small text-primary fw-bold">&rarr; ${escapeHtml(r.ajuan_pangkat)}</div>
+        </td>
+        <td>
+          <span class="badge ${badgeClass} badge-status">${escapeHtml(r.status)}</span>
+        </td>
+        <td class="small">
+          <span class="badge bg-light text-dark border">${escapeHtml(r.bulan_ajuan)} ${escapeHtml(r.tahun_ajuan)}</span>
+        </td>
+        <td class="small text-muted">${escapeHtml(r.pemeriksa || '-')}</td>
+        <td class="text-center">
+          <button class="btn btn-sm btn-outline-primary" onclick="showDetailModal('${r.id}')">
+            <i class="bi bi-eye me-1"></i>Detail
+          </button>
+        </td>
+      </tr>
+    `;
+  });
+
+  tbody.innerHTML = html;
+  document.getElementById('tableInfo').innerText = `Menampilkan ${start + 1} s.d. ${end} dari ${total} usulan`;
+  renderPagination(total);
+}
+
+function getBadgeClass(status) {
+  const s = (status || '').toLowerCase();
+  if (s.includes('memenuhi') || s.includes('ms')) return 'badge-status-ms';
+  if (s.includes('tidak lengkap') || s.includes('btl')) return 'badge-status-btl';
+  if (s.includes('tidak memenuhi') || s.includes('tms')) return 'badge-status-tms';
+  return 'badge-status-proses';
+}
+
+function renderPagination(total) {
+  const container = document.getElementById('paginationNav');
+  const totalPages = Math.ceil(total / pageSize);
+  if (totalPages <= 1) {
+    container.innerHTML = '';
+    return;
+  }
+
+  let html = `<ul class="pagination pagination-sm m-0 justify-content-end">`;
+  html += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+    <button class="page-link" onclick="goToPage(${currentPage - 1})">Prev</button>
+  </li>`;
+
+  for (let i = 1; i <= totalPages; i++) {
+    if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+      html += `<li class="page-item ${currentPage === i ? 'active' : ''}">
+        <button class="page-link" onclick="goToPage(${i})">${i}</button>
+      </li>`;
+    } else if (i === currentPage - 2 || i === currentPage + 2) {
+      html += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+    }
+  }
+
+  html += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+    <button class="page-link" onclick="goToPage(${currentPage + 1})">Next</button>
+  </li>`;
+  html += `</ul>`;
+
+  container.innerHTML = html;
+}
+
+function goToPage(page) {
+  currentPage = page;
+  renderTable();
+}
+
+/**
+ * Modal Detail Inspeksi Kelengkapan Dokumen (53 Kolom)
+ */
+function showDetailModal(recordId) {
+  const record = allRecords.find(r => r.id.toString() === recordId.toString());
+  if (!record) return;
+
+  const nipClean = (record.nip || '').replace(/^'/, '');
+  document.getElementById('modalNama').innerText = record.nama;
+  document.getElementById('modalNIP').innerText = nipClean;
+  document.getElementById('modalUnitKerja').innerText = `${record.unit_kerja} (${record.kec}) - ${record.jenjang}`;
+  document.getElementById('modalJabatan').innerText = record.jenis_jabatan;
+  document.getElementById('modalPangkat').innerText = `${record.pangkat_saat_ini} → ${record.ajuan_pangkat}`;
+  document.getElementById('modalPeriode').innerText = `${record.bulan_ajuan} ${record.tahun_ajuan}`;
+  document.getElementById('modalPemeriksa').innerText = record.pemeriksa || '-';
+  document.getElementById('modalCatatan').innerText = record.catatan || 'Tidak ada catatan khusus dari pemeriksa.';
+
+  const statusEl = document.getElementById('modalStatusBadge');
+  statusEl.className = `badge ${getBadgeClass(record.status)} badge-status fs-6`;
+  statusEl.innerText = record.status;
+
+  // Render Checklist Verifikasi & Dokumen Pengajuan
+  const docContainer = document.getElementById('modalDocList');
+  const checklistItems = [
+    { label: 'SK PNS', keyFile: 'sk_pns', keyVerif: 'sk_pns' },
+    { label: 'SK CPNS', keyFile: 'sk_cpns', keyVerif: 'sk_cpns' },
+    { label: 'SK Kenaikan Pangkat Terakhir (SKKP)', keyFile: 'skkp', keyVerif: 'skkp' },
+    { label: 'Dokumen Kinerja 1 Th Terakhir', keyFile: 'skp_1_th', keyVerif: 'evaluasi_kinerja_1_th' },
+    { label: 'Dokumen Kinerja 2 Th Terakhir', keyFile: 'skp_2_th', keyVerif: 'evaluasi_kinerja_2_th' },
+    { label: 'Ijazah Terakhir', keyFile: 'ijazah_terakhir', keyVerif: 'ijazah_terakhir' },
+    { label: 'Transkrip Nilai', keyFile: 'transkrip_nilai', keyVerif: 'transkrip_nilai' },
+    { label: 'STLUD', keyFile: 'stlud', keyVerif: 'stlud' },
+    { label: 'Surat Ijin Belajar (SIB)', keyFile: 'sib', keyVerif: 'sib' },
+    { label: 'Surat Bebas Hukuman Disiplin (HUDIS)', keyFile: 'hudis', keyVerif: 'hudis' },
+    { label: 'Ijin Penggunaan Gelar', keyFile: 'ijin_gelar', keyVerif: 'ijin_gelar' },
+    { label: 'SK Jabatan Beruntun', keyFile: 'sk_jabatan_beruntun', keyVerif: 'sk_jabatan_beruntun' },
+    { label: 'PAK Gabungan / Konversi', keyFile: 'pak_gabungan', keyVerif: 'pak_gabungan' },
+    { label: 'Sertifikat Pendidik (SERDIK)', keyFile: 'serdik', keyVerif: 'serdik' },
+    { label: 'Sertifikat UKOM / UKKJ', keyFile: 'sertifikat_ukom', keyVerif: 'sertifikat_ukom' },
+    { label: 'Surat Pengantar Korwil', keyFile: 'surat_pengantar_korwil', keyVerif: 'surat_pengantar_korwil' }
+  ];
+
+  let docHtml = '';
+  checklistItems.forEach(item => {
+    const fileUrl = record.dokumen_pengajuan ? record.dokumen_pengajuan[item.keyFile] : '';
+    const verifStatus = record.verifikasi_dokumen ? (record.verifikasi_dokumen[item.keyVerif] || '-') : '-';
+    
+    let verifBadge = `<span class="badge bg-secondary">${escapeHtml(verifStatus)}</span>`;
+    const vLower = verifStatus.toLowerCase();
+    if (vLower.includes('sesuai') || vLower.includes('lengkap') || vLower.includes('ok') || vLower.includes('ms')) {
+      verifBadge = `<span class="badge bg-success-subtle text-success border border-success-subtle"><i class="bi bi-check-circle me-1"></i>${escapeHtml(verifStatus)}</span>`;
+    } else if (vLower.includes('btl') || vLower.includes('perbaikan') || vLower.includes('kurang')) {
+      verifBadge = `<span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle"><i class="bi bi-exclamation-triangle me-1"></i>${escapeHtml(verifStatus)}</span>`;
+    } else if (vLower.includes('tms') || vLower.includes('tolak')) {
+      verifBadge = `<span class="badge bg-danger-subtle text-danger border border-danger-subtle"><i class="bi bi-x-circle me-1"></i>${escapeHtml(verifStatus)}</span>`;
+    }
+
+    docHtml += `
+      <div class="col-md-6 mb-2">
+        <div class="doc-pill">
+          <div>
+            <div class="fw-semibold text-truncate" style="max-width: 200px;">${item.label}</div>
+            <div class="mt-1">${verifBadge}</div>
+          </div>
+          <div>
+            ${fileUrl && fileUrl.toString().startsWith('http') ? 
+              `<a href="${escapeHtml(fileUrl)}" target="_blank" class="btn btn-sm btn-light border shadow-sm text-primary">
+                <i class="bi bi-file-earmark-arrow-down me-1"></i>Buka
+              </a>` : 
+              `<span class="badge bg-light text-muted border">Tidak Ada Berkas</span>`
+            }
+          </div>
+        </div>
+      </div>
+    `;
+  });
+
+  docContainer.innerHTML = docHtml;
+
+  const modal = new bootstrap.Modal(document.getElementById('detailModal'));
+  modal.show();
+}
+
+/**
+ * Ekspor Data Terfilter ke File CSV
+ */
+function exportFilteredCSV() {
+  if (filteredRecords.length === 0) {
+    alert('Tidak ada data untuk diekspor!');
+    return;
+  }
+
+  const headers = ['ID', 'NIP', 'Nama', 'Unit Kerja', 'Kecamatan', 'Jenjang', 'Pangkat Saat Ini', 'Ajuan Pangkat', 'Bulan Ajuan', 'Tahun Ajuan', 'Status', 'Catatan', 'Pemeriksa'];
+  const csvRows = [headers.join(',')];
+
+  filteredRecords.forEach(r => {
+    const nipClean = (r.nip || '').replace(/^'/, '');
+    const row = [
+      r.id,
+      `"${nipClean}"`,
+      `"${(r.nama || '').replace(/"/g, '""')}"`,
+      `"${(r.unit_kerja || '').replace(/"/g, '""')}"`,
+      `"${(r.kec || '').replace(/"/g, '""')}"`,
+      `"${(r.jenjang || '').replace(/"/g, '""')}"`,
+      `"${(r.pangkat_saat_ini || '').replace(/"/g, '""')}"`,
+      `"${(r.ajuan_pangkat || '').replace(/"/g, '""')}"`,
+      `"${(r.bulan_ajuan || '').replace(/"/g, '""')}"`,
+      `"${(r.tahun_ajuan || '').replace(/"/g, '""')}"`,
+      `"${(r.status || '').replace(/"/g, '""')}"`,
+      `"${(r.catatan || '').replace(/"/g, '""')}"`,
+      `"${(r.pemeriksa || '').replace(/"/g, '""')}"`
+    ];
+    csvRows.push(row.join(','));
+  });
+
+  const blob = new Blob(['\uFEFF' + csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.setAttribute('href', url);
+  link.setAttribute('download', `Rekap_Kenaikan_Pangkat_Disdikbud_${new Date().toISOString().slice(0,10)}.csv`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+function showLoading(show) {
+  const overlay = document.getElementById('loadingOverlay');
+  if (overlay) overlay.style.display = show ? 'flex' : 'none';
+}
+
+function escapeHtml(string) {
+  if (!string) return '';
+  return String(string)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+/**
+ * Helper untuk dummy data saat testing lokal
+ */
+function generateDummyData() {
+  const sampleStatuses = ['Memenuhi Syarat', 'Berkas Tidak Lengkap', 'Tidak Memenuhi Syarat', 'Dalam Proses'];
+  const sampleKec = ['Muntilan', 'Mertoyudan', 'Borobudur', 'Secang', 'Salaman', 'Grabag'];
+  const sampleJenjang = ['SD', 'SMP', 'TK', 'SKB'];
+  const samplePangkat = ['Penata Muda (III/a)', 'Penata Muda Tk.I (III/b)', 'Penata (III/c)', 'Pembina (IV/a)', 'Pembina Tk.I (IV/b)'];
+
+  const records = [];
+  for (let i = 1; i <= 45; i++) {
+    records.push({
+      id: i,
+      npsn: '2030' + (100 + i),
+      kec: sampleKec[i % sampleKec.length],
+      jenjang: sampleJenjang[i % sampleJenjang.length],
+      unit_kerja: `SD Negeri ${i} Magelang`,
+      nip: `'19850101201001100${i}`,
+      nama: `Guru Teladan ${i}, S.Pd.`,
+      bulan_ajuan: (i % 2 === 0) ? 'Februari' : 'April',
+      tahun_ajuan: '2026',
+      status: sampleStatuses[i % sampleStatuses.length],
+      catatan: i % 4 === 1 ? 'PAK konversi belum ditandatangani basah' : 'Semua dokumen telah sesuai syarat',
+      jenis_jabatan: 'Guru Ahli Muda',
+      pangkat_saat_ini: samplePangkat[i % samplePangkat.length],
+      ajuan_pangkat: samplePangkat[(i + 1) % samplePangkat.length],
+      pemeriksa: `Verifikator ${(i % 3) + 1}`,
+      dokumen_pengajuan: {
+        sk_pns: 'https://drive.google.com',
+        sk_cpns: 'https://drive.google.com',
+        skkp: 'https://drive.google.com'
+      },
+      verifikasi_dokumen: {
+        sk_pns: 'Sesuai',
+        sk_cpns: 'Sesuai',
+        skkp: 'Sesuai'
+      }
+    });
+  }
+
+  return {
+    success: true,
+    stats: { total: 45, ms: 20, btl: 10, tms: 5, proses: 10 },
+    records: records,
+    filterOptions: {
+      years: ['2026', '2025', '2024'],
+      months: ['Februari', 'April', 'Juni', 'Agustus', 'Oktober', 'Desember'],
+      subdistricts: sampleKec,
+      levels: sampleJenjang,
+      statuses: sampleStatuses
+    },
+    updatedAt: '09/09/2026, 17.50 WIB'
+  };
+}
+</script>
