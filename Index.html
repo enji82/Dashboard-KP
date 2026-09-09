@@ -205,6 +205,8 @@ body {
   border-collapse: separate;
   border-spacing: 0;
   font-size: 0.875rem;
+  border-left: 1px solid var(--border-color);
+  border-right: 1px solid var(--border-color);
 }
 
 .table-matrix th {
@@ -214,12 +216,14 @@ body {
   padding: 0.75rem 0.85rem;
   border-top: 1px solid var(--border-color);
   border-bottom: 2px solid var(--border-color);
+  border-right: 1px solid var(--border-color);
   white-space: nowrap;
 }
 
 .table-matrix td {
   padding: 0.65rem 0.85rem;
   border-bottom: 1px solid var(--border-color);
+  border-right: 1px solid var(--border-color);
   vertical-align: middle;
 }
 
@@ -227,18 +231,37 @@ body {
   background-color: #f8fafc;
 }
 
+/* Freeze Kolom Pertama (Kecamatan) */
+.table-matrix th:first-child,
+.table-matrix td:first-child,
+.table-matrix tfoot td:first-child {
+  position: sticky;
+  left: 0;
+  background-color: #ffffff;
+  z-index: 2;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+}
+
+.table-matrix th:first-child {
+  background-color: #f8fafc;
+  z-index: 3;
+}
+
+.table-matrix tfoot td:first-child {
+  background-color: #f1f5f9;
+  z-index: 3;
+}
+
+.table-matrix tr:hover td:first-child {
+  background-color: #f1f5f9;
+}
+
 .table-matrix tfoot td {
   font-weight: 800;
   background-color: #f1f5f9;
   border-top: 2px solid #cbd5e1;
-}
-
-.badge-revisi {
-  background-color: #fef3c7;
-  color: #92400e;
-  font-weight: 700;
-  padding: 0.25rem 0.6rem;
-  border-radius: 6px;
+  border-bottom: 1px solid var(--border-color);
+  border-right: 1px solid var(--border-color);
 }
 
 #loadingOverlay {
@@ -1485,7 +1508,7 @@ function renderMatrixTable(records) {
       tbodyHtml += '<td>' + formatCell(d.korwil) + '</td>';
       tbodyHtml += '<td>' + formatCell(d.approve, 'text-success fw-bold') + '</td>';
       tbodyHtml += '<td>' + formatCell(d.revisiDikirim, 'text-info-emphasis fw-semibold') + '</td>';
-      tbodyHtml += '<td>' + (d.revisi > 0 ? '<span class="badge-revisi">' + d.revisi + '</span>' : '<span class="text-muted opacity-50">-</span>') + '</td>';
+      tbodyHtml += '<td>' + formatCell(d.revisi, 'text-warning-emphasis fw-bold') + '</td>';
       tbodyHtml += '<td>' + formatCell(d.belumDicek, 'text-secondary') + '</td>';
       tbodyHtml += '<td>' + formatCell(d.ditolak, 'text-danger fw-bold') + '</td>';
       tbodyHtml += '<td>' + formatCell(d.sisulka, 'fw-bold', 'color:#8b5cf6;') + '</td>';
@@ -1505,7 +1528,7 @@ function renderMatrixTable(records) {
   tfootHtml += '<td>' + formatCell(sumKORWIL) + '</td>';
   tfootHtml += '<td class="text-success">' + formatCell(sumApprove) + '</td>';
   tfootHtml += '<td class="text-info-emphasis">' + formatCell(sumRevisiDikirim) + '</td>';
-  tfootHtml += '<td class="text-warning-emphasis">' + (sumRevisi > 0 ? sumRevisi : '-') + '</td>';
+  tfootHtml += '<td class="text-warning-emphasis">' + formatCell(sumRevisi) + '</td>';
   tfootHtml += '<td class="text-secondary">' + formatCell(sumBelumDicek) + '</td>';
   tfootHtml += '<td class="text-danger">' + formatCell(sumDitolak) + '</td>';
   tfootHtml += '<td style="color:#8b5cf6;">' + formatCell(sumSisulka) + '</td>';
