@@ -18,6 +18,9 @@
   <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
 
+  <!-- SheetJS (xlsx) CDN untuk Ekspor Excel (.xlsx) -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
   <style>
 :root {
   --primary-color: #1e3a8a;
@@ -524,8 +527,8 @@ body {
           <div class="small text-muted mt-1" id="matrixSubtext">Menampilkan sebaran usulan dan jumlah berkas revisi per wilayah</div>
         </div>
         <div>
-          <button class="btn btn-outline-primary btn-sm fw-semibold" onclick="exportMatrixCSV()">
-            <i class="bi bi-file-earmark-spreadsheet me-1"></i>Ekspor Rekap CSV
+          <button class="btn btn-outline-success btn-sm fw-semibold shadow-sm" onclick="exportMatrixXLSX()">
+            <i class="bi bi-file-earmark-excel me-1"></i>Ekspor Rekap
           </button>
         </div>
       </div>
@@ -1384,6 +1387,7 @@ function renderChartGolongan(records) {
 
 // 4. Tabel Matriks Rekapitulasi: Kecamatan x Jenjang
 var currentMatrixRows = [];
+var currentMatrixTotals = null;
 
 function renderMatrixTable(records) {
   var tbody = document.getElementById('matrixTableBody');
@@ -1532,31 +1536,63 @@ function renderMatrixTable(records) {
   tfootHtml += '<td style="color:#8b5cf6;">' + formatCell(sumSisulka) + '</td>';
   tfootHtml += '<td class="text-primary">' + (sumTotal > 0 ? sumTotal.toLocaleString('id-ID') : '-') + '</td>';
   tfootHtml += '</tr>';
+  currentMatrixTotals = {
+    tk: sumTK, sd: sumSD, smp: sumSMP, skb: sumSKB, korwil: sumKORWIL,
+    approve: sumApprove, revisiDikirim: sumRevisiDikirim, revisi: sumRevisi,
+    belumDicek: sumBelumDicek, ditolak: sumDitolak, sisulka: sumSisulka,
+    total: sumTotal
+  };
   tfoot.innerHTML = tfootHtml;
 }
 
-// Ekspor Tabel Matriks ke CSV
-function exportMatrixCSV() {
-  if (currentMatrixRows.length === 0) {
+// Ekspor Tabel Matriks ke File Excel (.xlsx)
+function exportMatrixXLSX() {
+  if (!currentMatrixRows || currentMatrixRows.length === 0) {
     alert('Tidak ada data matriks untuk diekspor!');
     return;
   }
 
-  var selTahun = document.getElementById('selectTahun').value || 'SemuaTahun';
-  var selBulan = document.getElementById('selectBulan').value || 'SemuaBulan';
+  if (typeof XLSX === 'undefined') {
+    alert('Library Excel (SheetJS) belum siap. Silakan muat ulang halaman.');
+    return;
+  }
 
-  var headers = [
+  var selTahun = document.getElementById('selectTahun').value || 'Semua Tahun';
+  var selBulan = document.getElementById('selectBulan').value || 'Semua Bulan';
+  var selJenjang = document.getElementById('selectJenjang').value || 'Semua Jenjang';
+  var selKec = document.getElementById('selectKecamatan').value || 'Semua Kecamatan';
+  var selJenis = (document.getElementById('selectJenisKP') && document.getElementById('selectJenisKP').value) ? document.getElementById('selectJenisKP').value : 'Semua Jenis';
+
+  // Susun data dalam bentuk array of arrays (AOA)
+  var aoa = [];
+
+  // Baris Judul Laporan
+  aoa.push(['REKAPITULASI MATRIKS USULAN KENAIKAN PANGKAT PNS']);
+  aoa.push(['Dinas Pendidikan dan Kebudayaan Kabupaten Magelang']);
+  aoa.push(['Filter: Periode ' + selBulan + ' ' + selTahun + ' | Jenjang: ' + selJenjang + ' | Jenis KP: ' + selJenis + ' | Wilayah: ' + selKec]);
+  aoa.push([]); // Baris kosong
+
+  // Header Baris 1 (2-Tier Header)
+  aoa.push([
     'Kecamatan',
-    'Jenjang TK', 'Jenjang SD', 'Jenjang SMP', 'Jenjang SKB', 'Jenjang KORWIL',
-    'Status Approve', 'Status Revisi Dikirim', 'Status Revisi', 'Status Belum Dicek', 'Status Ditolak', 'Status Sisulka',
+    'Sebaran Jenjang', '', '', '', '',
+    'Status Usulan', '', '', '', '', '',
     'Total Usulan'
-  ];
+  ]);
 
-  var csv = [headers.join(',')];
+  // Header Baris 2
+  aoa.push([
+    '',
+    'TK', 'SD', 'SMP', 'SKB', 'KORWIL',
+    'Approve', 'Revisi Dikirim', 'Revisi', 'Belum Dicek', 'Ditolak', 'Sisulka',
+    ''
+  ]);
+
+  // Data Baris Kecamatan
   for (var i = 0; i < currentMatrixRows.length; i++) {
     var r = currentMatrixRows[i];
-    csv.push([
-      '"' + r.kec + '"',
+    aoa.push([
+      r.kec,
       r.tk,
       r.sd,
       r.smp,
@@ -1569,18 +1605,73 @@ function exportMatrixCSV() {
       r.ditolak,
       r.sisulka,
       r.total
-    ].join(','));
+    ]);
   }
 
-  var bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
-  var blob = new Blob([bom, csv.join('\n')], { type: 'text/csv;charset=utf-8;' });
-  var url = URL.createObjectURL(blob);
-  var link = document.createElement('a');
-  link.setAttribute('href', url);
-  link.setAttribute('download', 'Rekap_Matriks_KP_' + selBulan + '_' + selTahun + '.csv');
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+  // Baris Total Kabupaten
+  if (currentMatrixTotals) {
+    aoa.push([
+      'TOTAL KABUPATEN',
+      currentMatrixTotals.tk,
+      currentMatrixTotals.sd,
+      currentMatrixTotals.smp,
+      currentMatrixTotals.skb,
+      currentMatrixTotals.korwil,
+      currentMatrixTotals.approve,
+      currentMatrixTotals.revisiDikirim,
+      currentMatrixTotals.revisi,
+      currentMatrixTotals.belumDicek,
+      currentMatrixTotals.ditolak,
+      currentMatrixTotals.sisulka,
+      currentMatrixTotals.total
+    ]);
+  }
+
+  // Buat worksheet dari array
+  var ws = XLSX.utils.aoa_to_sheet(aoa);
+
+  // Konfigurasi Merge Cells untuk Judul dan Header 2-Tier
+  // Baris 0, 1, 2: Merge A sampai M (kolom 0 sampai 12)
+  // Baris 4 (Header 1):
+  // - Kecamatan: merge row 4 & 5 di col 0
+  // - Sebaran Jenjang: merge col 1 s.d. 5 di row 4
+  // - Status Usulan: merge col 6 s.d. 11 di row 4
+  // - Total Usulan: merge row 4 & 5 di col 12
+  ws['!merges'] = [
+    { s: { r: 0, c: 0 }, e: { r: 0, c: 12 } },
+    { s: { r: 1, c: 0 }, e: { r: 1, c: 12 } },
+    { s: { r: 2, c: 0 }, e: { r: 2, c: 12 } },
+    { s: { r: 4, c: 0 }, e: { r: 5, c: 0 } },
+    { s: { r: 4, c: 1 }, e: { r: 4, c: 5 } },
+    { s: { r: 4, c: 6 }, e: { r: 4, c: 11 } },
+    { s: { r: 4, c: 12 }, e: { r: 5, c: 12 } }
+  ];
+
+  // Atur lebar kolom yang rapi
+  ws['!cols'] = [
+    { wch: 24 }, // Kecamatan
+    { wch: 8 },  // TK
+    { wch: 8 },  // SD
+    { wch: 8 },  // SMP
+    { wch: 8 },  // SKB
+    { wch: 10 }, // KORWIL
+    { wch: 12 }, // Approve
+    { wch: 15 }, // Revisi Dikirim
+    { wch: 10 }, // Revisi
+    { wch: 13 }, // Belum Dicek
+    { wch: 10 }, // Ditolak
+    { wch: 10 }, // Sisulka
+    { wch: 14 }  // Total Usulan
+  ];
+
+  var wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Rekap Matriks');
+
+  var cleanTahun = String(selTahun).replace(/\s+/g, '_');
+  var cleanBulan = String(selBulan).replace(/\s+/g, '_');
+  var fileName = 'Rekap_Matriks_KP_' + cleanBulan + '_' + cleanTahun + '.xlsx';
+
+  XLSX.writeFile(wb, fileName);
 }
 
 function showLoading(show) {
