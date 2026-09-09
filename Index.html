@@ -755,13 +755,13 @@ function onFilterChange() {
 
   var labelPeriode = labelParts.join(' | ');
   if (document.getElementById('badgeChartBulanPeriode')) {
-    document.getElementById('badgeChartBulanPeriode').innerText = selectedTahun ? ('Tahun ' + selectedTahun) : 'Semua Tahun';
+    document.getElementById('badgeChartBulanPeriode').innerText = labelPeriode;
   }
   document.getElementById('badgeGolonganPeriode').innerText = labelPeriode;
   document.getElementById('matrixSubtext').innerText = 'Data rekapitulasi periode: ' + labelPeriode;
 
   updateKPICards(filtered);
-  renderChartStatusBarisPenuh(selectedTahun, selectedJenjang, selectedKecamatan);
+  renderChartStatusBarisPenuh(selectedTahun, selectedBulan, selectedJenjang, selectedKecamatan);
   renderChartGolongan(filtered);
   renderMatrixTable(filtered);
 }
@@ -812,7 +812,7 @@ function updateKPICards(records) {
 // 2. Grafik Batang 1 Baris: 6 Status Kolom AE per Bulan (Januari s.d. Desember)
 var bulanDaftarLengkap = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
-function renderChartStatusBarisPenuh(selectedTahun, selectedJenjang, selectedKecamatan) {
+function renderChartStatusBarisPenuh(selectedTahun, selectedBulan, selectedJenjang, selectedKecamatan) {
   var ctx = document.getElementById('chartStatusBarisPenuh').getContext('2d');
 
   var tahunAktif = selectedTahun;
@@ -820,7 +820,11 @@ function renderChartStatusBarisPenuh(selectedTahun, selectedJenjang, selectedKec
     tahunAktif = allRecords[0].tahun_ajuan;
   }
 
-  // Inisialisasi counter per bulan (12 bulan) untuk ke-6 status
+  // Jika user memilih bulan tertentu di filter utama, tampilkan kategori bulan tersebut agar sinkron dengan card KPI
+  // Jika 'Semua Bulan' (selectedBulan kosong), tampilkan 12 bulan penuh (Januari s.d. Desember)
+  var activeBulanList = selectedBulan ? [selectedBulan] : bulanDaftarLengkap;
+
+  // Inisialisasi counter per bulan untuk ke-6 status
   var mapApprove = {};
   var mapRevisiDikirim = {};
   var mapRevisi = {};
@@ -828,8 +832,8 @@ function renderChartStatusBarisPenuh(selectedTahun, selectedJenjang, selectedKec
   var mapDitolak = {};
   var mapSisulka = {};
 
-  for (var b = 0; b < bulanDaftarLengkap.length; b++) {
-    var bName = bulanDaftarLengkap[b];
+  for (var b = 0; b < activeBulanList.length; b++) {
+    var bName = activeBulanList[b];
     mapApprove[bName] = 0;
     mapRevisiDikirim[bName] = 0;
     mapRevisi[bName] = 0;
@@ -841,6 +845,7 @@ function renderChartStatusBarisPenuh(selectedTahun, selectedJenjang, selectedKec
   for (var i = 0; i < allRecords.length; i++) {
     var r = allRecords[i];
     if (tahunAktif && r.tahun_ajuan !== tahunAktif) continue;
+    if (selectedBulan && r.bulan_ajuan !== selectedBulan) continue;
     if (selectedJenjang && r.jenjang !== selectedJenjang) continue;
     if (selectedKecamatan && r.kec !== selectedKecamatan) continue;
 
@@ -849,9 +854,9 @@ function renderChartStatusBarisPenuh(selectedTahun, selectedJenjang, selectedKec
 
     // Normalisasi pencocokan nama bulan
     var matchedBulan = '';
-    for (var m = 0; m < bulanDaftarLengkap.length; m++) {
-      if (bln.toLowerCase().indexOf(bulanDaftarLengkap[m].toLowerCase()) !== -1) {
-        matchedBulan = bulanDaftarLengkap[m];
+    for (var m = 0; m < activeBulanList.length; m++) {
+      if (bln.toLowerCase().indexOf(activeBulanList[m].toLowerCase()) !== -1) {
+        matchedBulan = activeBulanList[m];
         break;
       }
     }
@@ -882,8 +887,8 @@ function renderChartStatusBarisPenuh(selectedTahun, selectedJenjang, selectedKec
   var dataDitolak = [];
   var dataSisulka = [];
 
-  for (var k = 0; k < bulanDaftarLengkap.length; k++) {
-    var bKey = bulanDaftarLengkap[k];
+  for (var k = 0; k < activeBulanList.length; k++) {
+    var bKey = activeBulanList[k];
     dataApprove.push(mapApprove[bKey] || 0);
     dataRevisiDikirim.push(mapRevisiDikirim[bKey] || 0);
     dataRevisi.push(mapRevisi[bKey] || 0);
@@ -897,7 +902,7 @@ function renderChartStatusBarisPenuh(selectedTahun, selectedJenjang, selectedKec
   chartStatusBarisPenuhInstance = new Chart(ctx, {
     type: 'bar',
     data: {
-      labels: bulanDaftarLengkap,
+      labels: activeBulanList,
       datasets: [
         {
           label: 'Approve',
