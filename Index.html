@@ -352,7 +352,7 @@ body {
           <i class="bi bi-calendar3 text-primary fs-4"></i>
           <div>
             <div class="fw-bold text-dark text-uppercase small" style="letter-spacing: 0.05em;">Periode &amp; Filter Pemantauan</div>
-            <div class="small text-muted">Saring ringkasan usulan berdasarkan waktu, jenjang, dan wilayah</div>
+            <div class="small text-muted">Saring ringkasan ajuan berdasarkan waktu, jenjang, dan wilayah</div>
           </div>
         </div>
         <div class="col-6 col-md-3 col-xl ms-xl-auto">
@@ -397,14 +397,14 @@ body {
       </div>
     </div>
 
-    <!-- Kartu KPI Ringkasan: Total Usulan & 6 Kriteria Status Kolom AE (Dinamis & Responsif) -->
+    <!-- Kartu KPI Ringkasan: Total Ajuan & 6 Kriteria Status Kolom AE (Dinamis & Responsif) -->
     <div class="row g-2 mb-4">
-      <!-- Total Usulan -->
+      <!-- Total Ajuan -->
       <div class="col-12 col-sm-6 col-md-3 col-xl">
         <div class="kpi-card kpi-total">
           <div class="d-flex justify-content-between align-items-center">
             <div class="overflow-hidden">
-              <div class="kpi-label text-muted">Total Usulan</div>
+              <div class="kpi-label text-muted">Total Ajuan</div>
               <h3 class="kpi-val fw-bold" id="kpiTotal">0</h3>
               <div class="kpi-sub text-muted" id="kpiSubtextTotal">Semua Kriteria</div>
             </div>
@@ -450,7 +450,7 @@ body {
               <h3 class="kpi-val fw-bold text-warning" id="kpiRevisi">0</h3>
               <div class="kpi-sub text-warning-emphasis fw-semibold" id="kpiSubtextRevisi">0%</div>
             </div>
-            <div class="kpi-icon icon-revisi"><i class="bi bi-pencil-square"></i></div>
+            <div class="kpi-icon icon-revisi"><i class="bi bi-exclamation-triangle"></i></div>
           </div>
         </div>
       </div>
@@ -462,7 +462,7 @@ body {
             <div class="overflow-hidden">
               <div class="kpi-label text-secondary">Belum Dicek</div>
               <h3 class="kpi-val fw-bold text-secondary" id="kpiBelumDicek">0</h3>
-              <div class="kpi-sub text-muted fw-semibold" id="kpiSubtextBelumDicek">0%</div>
+              <div class="kpi-sub text-secondary fw-semibold" id="kpiSubtextBelumDicek">0%</div>
             </div>
             <div class="kpi-icon icon-belumdicek"><i class="bi bi-hourglass-split"></i></div>
           </div>
@@ -485,7 +485,7 @@ body {
 
       <!-- Sisulka -->
       <div class="col-6 col-sm-4 col-md-3 col-xl">
-        <div class="kpi-card kpi-sisulka">
+        <div class="kpi-card" style="border-color: #8b5cf6;">
           <div class="d-flex justify-content-between align-items-center">
             <div class="overflow-hidden">
               <div class="kpi-label" style="color: #7c3aed;">Sisulka</div>
@@ -498,14 +498,14 @@ body {
       </div>
     </div>
 
-    <!-- Card: Jumlah Usulan per Bulan (Toggle Grafik / Tabel) -->
+    <!-- Card: Jumlah Ajuan per Bulan (Toggle Grafik / Tabel) -->
     <div class="row g-3 mb-4">
       <div class="col-12">
         <div class="dashboard-card">
           <div class="card-title-custom justify-content-between flex-wrap gap-2">
             <div class="d-flex align-items-center gap-2">
               <i class="bi bi-bar-chart-fill text-primary fs-5" id="iconTitleBulan"></i>
-              <span class="fw-bold fs-6" id="textTitleBulan">Jumlah Usulan per Bulan</span>
+              <span class="fw-bold fs-6" id="textTitleBulan">Jumlah Ajuan per Bulan</span>
             </div>
             <div class="d-flex align-items-center gap-2 flex-wrap">
               <!-- Toggle Button Tampilan Grafik / Tabel -->
@@ -533,8 +533,8 @@ body {
                 <thead>
                   <tr>
                     <th rowspan="2" class="text-start align-middle freeze-col" style="min-width: 140px; width: 18%;">Bulan Ajuan</th>
-                    <th colspan="6" class="bg-light border-bottom text-secondary small text-uppercase fw-bold">Status Usulan</th>
-                    <th rowspan="2" class="bg-primary-subtle text-primary fw-bold align-middle" style="min-width: 100px; width: 14%;">Total Usulan</th>
+                    <th colspan="6" class="bg-light border-bottom text-secondary small text-uppercase fw-bold">Status Ajuan</th>
+                    <th rowspan="2" class="bg-primary-subtle text-primary fw-bold align-middle" style="min-width: 100px; width: 14%;">Total Ajuan</th>
                   </tr>
                   <tr>
                     <th style="min-width: 85px;" class="text-success">Approve</th>
@@ -583,9 +583,9 @@ body {
         <div>
           <div class="fw-bold text-dark d-flex align-items-center gap-2">
             <i class="bi bi-grid-3x3-gap-fill text-primary"></i>
-            <span>Matriks Rekapitulasi Usulan per Kecamatan &amp; Jenjang</span>
+            <span>Matriks Rekapitulasi Ajuan per Kecamatan &amp; Jenjang</span>
           </div>
-          <div class="small text-muted mt-1" id="matrixSubtext">Menampilkan sebaran usulan dan jumlah berkas revisi per wilayah</div>
+          <div class="small text-muted mt-1" id="matrixSubtext">Menampilkan sebaran ajuan dan jumlah berkas revisi per wilayah</div>
         </div>
         <div>
           <button class="btn btn-outline-success btn-sm fw-semibold shadow-sm" onclick="exportMatrixXLSX()">
@@ -600,8 +600,8 @@ body {
             <tr>
               <th rowspan="2" class="text-start align-middle freeze-col" style="min-width: 160px; width: 17%;">Kecamatan</th>
               <th colspan="5" class="bg-light border-bottom text-secondary small text-uppercase fw-bold">Sebaran Jenjang</th>
-              <th colspan="6" class="bg-light border-bottom text-secondary small text-uppercase fw-bold">Status Usulan</th>
-              <th rowspan="2" class="bg-primary-subtle text-primary fw-bold align-middle" style="min-width: 90px; width: 9%;">Total Usulan</th>
+              <th colspan="6" class="bg-light border-bottom text-secondary small text-uppercase fw-bold">Status Ajuan</th>
+              <th rowspan="2" class="bg-primary-subtle text-primary fw-bold align-middle" style="min-width: 90px; width: 9%;">Total Ajuan</th>
             </tr>
             <tr>
               <th style="min-width: 60px;">TK</th>
@@ -955,12 +955,12 @@ function updateKPICards(records) {
   document.getElementById('kpiSisulka').innerText = countSisulka.toLocaleString('id-ID');
 
   // Set Persentase Subtext
-  document.getElementById('kpiSubtextApprove').innerText = calcPct(countApprove) + ' usulan';
-  document.getElementById('kpiSubtextRevisiDikirim').innerText = calcPct(countRevisiDikirim) + ' usulan';
-  document.getElementById('kpiSubtextRevisi').innerText = calcPct(countRevisi) + ' usulan';
-  document.getElementById('kpiSubtextBelumDicek').innerText = calcPct(countBelumDicek) + ' usulan';
-  document.getElementById('kpiSubtextDitolak').innerText = calcPct(countDitolak) + ' usulan';
-  document.getElementById('kpiSubtextSisulka').innerText = calcPct(countSisulka) + ' usulan';
+  document.getElementById('kpiSubtextApprove').innerText = calcPct(countApprove) + ' ajuan';
+  document.getElementById('kpiSubtextRevisiDikirim').innerText = calcPct(countRevisiDikirim) + ' ajuan';
+  document.getElementById('kpiSubtextRevisi').innerText = calcPct(countRevisi) + ' ajuan';
+  document.getElementById('kpiSubtextBelumDicek').innerText = calcPct(countBelumDicek) + ' ajuan';
+  document.getElementById('kpiSubtextDitolak').innerText = calcPct(countDitolak) + ' ajuan';
+  document.getElementById('kpiSubtextSisulka').innerText = calcPct(countSisulka) + ' ajuan';
 }
 
 // 2. Grafik Batang 1 Baris: 6 Status Kolom AE per Bulan (Januari s.d. Desember)
@@ -1160,7 +1160,7 @@ function renderChartStatusBarisPenuh(records, selectedBulan) {
               return Array.isArray(label) ? label[0] : label;
             },
             label: function(context) {
-              return ' ' + context.dataset.label + ': ' + context.raw + ' usulan';
+              return ' ' + context.dataset.label + ': ' + context.raw + ' ajuan';
             }
           }
         }
@@ -1305,7 +1305,7 @@ function renderTableBulan(records, selectedBulan) {
   tbody.innerHTML = tbodyHtml;
 
   var tfootHtml = '<tr>';
-  tfootHtml += '<td class="text-start freeze-col">TOTAL PERIODE</td>';
+  tfootHtml += '<td class="text-start freeze-col">Total Ajuan</td>';
   tfootHtml += '<td class="text-success">' + formatBulanCell(sumApprove) + '</td>';
   tfootHtml += '<td class="text-info-emphasis">' + formatBulanCell(sumRevisiDikirim) + '</td>';
   tfootHtml += '<td class="text-warning-emphasis">' + formatBulanCell(sumRevisi) + '</td>';
@@ -1341,7 +1341,7 @@ function switchBulanView(view) {
       iconTitle.className = 'bi bi-table text-primary fs-5';
     }
     if (textTitle) {
-      textTitle.innerText = 'Rincian Usulan per Bulan (Tabel)';
+      textTitle.innerText = 'Rincian Ajuan per Bulan (Tabel)';
     }
 
     renderTableBulan(lastFilteredRecords, lastSelectedBulan);
@@ -1359,7 +1359,7 @@ function switchBulanView(view) {
       iconTitle.className = 'bi bi-bar-chart-fill text-primary fs-5';
     }
     if (textTitle) {
-      textTitle.innerText = 'Jumlah Usulan per Bulan';
+      textTitle.innerText = 'Jumlah Ajuan per Bulan';
     }
 
     if (chartStatusBarisPenuhInstance) {
@@ -1576,7 +1576,7 @@ function renderChartGolongan(records) {
               return Array.isArray(label) ? label[0] : label;
             },
             label: function(context) {
-              return ' ' + context.dataset.label + ': ' + context.raw + ' usulan';
+              return ' ' + context.dataset.label + ': ' + context.raw + ' ajuan';
             }
           }
         }
@@ -1699,7 +1699,7 @@ function renderMatrixTable(records) {
 
   var tbodyHtml = '';
   if (sortedKec.length === 0) {
-    tbodyHtml = '<tr><td colspan="13" class="text-center py-4 text-muted">Tidak ada data usulan pada periode ini</td></tr>';
+    tbodyHtml = '<tr><td colspan="13" class="text-center py-4 text-muted">Tidak ada data ajuan pada periode ini</td></tr>';
   } else {
     for (var k = 0; k < sortedKec.length; k++) {
       var kName = sortedKec[k];
@@ -1802,7 +1802,7 @@ function exportMatrixXLSX() {
   var aoa = [];
 
   // Baris Judul Laporan
-  aoa.push(['REKAPITULASI MATRIKS USULAN KENAIKAN PANGKAT PNS']);
+  aoa.push(['REKAPITULASI MATRIKS AJUAN KENAIKAN PANGKAT PNS']);
   aoa.push(['Dinas Pendidikan dan Kebudayaan Kabupaten Magelang']);
   aoa.push(['Filter: Periode ' + selBulan + ' ' + selTahun + ' | Jenjang: ' + selJenjang + ' | Jenis KP: ' + selJenis + ' | Wilayah: ' + selKec]);
   aoa.push([]); // Baris kosong
@@ -1811,8 +1811,8 @@ function exportMatrixXLSX() {
   aoa.push([
     'Kecamatan',
     'Sebaran Jenjang', '', '', '', '',
-    'Status Usulan', '', '', '', '', '',
-    'Total Usulan'
+    'Status Ajuan', '', '', '', '', '',
+    'Total Ajuan'
   ]);
 
   // Header Baris 2
