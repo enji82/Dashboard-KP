@@ -19,8 +19,7 @@ const CONFIG = {
  * Endpoint utama Web App
  */
 function doGet(e) {
-  const template = HtmlService.createTemplateFromFile('Index');
-  return template.evaluate()
+  return HtmlService.createHtmlOutputFromFile('Index')
     .setTitle('Dashboard Kenaikan Pangkat (KP) - Disdikbud Kab. Magelang')
     .addMetaTag('viewport', 'width=device-width, initial-scale=1.0')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
