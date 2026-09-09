@@ -568,10 +568,21 @@ function refreshData() {
   loadData(true);
 }
 
-function handleDataSuccess(response) {
+function handleDataSuccess(rawResponse) {
   showLoading(false);
+  var response = rawResponse;
+  if (typeof rawResponse === 'string') {
+    try {
+      response = JSON.parse(rawResponse);
+    } catch (e) {
+      alert('Gagal membaca data dari server (JSON Parse Error): ' + e.message);
+      return;
+    }
+  }
+
   if (!response || !response.success) {
-    alert('Gagal mengambil data: ' + (response ? response.message : 'Unknown error'));
+    var errMsg = (response && response.message) ? response.message : 'Respon kosong atau tidak valid dari server.';
+    alert('Gagal mengambil data: ' + errMsg);
     return;
   }
   allRecords = response.records || [];

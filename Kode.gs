@@ -84,13 +84,20 @@ function getDashboardData(forceRefresh) {
     const rawValues = sheet.getDataRange().getValues();
 
   if (rawValues.length <= 1) {
-    return {
+    return JSON.stringify({
       success: true,
       stats: { total: 0, ms: 0, btl: 0, tms: 0, proses: 0 },
       records: [],
       filterOptions: { years: [], months: [], subdistricts: [], levels: [], statuses: [] }
-    };
+    });
   }
+
+  // Helper konversi nilai sel ke string bersih
+  const cleanStr = (val) => {
+    if (val === null || val === undefined) return '';
+    if (val instanceof Date) return Utilities.formatDate(val, 'Asia/Jakarta', 'dd-MM-yyyy');
+    return val.toString().trim();
+  };
 
   // Lewati baris header (baris ke-1)
   const rows = rawValues.slice(1);
@@ -108,7 +115,7 @@ function getDashboardData(forceRefresh) {
 
   const records = rows.map((r, index) => {
     // Normalisasi status
-    const rawStatus = (r[30] || '').toString().trim();
+    const rawStatus = cleanStr(r[30]);
     const upperStatus = rawStatus.toUpperCase();
 
     let cleanStatus = 'Dalam Proses';
@@ -126,10 +133,10 @@ function getDashboardData(forceRefresh) {
       countProses++;
     }
 
-    const tahun = (r[9] !== undefined && r[9] !== null) ? r[9].toString().trim() : '';
-    const bulan = (r[8] || '').toString().trim();
-    const kec = (r[2] || '').toString().trim();
-    const jenjang = (r[3] || '').toString().trim();
+    const tahun = cleanStr(r[9]);
+    const bulan = cleanStr(r[8]);
+    const kec = cleanStr(r[2]);
+    const jenjang = cleanStr(r[3]);
 
     if (tahun) yearsSet.add(tahun);
     if (bulan) monthsSet.add(bulan);
@@ -138,69 +145,69 @@ function getDashboardData(forceRefresh) {
     if (cleanStatus) statusSet.add(cleanStatus);
 
     return {
-      id: r[0] || (index + 1),
-      npsn: r[1] || '-',
+      id: cleanStr(r[0]) || (index + 1).toString(),
+      npsn: cleanStr(r[1]) || '-',
       kec: kec || '-',
       jenjang: jenjang || '-',
-      unit_kerja: r[4] || '-',
-      nip: r[5] ? "'" + r[5].toString().trim() : '-',
-      nama: r[6] || '-',
-      no_hp: r[7] || '-',
+      unit_kerja: cleanStr(r[4]) || '-',
+      nip: cleanStr(r[5]) || '-',
+      nama: cleanStr(r[6]) || '-',
+      no_hp: cleanStr(r[7]) || '-',
       bulan_ajuan: bulan || '-',
       tahun_ajuan: tahun || '-',
-      email: r[10] || '-',
+      email: cleanStr(r[10]) || '-',
       
       // Dokumen Awal (L - AB, AC)
       dokumen_pengajuan: {
-        sk_pns: r[11] || '',
-        sk_cpns: r[12] || '',
-        skkp: r[13] || '',
-        skp_1_th: r[14] || '',
-        skp_2_th: r[15] || '',
-        ijazah_terakhir: r[16] || '',
-        transkrip_nilai: r[17] || '',
-        stlud: r[18] || '',
-        sib: r[19] || '',
-        hudis: r[20] || '',
-        ijin_gelar: r[21] || '',
-        sk_jabatan_beruntun: r[22] || '',
-        pak_gabungan: r[23] || '',
-        serdik: r[24] || '',
-        sertifikat_ukom: r[25] || '',
-        surat_pengantar_korwil: r[26] || '',
-        jabfung_ukkj: r[27] || '',
-        url_full: r[28] || ''
+        sk_pns: cleanStr(r[11]),
+        sk_cpns: cleanStr(r[12]),
+        skkp: cleanStr(r[13]),
+        skp_1_th: cleanStr(r[14]),
+        skp_2_th: cleanStr(r[15]),
+        ijazah_terakhir: cleanStr(r[16]),
+        transkrip_nilai: cleanStr(r[17]),
+        stlud: cleanStr(r[18]),
+        sib: cleanStr(r[19]),
+        hudis: cleanStr(r[20]),
+        ijin_gelar: cleanStr(r[21]),
+        sk_jabatan_beruntun: cleanStr(r[22]),
+        pak_gabungan: cleanStr(r[23]),
+        serdik: cleanStr(r[24]),
+        sertifikat_ukom: cleanStr(r[25]),
+        surat_pengantar_korwil: cleanStr(r[26]),
+        jabfung_ukkj: cleanStr(r[27]),
+        url_full: cleanStr(r[28])
       },
 
       // Verifikasi & Status
-      tanggal_revisi: r[29] ? formatDate(r[29]) : '-',
+      tanggal_revisi: cleanStr(r[29]) || '-',
       status: cleanStatus,
       raw_status: rawStatus,
-      catatan: r[31] || '-',
-      jenis_jabatan: r[32] || '-',
-      pangkat_saat_ini: r[33] || '-',
-      ajuan_pangkat: r[34] || '-',
-      pemeriksa: r[35] || '-',
+      catatan: cleanStr(r[31]) || '-',
+      jenis_jabatan: cleanStr(r[32]) || '-',
+      pangkat_saat_ini: cleanStr(r[33]) || '-',
+      ajuan_pangkat: cleanStr(r[34]) || '-',
+      pemeriksa: cleanStr(r[35]) || '-',
 
       // Checklist Hasil Verifikasi Pemeriksa (AK - BA)
       verifikasi_dokumen: {
-        sk_pns: r[36] || '-',
-        sk_cpns: r[37] || '-',
-        skkp: r[38] || '-',
-        evaluasi_kinerja_1_th: r[39] || '-',
-        evaluasi_kinerja_2_th: r[40] || '-',
-        ijazah_terakhir: r[41] || '-',
-        transkrip_nilai: r[42] || '-',
-        stlud: r[43] || '-',
-        sib: r[44] || '-',
-        hudis: r[45] || '-',
-        ijin_gelar: r[46] || '-',
-        sk_jabatan_beruntun: r[47] || '-',
-        pak_gabungan: r[48] || '-',
-        serdik: r[49] || '-',
-        sertifikat_ukom: r[50] || '-',
-        surat_pengantar_korwil: r[51] || '-',
-        lain_lain: r[52] || '-'
+        sk_pns: cleanStr(r[36]) || '-',
+        sk_cpns: cleanStr(r[37]) || '-',
+        skkp: cleanStr(r[38]) || '-',
+        evaluasi_kinerja_1_th: cleanStr(r[39]) || '-',
+        evaluasi_kinerja_2_th: cleanStr(r[40]) || '-',
+        ijazah_terakhir: cleanStr(r[41]) || '-',
+        transkrip_nilai: cleanStr(r[42]) || '-',
+        stlud: cleanStr(r[43]) || '-',
+        sib: cleanStr(r[44]) || '-',
+        hudis: cleanStr(r[45]) || '-',
+        ijin_gelar: cleanStr(r[46]) || '-',
+        sk_jabatan_beruntun: cleanStr(r[47]) || '-',
+        pak_gabungan: cleanStr(r[48]) || '-',
+        serdik: cleanStr(r[49]) || '-',
+        sertifikat_ukom: cleanStr(r[50]) || '-',
+        surat_pengantar_korwil: cleanStr(r[51]) || '-',
+        lain_lain: cleanStr(r[52]) || '-'
       }
     };
   });
@@ -222,23 +229,25 @@ function getDashboardData(forceRefresh) {
       levels: Array.from(levelsSet).sort(),
       statuses: Array.from(statusSet).sort()
     },
-    updatedAt: new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })
+    updatedAt: Utilities.formatDate(new Date(), 'Asia/Jakarta', 'dd-MM-yyyy HH:mm:ss') + ' WIB'
   };
 
-    try {
-      // Simpan di cache untuk mempercepat akses pengguna berikutnya
-      cache.put(cacheKey, JSON.stringify(payload), CONFIG.CACHE_EXPIRATION_SECONDS);
-    } catch (err) {
-      // Abaikan jika payload melampaui limit ukuran cache 100KB
-    }
+  const jsonString = JSON.stringify(payload);
 
-    return payload;
-  } catch (error) {
-    return {
-      success: false,
-      message: error.message || error.toString()
-    };
+  try {
+    // Simpan di cache untuk mempercepat akses pengguna berikutnya
+    cache.put(cacheKey, jsonString, CONFIG.CACHE_EXPIRATION_SECONDS);
+  } catch (err) {
+    // Abaikan jika payload melampaui limit ukuran cache
   }
+
+  return jsonString;
+} catch (error) {
+  return JSON.stringify({
+    success: false,
+    message: error.message || error.toString()
+  });
+}
 }
 
 /**
