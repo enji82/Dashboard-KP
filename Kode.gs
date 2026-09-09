@@ -66,22 +66,23 @@ function getSheetRef() {
  * Fungsi utama: Mengambil data dan menghitung agregat statistik
  */
 function getDashboardData(forceRefresh) {
-  const cache = CacheService.getScriptCache();
-  const cacheKey = 'DASHBOARD_KP_DATA_MAGELANG';
+  try {
+    const cache = CacheService.getScriptCache();
+    const cacheKey = 'DASHBOARD_KP_DATA_MAGELANG';
 
-  if (!forceRefresh) {
-    const cachedData = cache.get(cacheKey);
-    if (cachedData) {
-      try {
-        return JSON.parse(cachedData);
-      } catch (e) {
-        // Abaikan jika cache rusak, ambil fresh data
+    if (!forceRefresh) {
+      const cachedData = cache.get(cacheKey);
+      if (cachedData) {
+        try {
+          return JSON.parse(cachedData);
+        } catch (e) {
+          // Abaikan jika cache rusak, ambil fresh data
+        }
       }
     }
-  }
 
-  const sheet = getSheetRef();
-  const rawValues = sheet.getDataRange().getValues();
+    const sheet = getSheetRef();
+    const rawValues = sheet.getDataRange().getValues();
 
   if (rawValues.length <= 1) {
     return {
@@ -225,14 +226,20 @@ function getDashboardData(forceRefresh) {
     updatedAt: new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })
   };
 
-  try {
-    // Simpan di cache untuk mempercepat akses pengguna berikutnya
-    cache.put(cacheKey, JSON.stringify(payload), CONFIG.CACHE_EXPIRATION_SECONDS);
-  } catch (err) {
-    // Abaikan jika payload melampaui limit ukuran cache 100KB
-  }
+    try {
+      // Simpan di cache untuk mempercepat akses pengguna berikutnya
+      cache.put(cacheKey, JSON.stringify(payload), CONFIG.CACHE_EXPIRATION_SECONDS);
+    } catch (err) {
+      // Abaikan jika payload melampaui limit ukuran cache 100KB
+    }
 
-  return payload;
+    return payload;
+  } catch (error) {
+    return {
+      success: false,
+      message: error.message || error.toString()
+    };
+  }
 }
 
 /**
