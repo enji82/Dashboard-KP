@@ -117,27 +117,18 @@ function getDashboardData(forceRefresh) {
     // Jika baris kosong, lewati
     if (!r[6] && !r[5] && !r[4]) continue;
 
-    // Normalisasi status Kolom AE (index 30)
-    const rawStatus = cleanStr(r[30]);
-    const upperStatus = rawStatus.toUpperCase();
+    // Status Asli Kolom AE (index 30)
+    let statusAE = cleanStr(r[30]);
+    if (!statusAE) statusAE = 'Belum Dicek';
 
-    let cleanStatus = 'Dalam Proses';
-    let isRevisi = false;
-
-    if (upperStatus.includes('REVISI') || upperStatus.includes('BTL') || upperStatus.includes('TIDAK LENGKAP') || upperStatus.includes('PERBAIKAN')) {
-      cleanStatus = 'Perlu Revisi';
-      isRevisi = true;
-      countRevisi++;
-    } else if (upperStatus.includes('MS') || upperStatus.includes('MEMENUHI SYARAT') || upperStatus.includes('SETUJU') || upperStatus.includes('TERBIT SK')) {
-      cleanStatus = 'Memenuhi Syarat';
-      countMS++;
-    } else if (upperStatus.includes('TMS') || upperStatus.includes('TOLAK') || upperStatus.includes('TIDAK MEMENUHI')) {
-      cleanStatus = 'Tidak Memenuhi Syarat';
-      countTMS++;
-    } else {
-      cleanStatus = rawStatus !== '' ? rawStatus : 'Dalam Proses';
-      countProses++;
-    }
+    // Normalisasi case jika ada sedikit perbedaan penulisan
+    const upperStatus = statusAE.toUpperCase();
+    if (upperStatus === 'APPROVE') statusAE = 'Approve';
+    else if (upperStatus === 'REVISI DIKIRIM') statusAE = 'Revisi Dikirim';
+    else if (upperStatus === 'REVISI') statusAE = 'Revisi';
+    else if (upperStatus === 'BELUM DICEK') statusAE = 'Belum Dicek';
+    else if (upperStatus === 'DITOLAK' || upperStatus === 'TMS') statusAE = 'Ditolak';
+    else if (upperStatus === 'SISULKA') statusAE = 'Sisulka';
 
     const tahun = cleanStr(r[9]);
     const bulan = cleanStr(r[8]);
@@ -154,9 +145,9 @@ function getDashboardData(forceRefresh) {
       jenjang: jenjang,
       bulan_ajuan: bulan || 'Tidak Diketahui',
       tahun_ajuan: tahun || 'Tidak Diketahui',
-      status: cleanStatus,
-      raw_status: rawStatus,
-      is_revisi: isRevisi,
+      status: statusAE,
+      status_ae: statusAE,
+      is_revisi: (statusAE === 'Revisi' || statusAE === 'Revisi Dikirim'),
       ajuan_pangkat: ajuanPangkat
     });
   }
