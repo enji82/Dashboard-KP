@@ -11,7 +11,7 @@
 // Jika Standalone Script, isikan ID Spreadsheet pada variabel di bawah:
 const CONFIG = {
   SPREADSHEET_ID: '1SmlQmzojwZ_cJC7yDCGMqgXKcU0nJScqTDk7MqvRdEE',
-  SHEET_NAME: 'Data',
+  SHEET_NAME: 'Database',
   CACHE_EXPIRATION_SECONDS: 600 // 10 menit
 };
 
